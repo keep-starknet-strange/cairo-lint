@@ -1,0 +1,30 @@
+[package]
+name = "cairo-lint-core"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+license-file.workspace = true
+
+[dependencies]
+cairo-lang-compiler.workspace = true
+cairo-lang-parser.workspace = true
+cairo-lang-utils.workspace = true
+cairo-lang-semantic.workspace = true
+cairo-lang-filesystem.workspace = true
+cairo-lang-diagnostics.workspace = true
+cairo-lang-test-plugin.workspace = true
+cairo-lang-lowering.workspace = true
+cairo-lang-syntax.workspace = true
+cairo-lang-defs.workspace = true
+cairo-lang-language-server.workspace = true
+salsa.workspace = true
+
+[dev-dependencies]
+indoc.workspace = true
+cairo-lang-test-utils.workspace = true
+test-case.workspace = true
+pretty_assertions.workspace = true
+ctor.workspace = true
+cairo-lint-test-utils = { path = "../cairo-lint-test-utils" }
+paste.workspace = true

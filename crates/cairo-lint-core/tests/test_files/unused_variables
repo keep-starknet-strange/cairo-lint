@@ -1,0 +1,44 @@
+//! > one unused variable
+
+//! > cairo_code
+fn main() {
+    let a: Option<felt252> = Option::Some(1);
+}
+
+//! > diagnostics
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:2:9
+    let a: Option<felt252> = Option::Some(1);
+        ^
+
+//! > fixed
+fn main() {
+    let _a: Option<felt252> = Option::Some(1);
+}
+
+//! > ==========================================================================
+
+//! > two unused variable
+
+//! > cairo_code
+fn main() {
+    let a: Option<felt252> = Option::Some(1);
+    let b = 1;
+}
+
+//! > diagnostics
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:2:9
+    let a: Option<felt252> = Option::Some(1);
+        ^
+
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:3:9
+    let b = 1;
+        ^
+
+//! > fixed
+fn main() {
+    let _a: Option<felt252> = Option::Some(1);
+    let _b = 1;
+}

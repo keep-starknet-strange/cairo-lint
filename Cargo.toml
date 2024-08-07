@@ -1,0 +1,30 @@
+[workspace]
+resolver = "2"
+members = ["crates/cairo-lint-cli", "crates/cairo-lint-core", "crates/cairo-lint-test-utils"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/keep-starknet-strange/cairo-lint"
+license = "Apache-2.0"
+license-file = "LICENSE"
+
+[workspace.dependencies]
+cairo-lang-compiler = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-parser = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-utils = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-semantic = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-filesystem = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-diagnostics = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-test-plugin = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-lowering = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-syntax = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-defs = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-test-utils = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-language-server = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+salsa = "0.16.1"
+indoc = "2"
+test-case = "3.0"
+pretty_assertions = "1.4.0"
+ctor = "0.2.8"
+paste = "1.0.15"
