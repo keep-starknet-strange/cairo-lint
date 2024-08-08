@@ -9,10 +9,12 @@ use cairo_lang_syntax::node::ast::{Expr, ExprMatch, Pattern, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use crate::erasing_op::EraseOp;
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
     suite.add_analyzer_plugin::<CairoLint>();
+    suite.add_analyzer_plugin::<EraseOp>();
     suite
 }
 #[derive(Debug, Default)]
@@ -22,6 +24,7 @@ pub struct CairoLint;
 pub enum CairoLintKind {
     IfLet,
     If,
+    EraseOp,
     Unknown,
 }
 
@@ -29,6 +32,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
         CairoLint::IF_LET => CairoLintKind::IfLet,
         CairoLint::IF => CairoLintKind::If,
+        "operation can be simplifield to zero" => CairoLintKind::EraseOp,
         _ => CairoLintKind::Unknown,
     }
 }
