@@ -1,10 +1,9 @@
 use cairo_lang_compiler::lint::{Lint, LintContext, LintPass};
 use cairo_lang_syntax::node::ast::{self, BinaryOp};
-use cairo_lang_diagnostics::level;
+use cairo_lang_diagnostics::level::{Level};
 
 
-
-macro_rules! declare_lint{
+macro_rules! declare_lint {
     ($name:ident, $level:ident, $desc:expr) => {
         pub const $name: Lint = Lint {
             name: stringify!($name),
