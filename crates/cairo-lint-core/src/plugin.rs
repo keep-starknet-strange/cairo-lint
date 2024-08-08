@@ -4,13 +4,15 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_syntax::node::ast::ExprMatch;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
+use crate::erasing_op::EraseOp;
 use crate::lints::single_match;
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
     suite.add_analyzer_plugin::<CairoLint>();
+    suite.add_analyzer_plugin::<EraseOp>();
     suite
 }
 #[derive(Debug, Default)]
@@ -20,6 +22,7 @@ pub struct CairoLint;
 pub enum CairoLintKind {
     DestructMatch,
     MatchForEquality,
+    EraseOp,
     Unknown,
 }
 
@@ -27,6 +30,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
         single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
+        "operation can be simplifield to zero" => CairoLintKind::EraseOp,
         _ => CairoLintKind::Unknown,
     }
 }
