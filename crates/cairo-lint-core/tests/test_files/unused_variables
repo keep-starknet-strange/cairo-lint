@@ -18,6 +18,97 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > plenty unused variables
+
+//! > cairo_code
+fn main() {
+    let used: Option<felt252> = Option::Some(1);
+    let b = 1;
+    {
+        let c = 1_u32;
+    }
+    if true {
+        if false {
+            let d = 3_u32;
+        } else {
+            let e = false;
+        }
+        let f = array![];
+    } else {
+        let g = Option::None;
+        match used {
+            Option::Some(not_used) => 1_u32,
+            Option::None => 2_u32,
+        };
+    }
+}
+
+//! > diagnostics
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:5:13
+        let c = 1_u32;
+            ^
+
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:9:17
+            let d = 3_u32;
+                ^
+
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:11:17
+            let e = false;
+                ^
+
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:13:13
+        let f = array![];
+            ^
+
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:17:26
+            Option::Some(not_used) => 1_u32,
+                         ^******^
+
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:15:13
+        let g = Option::None;
+            ^
+
+warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:3:9
+    let b = 1;
+        ^
+
+error: Type annotations needed. Failed to infer ?3.
+ --> lib.cairo:13:17
+        let f = array![];
+                ^******^
+
+//! > fixed
+fn main() {
+    let used: Option<felt252> = Option::Some(1);
+    let _b = 1;
+    {
+        let _c = 1_u32;
+    }
+    if true {
+        if false {
+            let _d = 3_u32;
+        } else {
+            let _e = false;
+        }
+        let _f = array![];
+    } else {
+        let _g = Option::None;
+        match used {
+            Option::Some(_not_used) => 1_u32,
+            Option::None => 2_u32,
+        };
+    }
+}
+
+//! > ==========================================================================
+
 //! > two unused variable
 
 //! > cairo_code

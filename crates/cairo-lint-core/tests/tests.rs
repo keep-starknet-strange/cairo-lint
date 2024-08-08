@@ -15,7 +15,7 @@ use paste::paste;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 
-test_file!(unused_variables, "one unused variable", "two unused variable");
+test_file!(unused_variables, "one unused variable", "two unused variable", "plenty unused variables");
 
 test_file!(
     destruct_if_let,
