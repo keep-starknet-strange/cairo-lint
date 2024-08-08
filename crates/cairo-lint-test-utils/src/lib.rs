@@ -48,8 +48,9 @@ macro_rules! test_file {
             #[dtor]
             fn [<fix_ $file_path _test_file>]() {
                 let val = [<FIXED_TEST_FILE_ $file_path:upper>].lock().unwrap();
+                let res = OrderedHashMap::<String, Test>::from_iter(val.tests.clone().into_iter().sorted_by_key(|kv| kv.0.clone()));
                 if val.should_fix {
-                    dump_to_test_file(val.tests.clone(), [<TEST_FILENAME_ $file_path:upper>]).unwrap();
+                    dump_to_test_file(res, [<TEST_FILENAME_ $file_path:upper>]).unwrap();
                 }
             }
 
@@ -70,8 +71,12 @@ macro_rules! test_file {
                     }
                 }
                 fixes.sort_by_key(|v| Reverse(v.span.start));
-                for fix in fixes.iter() {
-                    file.replace_range(fix.span.to_str_range(), &fix.suggestion);
+                if !test_name.contains("nested") {
+                    for fix in fixes.iter() {
+                        file.replace_range(fix.span.to_str_range(), &fix.suggestion);
+                    }
+                } else {
+                    file = "Contains nested diagnostics can't fix it".to_string();
                 }
                 let formatted_diags =
                     diags.into_iter().map(|diag| diag.format(db.upcast())).collect::<String>().trim().to_string();

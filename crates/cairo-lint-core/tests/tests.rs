@@ -10,10 +10,23 @@ use cairo_lint_core::db::AnalysisDatabase;
 use cairo_lint_core::fix::{fix_semantic_diagnostic, Fix};
 use cairo_lint_test_utils::{get_diags, test_file, Tests};
 use ctor::dtor;
+use itertools::Itertools;
 use paste::paste;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 
 test_file!(unused_variables, "one unused variable", "two unused variable");
 
-test_file!(if_let, "simple if let", "simple if let with scope");
+test_file!(
+    destruct_if_let,
+    "simple destructuring match",
+    "simple destructuring match second arm",
+    "simple destructuring match with scope",
+    "simple destructuring match with scope second arm",
+    "simple destructuring match with unit in scope",
+    "simple destructuring match with unit in scope second arm",
+    "nested destructuring match",
+    "nested destructuring match twisted",
+    "nested destructuring match twisted differently",
+    "nested destructuring match second arm"
+);

@@ -1,0 +1,321 @@
+//! > nested destructuring match
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(Option::Some(1_felt252));
+	match variable {
+		Option::Some(a) => match a {
+			Option::Some(b) => println!("{b}"),
+			_ => (),
+		},
+		_ => (),
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       Option::Some(a) => match a {
+|           Option::Some(b) => println!("{b}"),
+|           _ => (),
+|       },
+|       _ => (),
+|   }
+|___^
+
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:4:22
+\   Option::Some(a) => match a {
+|       Option::Some(b) => println!("{b}"),
+|       _ => (),
+|   }
+|___^
+
+//! > fixed
+Contains nested diagnostics can't fix it
+
+//! > ==========================================================================
+
+//! > nested destructuring match second arm
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(Option::Some(1_felt252));
+	match variable {
+		_ => (),
+		Option::Some(a) => match a {
+			_ => (),
+			Option::Some(b) => println!("{b}"),
+		},
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       _ => (),
+|       Option::Some(a) => match a {
+|           _ => (),
+|           Option::Some(b) => println!("{b}"),
+|       },
+|   }
+|___^
+
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:5:22
+\   Option::Some(a) => match a {
+|       _ => (),
+|       Option::Some(b) => println!("{b}"),
+|   }
+|___^
+
+//! > fixed
+Contains nested diagnostics can't fix it
+
+//! > ==========================================================================
+
+//! > nested destructuring match twisted
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(Option::Some(1_felt252));
+	match variable {
+		Option::Some(a) => match a {
+			_ => (),
+			Option::Some(b) => println!("{b}"),
+		},
+		_ => (),
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       Option::Some(a) => match a {
+|           _ => (),
+|           Option::Some(b) => println!("{b}"),
+|       },
+|       _ => (),
+|   }
+|___^
+
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:4:22
+\   Option::Some(a) => match a {
+|       _ => (),
+|       Option::Some(b) => println!("{b}"),
+|   }
+|___^
+
+//! > fixed
+Contains nested diagnostics can't fix it
+
+//! > ==========================================================================
+
+//! > nested destructuring match twisted differently
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(Option::Some(1_felt252));
+	match variable {
+		_ => (),
+		Option::Some(a) => match a {
+			Option::Some(b) => println!("{b}"),
+			_ => (),
+		},
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       _ => (),
+|       Option::Some(a) => match a {
+|           Option::Some(b) => println!("{b}"),
+|           _ => (),
+|       },
+|   }
+|___^
+
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:5:22
+\   Option::Some(a) => match a {
+|       Option::Some(b) => println!("{b}"),
+|       _ => (),
+|   }
+|___^
+
+//! > fixed
+Contains nested diagnostics can't fix it
+
+//! > ==========================================================================
+
+//! > simple destructuring match
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(1_felt252);
+	match variable {
+		Option::Some(a) => println!("{a}"),
+		_ => (),
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       Option::Some(a) => println!("{a}"),
+|       _ => (),
+|   }
+|___^
+
+//! > fixed
+fn main() {
+	let variable = Option::Some(1_felt252);
+	if let Option::Some(a) = variable { println!("{a}") };
+}
+
+//! > ==========================================================================
+
+//! > simple destructuring match second arm
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(1_felt252);
+	match variable {
+		_ => (),
+		Option::Some(a) => println!("{a}"),
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       _ => (),
+|       Option::Some(a) => println!("{a}"),
+|   }
+|___^
+
+//! > fixed
+fn main() {
+	let variable = Option::Some(1_felt252);
+	if let Option::Some(a) = variable { println!("{a}") };
+}
+
+//! > ==========================================================================
+
+//! > simple destructuring match with scope
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(1_felt252);
+	match variable {
+		Option::Some(a) => println!("{a}"),
+		_ => {},
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       Option::Some(a) => println!("{a}"),
+|       _ => {},
+|   }
+|___^
+
+//! > fixed
+fn main() {
+	let variable = Option::Some(1_felt252);
+	if let Option::Some(a) = variable { println!("{a}") };
+}
+
+//! > ==========================================================================
+
+//! > simple destructuring match with scope second arm
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(1_felt252);
+	match variable {
+		_ => {},
+		Option::Some(a) => println!("{a}"),
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       _ => {},
+|       Option::Some(a) => println!("{a}"),
+|   }
+|___^
+
+//! > fixed
+fn main() {
+	let variable = Option::Some(1_felt252);
+	if let Option::Some(a) = variable { println!("{a}") };
+}
+
+//! > ==========================================================================
+
+//! > simple destructuring match with unit in scope
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(1_felt252);
+	match variable {
+		Option::Some(a) => println!("{a}"),
+		_ => { () },
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       Option::Some(a) => println!("{a}"),
+|       _ => { () },
+|   }
+|___^
+
+//! > fixed
+fn main() {
+	let variable = Option::Some(1_felt252);
+	if let Option::Some(a) = variable { println!("{a}") };
+}
+
+//! > ==========================================================================
+
+//! > simple destructuring match with unit in scope second arm
+
+//! > cairo_code
+fn main() {
+	let variable = Option::Some(1_felt252);
+	match variable {
+		_ => { () },
+		Option::Some(a) => println!("{a}"),
+	};
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:3:2
+\   match variable {
+|       _ => { () },
+|       Option::Some(a) => println!("{a}"),
+|   }
+|___^
+
+//! > fixed
+fn main() {
+	let variable = Option::Some(1_felt252);
+	if let Option::Some(a) = variable { println!("{a}") };
+}
