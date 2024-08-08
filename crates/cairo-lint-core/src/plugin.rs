@@ -20,25 +20,31 @@ pub struct CairoLint;
 
 #[derive(Debug, PartialEq)]
 pub enum CairoLintKind {
-    IfLet,
-    If,
+    DestructMatch,
+    MatchForEquality,
     Unknown,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
-        CairoLint::IF_LET => CairoLintKind::IfLet,
-        CairoLint::IF => CairoLintKind::If,
+        CairoLint::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
+        CairoLint::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
         _ => CairoLintKind::Unknown,
     }
 }
 
 impl CairoLint {
-    const IF_LET: &'static str =
+    const DESTRUCT_MATCH: &'static str =
         "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
-    const IF: &'static str = "you seem to be trying to use `match` for an equality check. Consider using `if`";
+    const MATCH_FOR_EQUALITY: &'static str =
+        "you seem to be trying to use `match` for an equality check. Consider using `if`";
 
-    pub fn check_match(&self, db: &dyn SyntaxGroup, match_expr: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
+    pub fn check_destruct_match(
+        &self,
+        db: &dyn SyntaxGroup,
+        match_expr: &ExprMatch,
+        diagnostics: &mut Vec<PluginDiagnostic>,
+    ) {
         let arms = match_expr.arms(db).deref().elements(db);
         let mut is_single_armed = false;
         let mut is_destructuring = false;
@@ -50,6 +56,9 @@ impl CairoLint {
                         let tuple_expr = match arm.expression(db) {
                             Expr::Block(block_expr) => {
                                 let statements = block_expr.statements(db).elements(db);
+                                if statements.is_empty() {
+                                    is_single_armed = true;
+                                }
                                 if statements.len() == 1 {
                                     match &statements[0] {
                                         Statement::Expr(statement_expr) => {
@@ -68,7 +77,8 @@ impl CairoLint {
                             Expr::Tuple(tuple_expr) => Some(tuple_expr),
                             _ => None,
                         };
-                        is_single_armed = tuple_expr.is_some_and(|list| list.expressions(db).elements(db).is_empty());
+                        is_single_armed = tuple_expr.is_some_and(|list| list.expressions(db).elements(db).is_empty())
+                            || is_single_armed;
                     }
 
                     Pattern::Enum(pat) => {
@@ -84,12 +94,12 @@ impl CairoLint {
         match (is_single_armed, is_destructuring) {
             (true, false) => diagnostics.push(PluginDiagnostic {
                 stable_ptr: match_expr.stable_ptr().untyped(),
-                message: Self::IF.to_string(),
+                message: Self::MATCH_FOR_EQUALITY.to_string(),
                 severity: Severity::Warning,
             }),
             (true, true) => diagnostics.push(PluginDiagnostic {
                 stable_ptr: match_expr.stable_ptr().untyped(),
-                message: Self::IF_LET.to_string(),
+                message: Self::DESTRUCT_MATCH.to_string(),
                 severity: Severity::Warning,
             }),
             (_, _) => (),
@@ -111,7 +121,7 @@ impl AnalyzerPlugin for CairoLint {
                     let descendants = func.as_syntax_node().descendants(db.upcast());
                     for descendant in descendants.into_iter() {
                         match descendant.kind(db.upcast()) {
-                            SyntaxKind::ExprMatch => self.check_match(
+                            SyntaxKind::ExprMatch => self.check_destruct_match(
                                 db.upcast(),
                                 &ExprMatch::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,

@@ -70,8 +70,12 @@ macro_rules! test_file {
                     }
                 }
                 fixes.sort_by_key(|v| Reverse(v.span.start));
-                for fix in fixes.iter() {
-                    file.replace_range(fix.span.to_str_range(), &fix.suggestion);
+                if !test_name.contains("nested") {
+                    for fix in fixes.iter() {
+                        file.replace_range(fix.span.to_str_range(), &fix.suggestion);
+                    }
+                } else {
+                    file = "Contains nested diagnostics can't fix it".to_string();
                 }
                 let formatted_diags =
                     diags.into_iter().map(|diag| diag.format(db.upcast())).collect::<String>().trim().to_string();

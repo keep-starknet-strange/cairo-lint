@@ -29,7 +29,7 @@ pub fn fix_semantic_diagnostic(db: &AnalysisDatabase, diag: &SemanticDiagnostic)
 #[derive(Default)]
 pub struct Fixer;
 impl Fixer {
-    pub fn fix_if_let(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_destruct_match(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let match_expr = ExprMatch::from_syntax_node(db, node.clone());
         let arms = match_expr.arms(db).elements(db);
         let first_arm = &arms[0];
@@ -54,13 +54,13 @@ impl Fixer {
             "{}if let {} = {} {{ {} }}",
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
             pattern,
-            match_expr.expr(db).as_syntax_node().get_text(db),
+            match_expr.expr(db).as_syntax_node().get_text_without_trivia(db),
             first_expr.expression(db).as_syntax_node().get_text_without_trivia(db),
         )
     }
     pub fn fix_plugin_diagnostic(&self, db: &AnalysisDatabase, diag: &PluginDiagnostic) -> String {
         match diagnostic_kind_from_message(&diag.message) {
-            CairoLintKind::IfLet => self.fix_if_let(db, diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::DestructMatch => self.fix_destruct_match(db, diag.stable_ptr.lookup(db.upcast())),
             _ => "".to_owned(),
         }
     }
