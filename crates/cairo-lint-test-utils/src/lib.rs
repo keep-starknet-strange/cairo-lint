@@ -48,8 +48,9 @@ macro_rules! test_file {
             #[dtor]
             fn [<fix_ $file_path _test_file>]() {
                 let val = [<FIXED_TEST_FILE_ $file_path:upper>].lock().unwrap();
+                let res = OrderedHashMap::<String, Test>::from_iter(val.tests.clone().into_iter().sorted_by_key(|kv| kv.0.clone()));
                 if val.should_fix {
-                    dump_to_test_file(val.tests.clone(), [<TEST_FILENAME_ $file_path:upper>]).unwrap();
+                    dump_to_test_file(res, [<TEST_FILENAME_ $file_path:upper>]).unwrap();
                 }
             }
 

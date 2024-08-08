@@ -10,6 +10,7 @@ use cairo_lint_core::db::AnalysisDatabase;
 use cairo_lint_core::fix::{fix_semantic_diagnostic, Fix};
 use cairo_lint_test_utils::{get_diags, test_file, Tests};
 use ctor::dtor;
+use itertools::Itertools;
 use paste::paste;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
