@@ -1,46 +1,40 @@
-use cairo_lang_compiler::lint::{Lint, LintContext, LintPass};
-use cairo_lang_syntax::node::ast::{self, BinaryOp};
-use cairo_lang_diagnostics::level::{Level};
+use cairo_lang_syntax::node::ast::{ExprBinary, Expr, BinaryOperator};
+use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_defs::plugin::PluginDiagnostic;
+use cairo_lang_diagnostics::Severity;
 
+use cairo_lang_syntax::node::Terminal;
+use cairo_lang_syntax::node::{TypedSyntaxNode, TypedStablePtr}; 
 
-macro_rules! declare_lint {
-    ($name:ident, $level:ident, $desc:expr) => {
-        pub const $name: Lint = Lint {
-            name: stringify!($name),
-            desc: $desc,
-            default_level: Level::$level,
-        };
-    };
-}
-
-
-declare_lint! {
-    ERASE_OP,
-    Warn,
-    "detect operations that always result in zero"
-}
-
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct EraseOp;
 
-impl LintPass for EraseOp{
-    
-    fn name(&self) -> & 'static str{
-        "EraseOp"
+impl EraseOp {
+    pub fn new() -> Self {
+        Self
     }
-    
-    fn check_expr(&mut self, cx: &LintContext, expr: &ast::Expr){
-        if let Some((left, right, op)) = expr.as_binary_expr(){
-            if (left.is_zero_literal() || right.is_zero_literal()) && matches! (op, BinaryOp::Mul | BinaryOp::Div | BinaryOp::BitAnd) {
-                cx.span_lint(ERASE_OP, expr.span(), "operation can be simplified to zero")
+
+    pub fn check_expr(&self, db: &dyn SyntaxGroup, expr: &ExprBinary) -> Option<PluginDiagnostic> {
+        let lhs = expr.lhs(db);
+        let rhs = expr.rhs(db);
+
+        if self.is_zero_literal(db, &lhs) || self.is_zero_literal(db, &rhs) {
+            let op = expr.op(db);
+            if matches!(op, BinaryOperator::Mul(_) | BinaryOperator::Div(_)) {
+                return Some(PluginDiagnostic {
+                    stable_ptr: expr.stable_ptr().untyped(),
+                    message: "This operation will always result in zero and can be simplified.".to_string(),
+                    severity: Severity::Warning,
+                });
             }
         }
+        None
+    }
+
+    fn is_zero_literal(&self, db: &dyn SyntaxGroup, expr: &Expr) -> bool {
+        matches!(expr, Expr::Literal(lit) if lit.text(db) == "0")
     }
 }
 
-impl EraseOp{
-    pub fn new() -> Self{
-        Self
-    }
-}
+
 
