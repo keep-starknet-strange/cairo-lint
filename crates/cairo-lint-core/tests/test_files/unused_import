@@ -1,0 +1,46 @@
+//! > multiple unused imports
+
+//! > cairo_code
+use core::integer::{u128_safe_divmod, u32_overflowing_add};
+fn main() {
+}
+
+//! > diagnostics
+warning: Unused import: `test::u128_safe_divmod`
+ --> lib.cairo:1:21
+use core::integer::{u128_safe_divmod, u32_overflowing_add};
+                    ^**************^
+
+warning: Unused import: `test::u32_overflowing_add`
+ --> lib.cairo:1:39
+use core::integer::{u128_safe_divmod, u32_overflowing_add};
+                                      ^*****************^
+
+warning: Usage of deprecated feature `"corelib-internal-use"` with no `#[feature("corelib-internal-use")]` attribute. Note: "Use `core::num::traits::OverflowingAdd` instead"
+ --> lib.cairo:1:39
+use core::integer::{u128_safe_divmod, u32_overflowing_add};
+                                      ^*****************^
+
+//! > fixed
+use core::integer::{u128_safe_divmod, u32_overflowing_add};
+fn main() {
+}
+
+//! > ==========================================================================
+
+//! > simple unused import
+
+//! > cairo_code
+use core::integer::u128_safe_divmod;
+fn main() {
+}
+
+//! > diagnostics
+warning: Unused import: `test::u128_safe_divmod`
+ --> lib.cairo:1:20
+use core::integer::u128_safe_divmod;
+                   ^**************^
+
+//! > fixed
+fn main() {
+}

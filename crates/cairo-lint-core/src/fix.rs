@@ -1,11 +1,16 @@
+use crate::db::AnalysisDatabase;
+use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
+use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
+use cairo_lang_syntax::node::kind::SyntaxKind;
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
+use log::debug;
 
 use crate::db::AnalysisDatabase;
 use crate::lints::single_match::is_expr_unit;
@@ -17,13 +22,15 @@ pub struct Fix {
     pub suggestion: String,
 }
 
-pub fn fix_semantic_diagnostic(db: &AnalysisDatabase, diag: &SemanticDiagnostic) -> String {
+pub fn fix_semantic_diagnostic(db: &AnalysisDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
     match diag.kind {
-        SemanticDiagnosticKind::UnusedVariable => {
+        SemanticDiagnosticKind::UnusedVariable =>
+            Some((diag.stable_location.syntax_node(db.upcast()),
             format!("_{}", diag.stable_location.syntax_node(db.upcast()).get_text(db.upcast()))
-        }
-        SemanticDiagnosticKind::PluginDiagnostic(ref diag) => Fixer.fix_plugin_diagnostic(db, diag),
-        _ => "".to_owned(),
+            )),
+        SemanticDiagnosticKind::PluginDiagnostic(ref plugin_diag) => Some((diag.stable_location.syntax_node(db.upcast()), Fixer.fix_plugin_diagnostic(db, plugin_diag))),
+        SemanticDiagnosticKind::UnusedImport(ref id) => Fixer.fix_unused_import(db, id),
+        _ => None
     }
 }
 
@@ -68,4 +75,40 @@ impl Fixer {
             _ => "".to_owned(),
         }
     }
+
+    pub fn fix_unused_import(&self, db: &AnalysisDatabase, id: &UseId) -> Option<(SyntaxNode, String)> {
+        let mut current_node =  id.stable_ptr(db).lookup(db.upcast()).as_syntax_node();
+
+        let mut path_to_remove = vec![current_node.clone()];
+        let mut remove_entire_statement = true;
+
+        while let Some(parent) = current_node.parent() {
+            match parent.kind(db) {
+                SyntaxKind::UsePathSingle => {
+                    path_to_remove.push(parent.clone());
+                    current_node = parent;
+                }
+                SyntaxKind::UsePathMulti => {
+                    path_to_remove.push(parent.clone());
+                    remove_entire_statement = false;
+                    break;
+                }
+                SyntaxKind::ItemUse => {
+                    if remove_entire_statement {
+                        path_to_remove.push(parent.clone());
+                    }
+                    break;
+                }
+                _ => current_node = parent,
+            }
+        }
+
+        if remove_entire_statement {
+            Some((path_to_remove.last().unwrap().clone(), String::new()))
+        } else {
+            debug!("Autofix not suppoted for multi-imports paths");
+            None
+        }
+    }
+
 }

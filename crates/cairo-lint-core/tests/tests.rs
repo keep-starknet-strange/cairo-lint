@@ -33,3 +33,5 @@ test_file!(
     "simple destructuring match with unit and comment in scope",
     "simple destructuring match with comment in scope"
 );
+
+test_file!(unused_import, "simple unused import", "multiple unused imports");
