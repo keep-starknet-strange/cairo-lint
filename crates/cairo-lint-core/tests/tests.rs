@@ -18,4 +18,4 @@ test_file!(unused_variables, "one unused variable", "two unused variable");
 
 test_file!(if_let, "simple if let", "simple if let with scope");
 
-test_file!(erasing_op, "test detects operations", "operation can be simplified to zero");
+test_file!(erasing_op, "detects operations that always result in zero");
