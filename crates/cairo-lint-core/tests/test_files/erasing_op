@@ -1,15 +1,32 @@
-//! > test detects operations
-
+//! > detects operations that alwaysr esult in zero
 
 //! > cairo_code
-
 fn main() {
     let x = 1;
-    
     //!> operation can be simplified to zero
-    let _ = 0 * x;  
+    let _ = 0 * x;
     //!> operation can be simplified to zero
-    let _ = 0 / x; 
+    let _ = 0 / x;
     //!> operation can be simplified to zero
     let _ = x & 0;
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This operation will always result in zero and can be simplified.
+ --> lib.cairo:3:2
+\   let _ = 0 * x;
+|   ^
+ --> lib.cairo:4:2
+\   let _ = 0 / x;
+|   ^
+ --> lib.cairo:5:2
+\   let _ = x & 0;
+|   ^
+
+//! > fixed
+fn main() {
+    let x = 1;
+    let _ = 0; // Simplified from 0 * x
+    let _ = 0; // Simplified from 0 / x
+    let _ = 0; // Simplified from x & 0
 }
