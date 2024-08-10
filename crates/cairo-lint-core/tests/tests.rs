@@ -50,4 +50,4 @@ test_file!(
     "unused import aliased",
     "unused import trait"
 );
-test_file!(erasing_op, "test detects operations", "operation can be simplified to zero");
+test_file!(erasing_op, "detects operations that always result in zero");
