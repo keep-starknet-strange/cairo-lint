@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{Expr, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
@@ -142,10 +142,29 @@ impl Fixer {
         plugin_diag: &PluginDiagnostic,
     ) -> Option<(SyntaxNode, String)> {
         let new_text = match diagnostic_kind_from_message(&plugin_diag.message) {
+            CairoLintKind::DoubleParens => self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => "".to_owned(),
         };
+    
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
+    }
+    
+    pub fn fix_double_parens(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let mut expr = Expr::from_syntax_node(db, node.clone());
+    
+        while let Expr::Parenthesized(inner_expr) = expr {
+            expr = inner_expr.expr(db);
+        }
+    
+        format!(
+            "{}{}\n",
+            node.get_text(db)
+                .chars()
+                .take_while(|c| c.is_whitespace())
+                .collect::<String>(),
+            expr.as_syntax_node().get_text_without_trivia(db),
+        )
     }
 
     /// Attempts to fix an unused import by removing it.
@@ -196,4 +215,5 @@ impl Fixer {
             None
         }
     }
+
 }

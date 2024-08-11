@@ -1,0 +1,53 @@
+//! > necessary parentheses in arithmetic expression
+
+//! > cairo_code
+fn main() -> i32 {
+    2 * (3 + 5)
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> i32 {
+    2 * (3 + 5)
+}
+
+//! > ==========================================================================
+
+//! > simple double parens
+
+//! > cairo_code
+fn main() -> i32 {
+    ((0))
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:2:5
+    ((0))
+    ^***^
+
+//! > fixed
+fn main() -> i32 {
+    0
+}
+
+//! > ==========================================================================
+
+//! > unnecessary parentheses in arithmetic expression
+
+//! > cairo_code
+fn main() -> i32 {
+    ((3 + 5))
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:2:5
+    ((3 + 5))
+    ^*******^
+
+//! > fixed
+fn main() -> i32 {
+    3 + 5
+}

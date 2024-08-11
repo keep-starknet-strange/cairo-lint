@@ -14,6 +14,7 @@ pub const DESTRUCT_MATCH: &str =
     "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
 pub const MATCH_FOR_EQUALITY: &str = "you seem to be trying to use `match` for an equality check. Consider using `if`";
 
+
 fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn SyntaxGroup) -> bool {
     expr.expressions(db).elements(db).is_empty()
 }
@@ -44,6 +45,7 @@ pub fn is_expr_unit(expr: Expr, db: &dyn SyntaxGroup) -> bool {
         _ => false,
     }
 }
+
 pub fn check_single_match(
     db: &dyn SemanticGroup,
     match_expr: &ExprMatch,
