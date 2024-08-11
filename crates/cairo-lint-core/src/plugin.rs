@@ -9,13 +9,16 @@ use cairo_lang_syntax::node::ast::{Expr, ExprMatch, Pattern, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
-use crate::erasing_op::EraseOp;
+use cairo_lang_syntax::node::ast::BinaryOperator;
+use cairo_lang_syntax::node::Terminal;
+
+
+
 use cairo_lang_syntax::node::ast::ExprBinary;
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
     suite.add_analyzer_plugin::<CairoLint>();
-    suite.add_analyzer_plugin::<EraseOp>();
     suite
 }
 #[derive(Debug, Default)]
@@ -33,7 +36,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
         CairoLint::IF_LET => CairoLintKind::IfLet,
         CairoLint::IF => CairoLintKind::If,
-        "operation can be simplifield to zero" => CairoLintKind::EraseOp,
+        CairoLint::ERASE_OP => CairoLintKind::EraseOp, 
         _ => CairoLintKind::Unknown,
     }
 }
@@ -42,6 +45,8 @@ impl CairoLint {
     const IF_LET: &'static str =
         "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
     const IF: &'static str = "you seem to be trying to use `match` for an equality check. Consider using `if`";
+
+    const ERASE_OP: &'static str = "operation can be simplified to zero";
 
     pub fn check_match(&self, db: &dyn SyntaxGroup, match_expr: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
         let arms = match_expr.arms(db).deref().elements(db);
@@ -100,6 +105,27 @@ impl CairoLint {
             (_, _) => (),
         }
     }
+    pub fn check_expr(&self, db: &dyn SyntaxGroup, expr: &ExprBinary) -> Option<PluginDiagnostic> {
+        let lhs = expr.lhs(db);
+        let rhs = expr.rhs(db);
+
+        if self.is_zero_literal(db, &lhs) || self.is_zero_literal(db, &rhs) {
+            let op = expr.op(db);
+            if matches!(op, BinaryOperator::Mul(_) | BinaryOperator::Div(_)) {
+                return Some(PluginDiagnostic {
+                    stable_ptr: expr.stable_ptr().untyped(),
+                    message: "This operation will always result in zero and can be simplified.".to_string(),
+                    severity: Severity::Warning,
+                });
+            }
+        }
+        None
+    }
+
+    fn is_zero_literal(&self, db: &dyn SyntaxGroup, expr: &Expr) -> bool {
+        matches!(expr, Expr::Literal(lit) if lit.text(db) == "0")
+    }
+
 }
 
 impl AnalyzerPlugin for CairoLint {
@@ -121,6 +147,14 @@ impl AnalyzerPlugin for CairoLint {
                                 &ExprMatch::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,
                             ),
+                            SyntaxKind::ExprBinary => {  
+                                let binary_expr = ExprBinary::from_syntax_node(db.upcast(), descendant);
+                                if let Some(diagnostic) = self.check_expr(db.upcast(), &binary_expr) {
+                                    diags.push(diagnostic);
+
+                                }
+                            },
+
                             SyntaxKind::ItemExternFunction => (),
                             _ => (),
                         }
@@ -132,28 +166,7 @@ impl AnalyzerPlugin for CairoLint {
         }
         diags
     }
+    
+
 }
 
-impl AnalyzerPlugin for EraseOp {
-    fn diagnostics(&self, db: &dyn SemanticGroup, module_id: ModuleId) -> Vec<PluginDiagnostic> {
-        let mut diagnostics = Vec::new();
-
-        let items = db.module_items(module_id).unwrap_or_default();
-        for item in items.iter() {
-            if let ModuleItemId::FreeFunction(func_id) = item {
-                let func = db.module_free_function_by_id(*func_id).unwrap().unwrap();
-                let descendants = func.as_syntax_node().descendants(db.upcast());
-                for descendant in descendants {
-                    if let SyntaxKind::ExprBinary = descendant.kind(db.upcast()) {
-                        let binary_expr = ExprBinary::from_syntax_node(db.upcast(), descendant);
-                        if let Some(diagnostic) = self.check_expr(db.upcast(), &binary_expr) {
-                            diagnostics.push(diagnostic);
-                        }
-                    }
-                }
-            }
-        }
-
-        diagnostics
-    }
-}
