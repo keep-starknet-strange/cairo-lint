@@ -23,6 +23,13 @@ log.workspace = true
 num-bigint = "0.4"
 num-traits = "0.2"
 
+starknet-types-core = { git = "https://github.com/starknet-io/types-rs.git", version = "0.1.0", default-features = false, features = ["serde"] }
+
+
+
+
+
+
 [dev-dependencies]
 indoc.workspace = true
 cairo-lang-test-utils.workspace = true

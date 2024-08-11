@@ -477,7 +477,7 @@ dependencies = [
  "serde_json",
  "sha3",
  "smol_str",
- "starknet-types-core",
+ "starknet-types-core 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror",
 ]
 
@@ -550,7 +550,7 @@ dependencies = [
  "itertools 0.12.1",
  "num-bigint",
  "num-traits 0.2.19",
- "starknet-types-core",
+ "starknet-types-core 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror",
 ]
 
@@ -588,7 +588,7 @@ dependencies = [
  "serde",
  "serde_json",
  "smol_str",
- "starknet-types-core",
+ "starknet-types-core 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror",
 ]
 
@@ -610,7 +610,7 @@ dependencies = [
  "serde_json",
  "sha3",
  "smol_str",
- "starknet-types-core",
+ "starknet-types-core 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror",
 ]
 
@@ -661,7 +661,7 @@ dependencies = [
  "num-bigint",
  "num-traits 0.2.19",
  "serde",
- "starknet-types-core",
+ "starknet-types-core 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -734,6 +734,7 @@ dependencies = [
  "paste",
  "pretty_assertions",
  "salsa",
+ "starknet-types-core 0.1.5 (git+https://github.com/starknet-io/types-rs.git)",
  "test-case",
 ]
 
@@ -2172,6 +2173,18 @@ dependencies = [
  "lambdaworks-crypto",
  "lambdaworks-math",
  "lazy_static",
+ "num-bigint",
+ "num-integer",
+ "num-traits 0.2.19",
+ "serde",
+]
+
+[[package]]
+name = "starknet-types-core"
+version = "0.1.5"
+source = "git+https://github.com/starknet-io/types-rs.git#ffcf7e65983df3cb53d7a228849a073034cba161"
+dependencies = [
+ "lambdaworks-math",
  "num-bigint",
  "num-integer",
  "num-traits 0.2.19",
