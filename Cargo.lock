@@ -727,6 +727,8 @@ dependencies = [
  "cairo-lint-test-utils",
  "ctor",
  "indoc",
+ "num-bigint",
+ "num-traits 0.2.19",
  "paste",
  "pretty_assertions",
  "salsa",
