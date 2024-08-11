@@ -729,6 +729,8 @@ dependencies = [
  "indoc",
  "itertools 0.13.0",
  "log",
+ "num-bigint",
+ "num-traits 0.2.19",
  "paste",
  "pretty_assertions",
  "salsa",
