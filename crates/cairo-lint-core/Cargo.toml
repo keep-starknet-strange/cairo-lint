@@ -19,6 +19,8 @@ cairo-lang-syntax.workspace = true
 cairo-lang-defs.workspace = true
 cairo-lang-language-server.workspace = true
 salsa.workspace = true
+num-bigint = "0.4"
+num-traits = "0.2"
 
 [dev-dependencies]
 indoc.workspace = true
