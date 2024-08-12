@@ -26,7 +26,8 @@ fn tuple_expr_in_block_expr(
         None
     }
 }
-pub fn check_destruct_match(db: &dyn SyntaxGroup, match_expr: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
+
+pub fn check_single_match(db: &dyn SyntaxGroup, match_expr: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
     let arms = match_expr.arms(db).elements(db);
     let mut is_single_armed = false;
     let mut is_destructuring = false;
@@ -43,12 +44,8 @@ pub fn check_destruct_match(db: &dyn SyntaxGroup, match_expr: &ExprMatch, diagno
                     is_single_armed =
                         tuple_expr.is_some_and(|list| list.expressions(db).elements(db).is_empty()) || is_single_armed;
                 }
-
-                Pattern::Enum(pat) => {
-                    is_destructuring = !pat.pattern(db).as_syntax_node().get_text(db).is_empty();
-                }
-                Pattern::Struct(pat) => {
-                    is_destructuring = !pat.as_syntax_node().get_text(db).is_empty();
+                Pattern::Enum(_) | Pattern::Struct(_) => {
+                    is_destructuring = true;
                 }
                 _ => (),
             };

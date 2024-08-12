@@ -45,7 +45,7 @@ impl AnalyzerPlugin for CairoLint {
                     let descendants = func.as_syntax_node().descendants(db.upcast());
                     for descendant in descendants.into_iter() {
                         match descendant.kind(db.upcast()) {
-                            SyntaxKind::ExprMatch => single_match::check_destruct_match(
+                            SyntaxKind::ExprMatch => single_match::check_single_match(
                                 db.upcast(),
                                 &ExprMatch::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,
