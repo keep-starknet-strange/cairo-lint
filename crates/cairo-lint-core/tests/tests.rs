@@ -15,10 +15,11 @@ use paste::paste;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 
-test_file!(unused_variables, "one unused variable", "two unused variable", "plenty unused variables");
+test_file!(unused_variables, unused_variables, "one unused variable", "two unused variable", "plenty unused variables");
 
 test_file!(
-    destruct_if_let,
+    single_match,
+    destructuring_match,
     "simple destructuring match",
     "simple destructuring match second arm",
     "simple destructuring match with scope",
