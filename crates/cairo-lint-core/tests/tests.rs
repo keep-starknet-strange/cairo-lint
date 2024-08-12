@@ -50,4 +50,4 @@ test_file!(
     "unused import aliased",
     "unused import trait"
 );
-test_file!(erasing_op_zero, "always result in zero");
+test_file!(erasing_op, "always in zero");
