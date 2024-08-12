@@ -108,7 +108,7 @@ impl CairoLint {
     pub fn check_expr(&self, db: &dyn SyntaxGroup, expr: &ExprBinary) -> Option<PluginDiagnostic> {
         let lhs = expr.lhs(db);
         let rhs = expr.rhs(db);
-
+    
         if self.is_zero_literal(db, &lhs) || self.is_zero_literal(db, &rhs) {
             let op = expr.op(db);
             if matches!(op, BinaryOperator::Mul(_) | BinaryOperator::Div(_)) {
@@ -121,11 +121,11 @@ impl CairoLint {
         }
         None
     }
-
+    
     fn is_zero_literal(&self, db: &dyn SyntaxGroup, expr: &Expr) -> bool {
         matches!(expr, Expr::Literal(lit) if lit.text(db) == "0")
     }
-
+    
 }
 
 impl AnalyzerPlugin for CairoLint {
