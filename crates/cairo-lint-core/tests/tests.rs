@@ -30,3 +30,5 @@ test_file!(
     "nested destructuring match twisted differently",
     "nested destructuring match second arm"
 );
+
+test_file!(double_parsen, "Test name");
