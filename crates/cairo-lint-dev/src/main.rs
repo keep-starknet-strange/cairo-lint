@@ -3,9 +3,9 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 fn create_new_test(lint_name: &str) -> io::Result<()> {
-    let test_content = format!(
-        "//! > Test name\n\n//! > cairo_code\nfn main() {{\n    let a: Option<felt252> = Option::Some(1);\n}}\n"
-    );
+    let test_content = "//! > Test name\n\n//! > cairo_code\nfn main() {\n    let a: Option<felt252> = \
+                        Option::Some(1);\n}\n"
+        .to_string();
 
     let test_files_dir = PathBuf::from("crates/cairo-lint-core/tests/test_files");
     if !test_files_dir.exists() {
@@ -29,7 +29,7 @@ fn create_new_test(lint_name: &str) -> io::Result<()> {
     let new_test_entry = format!(r#"test_file!({}, "Test name");"#, lint_name);
 
     let mut tests_rs_content = fs::read_to_string(tests_rs_path)?;
-    tests_rs_content.push_str("\n");
+    tests_rs_content.push('\n');
     tests_rs_content.push_str(&new_test_entry);
     fs::write(tests_rs_path, tests_rs_content)?;
 
