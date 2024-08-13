@@ -1,14 +1,14 @@
 //! > necessary parentheses in arithmetic expression
 
 //! > cairo_code
-fn main() -> i32 {
+fn main() -> u32 {
     2 * (3 + 5)
 }
 
 //! > diagnostics
 
 //! > fixed
-fn main() -> i32 {
+fn main() -> u32 {
     2 * (3 + 5)
 }
 
@@ -17,7 +17,7 @@ fn main() -> i32 {
 //! > simple double parens
 
 //! > cairo_code
-fn main() -> i32 {
+fn main() -> u32 {
     ((0))
 }
 
@@ -28,7 +28,7 @@ warning: Plugin diagnostic: unnecessary double parentheses found. Consider remov
     ^***^
 
 //! > fixed
-fn main() -> i32 {
+fn main() -> u32 {
     0
 }
 
@@ -37,7 +37,7 @@ fn main() -> i32 {
 //! > unnecessary parentheses in arithmetic expression
 
 //! > cairo_code
-fn main() -> i32 {
+fn main() -> u32 {
     ((3 + 5))
 }
 
@@ -48,6 +48,6 @@ warning: Plugin diagnostic: unnecessary double parentheses found. Consider remov
     ^*******^
 
 //! > fixed
-fn main() -> i32 {
+fn main() -> u32 {
     3 + 5
 }
