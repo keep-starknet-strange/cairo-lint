@@ -735,6 +735,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "cairo-lint-dev"
+version = "0.1.0"
+
+[[package]]
 name = "cairo-lint-test-utils"
 version = "0.1.0"
 dependencies = [
