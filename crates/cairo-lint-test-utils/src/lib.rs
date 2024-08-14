@@ -89,7 +89,6 @@ macro_rules! test_file {
                     new_tests.tests.insert(test_name.to_string(), new_test);
                 }
                 assert_eq!(formatted_diags, test.attributes["diagnostics"]);
-                println!("{file}");
                 assert_eq!(file, test.attributes["fixed"]);
             }
         }

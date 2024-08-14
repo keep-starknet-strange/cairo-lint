@@ -2,12 +2,12 @@ use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
-fn create_new_test(lint_name: &str) -> io::Result<()> {
+fn create_new_test(lint_group: &str, lint_name: &str) -> io::Result<()> {
     let test_content = "//! > Test name\n\n//! > cairo_code\nfn main() {\n    let a: Option<felt252> = \
                         Option::Some(1);\n}\n"
         .to_string();
 
-    let test_files_dir = PathBuf::from("crates/cairo-lint-core/tests/test_files");
+    let test_files_dir = PathBuf::from(format!("crates/cairo-lint-core/tests/test_files/{lint_group}"));
     if !test_files_dir.exists() {
         fs::create_dir_all(&test_files_dir)?;
     }
@@ -26,7 +26,7 @@ fn create_new_test(lint_name: &str) -> io::Result<()> {
         return Ok(());
     }
 
-    let new_test_entry = format!(r#"test_file!({}, "Test name");"#, lint_name);
+    let new_test_entry = format!(r#"test_file!({}, {}, "Test name");"#, lint_group, lint_name);
 
     let mut tests_rs_content = fs::read_to_string(tests_rs_path)?;
     tests_rs_content.push('\n');
@@ -39,16 +39,24 @@ fn create_new_test(lint_name: &str) -> io::Result<()> {
 }
 
 fn main() {
-    let lint_name = if let Some(arg1) = std::env::args().nth(1) {
+    let lint_group = if let Some(arg1) = std::env::args().nth(1) {
         arg1
     } else {
-        println!("Enter the name of the lint:");
+        println!("Enter the name of the lint group:");
+        let mut lint_group = String::new();
+        io::stdin().read_line(&mut lint_group).expect("Failed to read line");
+        lint_group.trim().to_string()
+    };
+    let lint_name = if let Some(arg1) = std::env::args().nth(2) {
+        arg1
+    } else {
+        println!("Enter the name of the lint group:");
         let mut lint_name = String::new();
         io::stdin().read_line(&mut lint_name).expect("Failed to read line");
         lint_name.trim().to_string()
     };
 
-    if let Err(e) = create_new_test(&lint_name) {
+    if let Err(e) = create_new_test(&lint_group, &lint_name) {
         eprintln!("Error creating test file: {}", e);
     }
 }
