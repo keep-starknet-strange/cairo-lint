@@ -18,8 +18,19 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "coxmars",
+      "name": "Marco Araya Jiménez",
+      "avatar_url": "https://avatars.githubusercontent.com/u/75222804?v=4",
+      "profile": "https://github.com/coxmars",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
-  "linkToUsage": false
+  "linkToUsage": false,
+  "commitType": "docs"
 }
