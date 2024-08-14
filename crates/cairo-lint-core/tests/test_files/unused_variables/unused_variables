@@ -33,9 +33,9 @@ fn main() {
         } else {
             let e = false;
         }
-        let f = array![];
+        let f: Array<u32> = array![];
     } else {
-        let g = Option::None;
+        let g: Option<u32> = Option::None;
         match used {
             Option::Some(not_used) => 1_u32,
             Option::None => 2_u32,
@@ -61,7 +61,7 @@ warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
 
 warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
  --> lib.cairo:13:13
-        let f = array![];
+        let f: Array<u32> = array![];
             ^
 
 warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
@@ -71,18 +71,13 @@ warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
 
 warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
  --> lib.cairo:15:13
-        let g = Option::None;
+        let g: Option<u32> = Option::None;
             ^
 
 warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
  --> lib.cairo:3:9
     let b = 1;
         ^
-
-error: Type annotations needed. Failed to infer ?3.
- --> lib.cairo:13:17
-        let f = array![];
-                ^******^
 
 //! > fixed
 fn main() {
@@ -97,9 +92,9 @@ fn main() {
         } else {
             let _e = false;
         }
-        let _f = array![];
+        let _f: Array<u32> = array![];
     } else {
-        let _g = Option::None;
+        let _g: Option<u32> = Option::None;
         match used {
             Option::Some(_not_used) => 1_u32,
             Option::None => 2_u32,

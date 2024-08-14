@@ -34,11 +34,11 @@ pub fn get_diags(crate_id: CrateId, db: &mut AnalysisDatabase) -> Vec<Diagnostic
 }
 #[macro_export]
 macro_rules! test_file {
-    ($file_path:ident, $($test_name:expr),*) => {
+    ($lint_group: ident, $file_path:ident, $($test_name:expr),*) => {
 
         paste ! {
 
-            const [<TEST_FILENAME_ $file_path:upper>]: &str = concat!("tests/test_files/", stringify!($file_path));
+            const [<TEST_FILENAME_ $file_path:upper>]: &str = concat!("tests/test_files/", stringify!($lint_group), "/", stringify!($file_path));
             static [<PARSED_TEST_FILE_ $file_path:upper>]: LazyLock<OrderedHashMap<String, Test>> =
                 LazyLock::new(|| parse_test_file(Path::new([<TEST_FILENAME_ $file_path:upper>])).unwrap());
             static [<FIXED_TEST_FILE_ $file_path:upper>]: LazyLock<Mutex<Tests>> =
@@ -46,7 +46,7 @@ macro_rules! test_file {
 
 
             #[dtor]
-            fn [<fix_ $file_path _test_file>]() {
+            fn [<fix_ $lint_group $file_path _test_file>]() {
                 let val = [<FIXED_TEST_FILE_ $file_path:upper>].lock().unwrap();
                 let res = OrderedHashMap::<String, Test>::from_iter(val.tests.clone().into_iter().sorted_by_key(|kv| kv.0.clone()));
                 if val.should_fix {
@@ -55,7 +55,7 @@ macro_rules! test_file {
             }
 
             $(#[test_case($test_name; $test_name)])*
-            fn $file_path(test_name: &str) {
+            fn [<$lint_group _ $file_path>](test_name: &str) {
                 let test = & [<PARSED_TEST_FILE_ $file_path:upper>][test_name];
                 let is_fix_mode = std::env::var("FIX_TESTS") == Ok("1".into());
                 let mut file = test.attributes["cairo_code"].clone();
