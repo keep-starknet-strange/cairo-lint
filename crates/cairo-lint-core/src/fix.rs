@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 
 use crate::db::AnalysisDatabase;
+use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
 #[derive(Default)]
@@ -36,24 +37,27 @@ impl Fixer {
         let second_arm = &arms[1];
         let (pattern, first_expr) =
             match (&first_arm.patterns(db).elements(db)[0], &second_arm.patterns(db).elements(db)[0]) {
-                (Pattern::Underscore(_), Pattern::Enum(pat)) => {
-                    (&pat.as_syntax_node().get_text_without_trivia(db), second_arm)
-                }
-                (Pattern::Enum(pat), Pattern::Underscore(_)) => {
-                    (&pat.as_syntax_node().get_text_without_trivia(db), first_arm)
-                }
-                (Pattern::Underscore(_), Pattern::Struct(pat)) => {
-                    (&pat.as_syntax_node().get_text_without_trivia(db), second_arm)
-                }
-                (Pattern::Struct(pat), Pattern::Underscore(_)) => {
-                    (&pat.as_syntax_node().get_text_without_trivia(db), first_arm)
+                (Pattern::Underscore(_), Pattern::Enum(pat)) => (pat.as_syntax_node(), second_arm),
+                (Pattern::Enum(pat), Pattern::Underscore(_)) => (pat.as_syntax_node(), first_arm),
+                (Pattern::Underscore(_), Pattern::Struct(pat)) => (pat.as_syntax_node(), second_arm),
+                (Pattern::Struct(pat), Pattern::Underscore(_)) => (pat.as_syntax_node(), first_arm),
+                (Pattern::Enum(pat1), Pattern::Enum(pat2)) => {
+                    if is_expr_unit(second_arm.expression(db), db) {
+                        (pat1.as_syntax_node(), first_arm)
+                    } else {
+                        (pat2.as_syntax_node(), second_arm)
+                    }
                 }
                 (_, _) => panic!("Incorrect diagnostic"),
             };
+        let mut pattern_span = pattern.span(db);
+        pattern_span.end = pattern.span_start_without_trivia(db);
+        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+        let trivia = pattern.clone().get_text_of_span(db, pattern_span).trim().to_string();
+        let trivia = if trivia.is_empty() { trivia } else { format!("{indent}{trivia}\n") };
         format!(
-            "{}if let {} = {} {{ {} }}",
-            node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
-            pattern,
+            "{trivia}{indent}if let {} = {} {{ {} }}",
+            pattern.get_text_without_trivia(db),
             match_expr.expr(db).as_syntax_node().get_text_without_trivia(db),
             first_expr.expression(db).as_syntax_node().get_text_without_trivia(db),
         )

@@ -49,6 +49,7 @@ impl AnalyzerPlugin for CairoLint {
                                 db.upcast(),
                                 &ExprMatch::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,
+                                &module_id,
                             ),
                             SyntaxKind::ItemExternFunction => (),
                             _ => (),
