@@ -45,8 +45,18 @@ To run the tests you'll need to provide the path to the cairo corelib (at some p
 not there yet).
 
 ```sh
-CORELIB_PATH="/path/to/corelibe" cargo test
+CORELIB_PATH="/path/to/corelib/src" cargo test
 ```
+
+### Cli instructions
+
+To add a new test you can use the dev cli with:
+
+```bash
+cargo run --bin create_test <lint_name>
+```
+
+### Manual instructions
 
 Each lint should have its own tests and should be extensive. To create a new test for a lint you need to create a file
 in the [test_files folder](./crates/cairo-lint-core/tests/test_files/) and should be named as your lint. The file should
