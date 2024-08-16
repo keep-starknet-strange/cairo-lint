@@ -1,10 +1,12 @@
 use cairo_lang_defs::ids::{ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
+use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
-use cairo_lang_syntax::node::ast::ExprMatch;
+use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprMatch};
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::single_match;
 
@@ -20,14 +22,50 @@ pub struct CairoLint;
 pub enum CairoLintKind {
     DestructMatch,
     MatchForEquality,
+    DoubleComparison,
     Unknown,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
-        single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
-        single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
+        CairoLint::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
+        CairoLint::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
+        CairoLint::DOUBLE_COMPARISON => CairoLintKind::DoubleComparison,
         _ => CairoLintKind::Unknown,
+    }
+}
+
+impl CairoLint {
+    const DESTRUCT_MATCH: &'static str =
+        "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
+    const MATCH_FOR_EQUALITY: &'static str =
+        "you seem to be trying to use `match` for an equality check. Consider using `if`";
+    const DOUBLE_COMPARISON: &'static str =
+        "redundant double comparison found. Consider simplifying to a single comparison.";
+
+    pub fn check_double_comparison(&self, db: &dyn SyntaxGroup, expr: &Expr, diagnostics: &mut Vec<PluginDiagnostic>) {
+        if let Expr::Binary(binary_op) = expr {
+            let lhs = binary_op.lhs(db);
+            let rhs = binary_op.rhs(db);
+
+            if let (Some(lhs_op), Some(rhs_op)) =
+                (self.extract_binary_operator(&lhs, db), self.extract_binary_operator(&rhs, db))
+            {
+                if (matches!(lhs_op, BinaryOperator::EqEq(_)) && matches!(rhs_op, BinaryOperator::LT(_)))
+                    || (matches!(lhs_op, BinaryOperator::LT(_)) && matches!(rhs_op, BinaryOperator::EqEq(_)))
+                {
+                    diagnostics.push(PluginDiagnostic {
+                        stable_ptr: expr.stable_ptr().untyped(),
+                        message: Self::DOUBLE_COMPARISON.to_string(),
+                        severity: Severity::Warning,
+                    });
+                }
+            }
+        }
+    }
+
+    fn extract_binary_operator(&self, expr: &Expr, db: &dyn SyntaxGroup) -> Option<BinaryOperator> {
+        if let Expr::Binary(binary_op) = expr { Some(binary_op.op(db)) } else { None }
     }
 }
 
@@ -50,6 +88,12 @@ impl AnalyzerPlugin for CairoLint {
                                 &ExprMatch::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,
                                 &module_id,
+                            ),
+                            SyntaxKind::ExprBinary => CairoLint::check_double_comparison(
+                                &CairoLint,
+                                db.upcast(),
+                                &Expr::from_syntax_node(db.upcast(), descendant),
+                                &mut diags,
                             ),
                             SyntaxKind::ItemExternFunction => (),
                             _ => (),

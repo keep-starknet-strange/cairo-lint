@@ -33,3 +33,13 @@ test_file!(
     "simple destructuring match with unit and comment in scope",
     "simple destructuring match with comment in scope"
 );
+
+test_file!(
+    double_comparison,
+    double_comparison,
+    "simple double comparison",
+    "complex double comparison",
+    "no double comparison",
+    "double comparison with different variables",
+    "double comparison with arithmetic"
+);
