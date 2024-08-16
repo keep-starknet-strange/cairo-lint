@@ -53,6 +53,8 @@ impl CairoLint {
             {
                 if (matches!(lhs_op, BinaryOperator::EqEq(_)) && matches!(rhs_op, BinaryOperator::LT(_)))
                     || (matches!(lhs_op, BinaryOperator::LT(_)) && matches!(rhs_op, BinaryOperator::EqEq(_)))
+                    || (matches!(lhs_op, BinaryOperator::GE(_)) && matches!(rhs_op, BinaryOperator::GT(_)))
+                    || (matches!(lhs_op, BinaryOperator::LE(_)) && matches!(rhs_op, BinaryOperator::LT(_)))
                 {
                     diagnostics.push(PluginDiagnostic {
                         stable_ptr: expr.stable_ptr().untyped(),

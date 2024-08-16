@@ -86,13 +86,15 @@ impl Fixer {
                             (lhs_inner.op(db), rhs_inner.op(db)),
                             (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
                                 | (BinaryOperator::LT(_), BinaryOperator::EqEq(_))
+                                | (BinaryOperator::GE(_), BinaryOperator::GT(_))
+                                | (BinaryOperator::LE(_), BinaryOperator::LT(_))
                         ) {
-                            // Simplify to a single comparison
                             let simplified_op = match (lhs_inner.op(db), rhs_inner.op(db)) {
                                 (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
-                                | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => "<=",
-                                _ => return node.get_text(db).to_string(), /* Return the original text if no
-                                                                            * simplification is possible */
+                                | (BinaryOperator::LT(_), BinaryOperator::EqEq(_))
+                                | (BinaryOperator::LE(_), BinaryOperator::LT(_))
+                                | (BinaryOperator::GE(_), BinaryOperator::GT(_)) => "<=",
+                                _ => return node.get_text(db).to_string(),
                             };
                             return format!(
                                 "{}{} {} {}\n",

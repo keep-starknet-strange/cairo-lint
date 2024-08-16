@@ -41,5 +41,9 @@ test_file!(
     "complex double comparison",
     "no double comparison",
     "double comparison with different variables",
-    "double comparison with arithmetic"
+    "double comparison with arithmetic",
+    "double comparison with greater than and equal to",
+    "double comparison with less than and equal to",
+    "double comparison with not equal and less than",
+    "double comparison with equal and greater than"
 );
