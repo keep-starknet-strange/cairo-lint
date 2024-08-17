@@ -158,7 +158,7 @@ impl Fixer {
         }
     
         format!(
-            "{}{}\n",
+            "{}{}",
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
             expr.as_syntax_node().get_text_without_trivia(db),
         )

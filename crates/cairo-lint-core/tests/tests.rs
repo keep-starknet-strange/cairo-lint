@@ -50,9 +50,10 @@ test_file!(
     "unused import aliased",
     "unused import trait"
 );
+
 test_file!(double_parens, 
     double_parens,
-    "simple double parens", 
+    "simple double parens",
     "unnecessary parentheses in arithmetic expression",
     "necessary parentheses in arithmetic expression",
     "tuple double parens",
