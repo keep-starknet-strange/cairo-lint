@@ -4,7 +4,7 @@ use cairo_lang_syntax::node::ast::Expr;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-pub const DOUBLE_PARENS: &'static str = "unnecessary double parentheses found. Consider removing them.";
+pub const DOUBLE_PARENS: &str = "unnecessary double parentheses found. Consider removing them.";
 
 pub fn check_double_parens(db: &dyn SyntaxGroup, expr: &Expr, diagnostics: &mut Vec<PluginDiagnostic>) {
     let span = match expr {
