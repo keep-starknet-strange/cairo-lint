@@ -1,0 +1,6 @@
+//! > Test name
+
+//! > cairo_code
+fn main() {
+    let a: Option<felt252> = Option::Some(1);
+}
