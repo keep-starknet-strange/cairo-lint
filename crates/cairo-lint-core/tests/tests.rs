@@ -50,3 +50,18 @@ test_file!(
     "unused import aliased",
     "unused import trait"
 );
+
+test_file!(
+    double_parens,
+    double_parens,
+    "simple double parens",
+    "unnecessary parentheses in arithmetic expression",
+    "necessary parentheses in arithmetic expression",
+    "tuple double parens",
+    "assert expressions",
+    "double parens with function call",
+    "double parens with return",
+    "double parens in let statement",
+    "double parens in struct field access",
+    "double parens in match arm"
+);

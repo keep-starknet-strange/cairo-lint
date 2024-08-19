@@ -44,6 +44,7 @@ pub fn is_expr_unit(expr: Expr, db: &dyn SyntaxGroup) -> bool {
         _ => false,
     }
 }
+
 pub fn check_single_match(
     db: &dyn SemanticGroup,
     match_expr: &ExprMatch,

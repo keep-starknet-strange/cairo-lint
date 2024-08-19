@@ -2,11 +2,11 @@ use cairo_lang_defs::ids::{ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
-use cairo_lang_syntax::node::ast::ExprMatch;
+use cairo_lang_syntax::node::ast::{Expr, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
-use crate::lints::single_match;
+use crate::lints::{double_parens, single_match};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -20,6 +20,7 @@ pub struct CairoLint;
 pub enum CairoLintKind {
     DestructMatch,
     MatchForEquality,
+    DoubleParens,
     Unknown,
 }
 
@@ -27,6 +28,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
         single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
+        double_parens::DOUBLE_PARENS => CairoLintKind::DoubleParens,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -50,6 +52,11 @@ impl AnalyzerPlugin for CairoLint {
                                 &ExprMatch::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,
                                 &module_id,
+                            ),
+                            SyntaxKind::ExprParenthesized => double_parens::check_double_parens(
+                                db.upcast(),
+                                &Expr::from_syntax_node(db.upcast(), descendant),
+                                &mut diags,
                             ),
                             SyntaxKind::ItemExternFunction => (),
                             _ => (),
