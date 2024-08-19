@@ -1,6 +1,11 @@
 [workspace]
 resolver = "2"
-members = ["crates/cairo-lint-cli", "crates/cairo-lint-core", "crates/cairo-lint-dev", "crates/cairo-lint-test-utils"]
+members = [
+  "crates/cairo-lint-cli",
+  "crates/cairo-lint-core",
+  "crates/cairo-lint-dev",
+  "crates/cairo-lint-test-utils",
+]
 
 [workspace.package]
 version = "0.1.0"
@@ -30,3 +35,4 @@ ctor = "0.2.8"
 paste = "1.0.15"
 itertools = "0.13.0"
 log = "0.4.22"
+regex = "1.10.6"

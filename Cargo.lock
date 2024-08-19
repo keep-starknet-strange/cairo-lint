@@ -186,8 +186,8 @@ checksum = "8318a53db07bb3f8dca91a600466bdb3f2eaadeedfdbcf02e1accbad9271ba50"
 
 [[package]]
 name = "cairo-lang-casm"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-utils",
  "indoc",
@@ -199,8 +199,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-compiler"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "anyhow",
  "cairo-lang-defs",
@@ -216,23 +216,24 @@ dependencies = [
  "cairo-lang-utils",
  "indoc",
  "rayon",
- "salsa",
+ "rust-analyzer-salsa",
+ "semver",
  "smol_str",
  "thiserror",
 ]
 
 [[package]]
 name = "cairo-lang-debug"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-utils",
 ]
 
 [[package]]
 name = "cairo-lang-defs"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-diagnostics",
@@ -241,14 +242,14 @@ dependencies = [
  "cairo-lang-syntax",
  "cairo-lang-utils",
  "itertools 0.12.1",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
 ]
 
 [[package]]
 name = "cairo-lang-diagnostics"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-filesystem",
@@ -258,8 +259,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-doc"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-defs",
  "cairo-lang-formatter",
@@ -267,13 +268,13 @@ dependencies = [
  "cairo-lang-syntax",
  "cairo-lang-utils",
  "itertools 0.12.1",
- "salsa",
+ "rust-analyzer-salsa",
 ]
 
 [[package]]
 name = "cairo-lang-eq-solver"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-utils",
  "good_lp",
@@ -281,21 +282,22 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-filesystem"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-utils",
  "path-clean",
- "salsa",
+ "rust-analyzer-salsa",
+ "semver",
  "serde",
  "smol_str",
 ]
 
 [[package]]
 name = "cairo-lang-formatter"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "anyhow",
  "cairo-lang-diagnostics",
@@ -306,7 +308,7 @@ dependencies = [
  "diffy",
  "ignore",
  "itertools 0.12.1",
- "salsa",
+ "rust-analyzer-salsa",
  "serde",
  "smol_str",
  "thiserror",
@@ -314,8 +316,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-language-server"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -335,7 +337,7 @@ dependencies = [
  "indent",
  "indoc",
  "itertools 0.12.1",
- "salsa",
+ "rust-analyzer-salsa",
  "scarb-metadata",
  "serde",
  "serde_json",
@@ -349,8 +351,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-lowering"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-defs",
@@ -366,14 +368,14 @@ dependencies = [
  "log",
  "num-bigint",
  "num-traits 0.2.19",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
 ]
 
 [[package]]
 name = "cairo-lang-parser"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-diagnostics",
  "cairo-lang-filesystem",
@@ -384,15 +386,15 @@ dependencies = [
  "itertools 0.12.1",
  "num-bigint",
  "num-traits 0.2.19",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "unescaper",
 ]
 
 [[package]]
 name = "cairo-lang-plugins"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-defs",
  "cairo-lang-diagnostics",
@@ -403,14 +405,14 @@ dependencies = [
  "indent",
  "indoc",
  "itertools 0.12.1",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
 ]
 
 [[package]]
 name = "cairo-lang-proc-macros"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-debug",
  "quote",
@@ -419,8 +421,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-project"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-filesystem",
  "cairo-lang-utils",
@@ -432,8 +434,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-semantic"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-defs",
@@ -450,15 +452,15 @@ dependencies = [
  "itertools 0.12.1",
  "num-bigint",
  "num-traits 0.2.19",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "toml",
 ]
 
 [[package]]
 name = "cairo-lang-sierra"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "anyhow",
  "cairo-lang-utils",
@@ -472,7 +474,7 @@ dependencies = [
  "num-integer",
  "num-traits 0.2.19",
  "regex",
- "salsa",
+ "rust-analyzer-salsa",
  "serde",
  "serde_json",
  "sha3",
@@ -483,8 +485,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-sierra-ap-change"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-eq-solver",
  "cairo-lang-sierra",
@@ -498,8 +500,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-sierra-gas"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-eq-solver",
  "cairo-lang-sierra",
@@ -513,8 +515,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-sierra-generator"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-defs",
@@ -528,7 +530,7 @@ dependencies = [
  "cairo-lang-utils",
  "itertools 0.12.1",
  "num-traits 0.2.19",
- "salsa",
+ "rust-analyzer-salsa",
  "serde",
  "serde_json",
  "smol_str",
@@ -536,8 +538,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-sierra-to-casm"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "assert_matches",
  "cairo-lang-casm",
@@ -556,8 +558,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-sierra-type-size"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-sierra",
  "cairo-lang-utils",
@@ -565,8 +567,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-starknet"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -594,8 +596,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-starknet-classes"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-casm",
  "cairo-lang-sierra",
@@ -616,23 +618,23 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-syntax"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-filesystem",
  "cairo-lang-utils",
  "num-bigint",
  "num-traits 0.2.19",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "unescaper",
 ]
 
 [[package]]
 name = "cairo-lang-syntax-codegen"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "genco",
  "xshell",
@@ -640,8 +642,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-test-plugin"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -666,8 +668,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-test-utils"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "cairo-lang-formatter",
  "cairo-lang-utils",
@@ -678,8 +680,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-utils"
-version = "2.7.0"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#4c361d62a002b48c75175083d3d75bae540bb95f"
+version = "2.7.1"
+source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
 dependencies = [
  "hashbrown 0.14.5",
  "indexmap 2.4.0",
@@ -731,6 +733,7 @@ dependencies = [
  "log",
  "paste",
  "pretty_assertions",
+ "regex",
  "salsa",
  "test-case",
 ]
@@ -743,6 +746,7 @@ version = "0.1.0"
 name = "cairo-lint-test-utils"
 version = "0.1.0"
 dependencies = [
+ "cairo-lang-compiler",
  "cairo-lang-defs",
  "cairo-lang-diagnostics",
  "cairo-lang-filesystem",
@@ -1180,6 +1184,12 @@ checksum = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
 dependencies = [
  "unicode-segmentation",
 ]
+
+[[package]]
+name = "heck"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
 
 [[package]]
 name = "hermit-abi"
@@ -1888,6 +1898,35 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba39f3699c378cd8970968dcbff9c43159ea4cfbd88d43c00b22f2ef10a435d2"
 
 [[package]]
+name = "rust-analyzer-salsa"
+version = "0.17.0-pre.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "719825638c59fd26a55412a24561c7c5bcf54364c88b9a7a04ba08a6eafaba8d"
+dependencies = [
+ "indexmap 2.4.0",
+ "lock_api",
+ "oorandom",
+ "parking_lot 0.12.3",
+ "rust-analyzer-salsa-macros",
+ "rustc-hash",
+ "smallvec",
+ "tracing",
+ "triomphe",
+]
+
+[[package]]
+name = "rust-analyzer-salsa-macros"
+version = "0.17.0-pre.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d96498e9684848c6676c399032ebc37c52da95ecbefa83d71ccc53b9f8a4a8e"
+dependencies = [
+ "heck 0.4.1",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.75",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1934,7 +1973,7 @@ version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd3904a4ba0a9d0211816177fd34b04c7095443f8cdacd11175064fe541c8fe2"
 dependencies = [
- "heck",
+ "heck 0.3.3",
  "proc-macro2",
  "quote",
  "syn 1.0.109",
@@ -2160,6 +2199,12 @@ dependencies = [
  "num-complex",
  "num-traits 0.1.43",
 ]
+
+[[package]]
+name = "stable_deref_trait"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "starknet-types-core"
@@ -2532,6 +2577,16 @@ dependencies = [
  "tracing",
  "tracing-core",
  "tracing-log",
+]
+
+[[package]]
+name = "triomphe"
+version = "0.1.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6631e42e10b40c0690bf92f404ebcfe6e1fdb480391d15f17cc8e96eeed5369"
+dependencies = [
+ "serde",
+ "stable_deref_trait",
 ]
 
 [[package]]

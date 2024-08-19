@@ -153,20 +153,20 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+ --> lib.cairo:5:22
+\   Option::Some(a) => match a {
+|       Option::Some(b) => println!("{b}"),
+|       _ => (),
+|   }
+|___^
+
+warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
  --> lib.cairo:4:2
 \   match variable {
 |       Option::Some(a) => match a {
 |           Option::Some(b) => println!("{b}"),
 |           _ => (),
 |       },
-|       _ => (),
-|   }
-|___^
-
-warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
- --> lib.cairo:5:22
-\   Option::Some(a) => match a {
-|       Option::Some(b) => println!("{b}"),
 |       _ => (),
 |   }
 |___^
@@ -188,18 +188,14 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
- --> lib.cairo:3:2
-\   match variable {
-|       Option::None => (),
-|       Option::Some(a) => println!("{a}"),
-|   }
-|___^
 
 //! > fixed
 fn main() {
 	let variable = Option::Some(1_felt252);
-	if let Option::Some(a) = variable { println!("{a}") };
+	match variable {
+		Option::None => (),
+		Option::Some(a) => println!("{a}"),
+	};
 }
 
 //! > ==========================================================================

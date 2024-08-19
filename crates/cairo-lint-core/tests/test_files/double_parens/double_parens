@@ -2,18 +2,18 @@
 
 //! > cairo_code
 fn main() {
-    assert_eq!(((4)), 4);
+    assert!(((4)) == 4);
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
- --> lib.cairo:2:16
-    assert_eq!(((4)), 4);
-               ^***^
+ --> lib.cairo:2:13
+    assert!(((4)) == 4);
+            ^***^
 
 //! > fixed
 fn main() {
-    assert_eq!(4, 4);
+    assert!(4== 4);
 }
 
 //! > ==========================================================================
