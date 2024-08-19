@@ -1,0 +1,29 @@
+//! > multiple unused imports
+
+//! > cairo_code
+use core::integer::{u128_safe_divmod, u128_byte_reverse};
+fn main() {
+}
+
+//! > diagnostics
+
+//! > fixed
+use core::integer::{u128_safe_divmod, u128_byte_reverse};
+fn main() {
+}
+
+//! > ==========================================================================
+
+//! > single unused import
+
+//! > cairo_code
+use core::integer::u128_safe_divmod;
+fn main() {
+}
+
+//! > diagnostics
+
+//! > fixed
+use core::integer::u128_safe_divmod;
+fn main() {
+}

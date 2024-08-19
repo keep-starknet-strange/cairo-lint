@@ -1,4 +1,5 @@
 use crate::db::AnalysisDatabase;
+use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
@@ -12,9 +13,6 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::{debug, warn};
 
-use crate::db::AnalysisDatabase;
-use crate::lints::single_match::is_expr_unit;
-use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
