@@ -24,7 +24,6 @@ fn main() {
 //! > diagnostics
 
 //! > fixed
-use core::integer::u128_safe_divmod;
 fn main() {
 }
 
@@ -33,14 +32,13 @@ fn main() {
 //! > unused import aliased
 
 //! > cairo_code
-use core::integer::u128_safe_divmod;
+use core::integer::u128_safe_divmod as foo;
 fn main() {
 }
 
 //! > diagnostics
 
 //! > fixed
-use core::integer::u128_safe_divmod;
 fn main() {
 }
 
@@ -56,6 +54,5 @@ fn main() {
 //! > diagnostics
 
 //! > fixed
-use core::num::traits::OverflowingAdd;
 fn main() {
 }
