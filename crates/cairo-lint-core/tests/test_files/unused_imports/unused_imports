@@ -27,3 +27,35 @@ fn main() {
 use core::integer::u128_safe_divmod;
 fn main() {
 }
+
+//! > ==========================================================================
+
+//! > unused import aliased
+
+//! > cairo_code
+use core::integer::u128_safe_divmod;
+fn main() {
+}
+
+//! > diagnostics
+
+//! > fixed
+use core::integer::u128_safe_divmod;
+fn main() {
+}
+
+//! > ==========================================================================
+
+//! > unused import trait
+
+//! > cairo_code
+use core::num::traits::OverflowingAdd;
+fn main() {
+}
+
+//! > diagnostics
+
+//! > fixed
+use core::num::traits::OverflowingAdd;
+fn main() {
+}

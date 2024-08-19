@@ -34,4 +34,4 @@ test_file!(
     "simple destructuring match with comment in scope"
 );
 
-test_file!(unused_imports, unused_imports, "single unused import", "multiple unused imports");
+test_file!(unused_imports, unused_imports, "single unused import", "multiple unused imports", "unused import aliased", "unused import trait");
