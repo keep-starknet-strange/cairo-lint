@@ -1,6 +1,3 @@
-use crate::db::AnalysisDatabase;
-use crate::lints::single_match::is_expr_unit;
-use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
@@ -13,6 +10,9 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::{debug, warn};
 
+use crate::db::AnalysisDatabase;
+use crate::lints::single_match::is_expr_unit;
+use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
@@ -52,7 +52,6 @@ pub fn fix_semantic_diagnostic(db: &AnalysisDatabase, diag: &SemanticDiagnostic)
 #[derive(Default)]
 pub struct Fixer;
 impl Fixer {
-
     /// Fixes an unused variable by prefixing it with an underscore.
     ///
     /// # Arguments
@@ -64,7 +63,11 @@ impl Fixer {
     ///
     /// An `Option<(SyntaxNode, String)>` containing the node to be replaced and the
     /// suggested replacement (the variable name prefixed with an underscore).
-    pub fn fix_unused_variable(&self, db: &AnalysisDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
+    pub fn fix_unused_variable(
+        &self,
+        db: &AnalysisDatabase,
+        diag: &SemanticDiagnostic,
+    ) -> Option<(SyntaxNode, String)> {
         let node = diag.stable_location.syntax_node(db.upcast());
         let suggestion = format!("_{}", node.get_text(db.upcast()));
         Some((node, suggestion))
@@ -132,7 +135,12 @@ impl Fixer {
     ///
     /// An `Option<(SyntaxNode, String)>` containing the node to be replaced and the
     /// suggested replacement.
-    pub fn fix_plugin_diagnostic(&self, db: &AnalysisDatabase, semantic_diag: &SemanticDiagnostic, plugin_diag: &PluginDiagnostic) -> Option<(SyntaxNode, String)> {
+    pub fn fix_plugin_diagnostic(
+        &self,
+        db: &AnalysisDatabase,
+        semantic_diag: &SemanticDiagnostic,
+        plugin_diag: &PluginDiagnostic,
+    ) -> Option<(SyntaxNode, String)> {
         let new_text = match diagnostic_kind_from_message(&plugin_diag.message) {
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => "".to_owned(),
@@ -188,5 +196,4 @@ impl Fixer {
             None
         }
     }
-
 }
