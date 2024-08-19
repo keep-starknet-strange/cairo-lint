@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{Expr, ExprBinary, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
@@ -143,7 +143,11 @@ impl Fixer {
     ) -> Option<(SyntaxNode, String)> {
         let new_text = match diagnostic_kind_from_message(&plugin_diag.message) {
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-            _ => "".to_owned(),
+            CairoLintKind::EraseOp => {
+                debug!("Erase op is most likely an error so don't fix it");
+                return None;
+            }
+            _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
