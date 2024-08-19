@@ -51,7 +51,8 @@ test_file!(
     "unused import trait"
 );
 
-test_file!(double_parens, 
+test_file!(
+    double_parens,
     double_parens,
     "simple double parens",
     "unnecessary parentheses in arithmetic expression",

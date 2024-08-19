@@ -142,21 +142,41 @@ impl Fixer {
         plugin_diag: &PluginDiagnostic,
     ) -> Option<(SyntaxNode, String)> {
         let new_text = match diagnostic_kind_from_message(&plugin_diag.message) {
-            CairoLintKind::DoubleParens => self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::DoubleParens => {
+                self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => "".to_owned(),
         };
-    
+
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
-    
+
+    /// Removes unnecessary double parentheses from a syntax node.
+    ///
+    /// Simplifies an expression by stripping extra layers of parentheses while preserving
+    /// the original formatting and indentation.
+    ///
+    /// # Arguments
+    ///
+    /// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+    /// * `node` - The `SyntaxNode` containing the expression.
+    ///
+    /// # Returns
+    ///
+    /// A `String` with the simplified expression.
+    ///
+    /// # Example
+    ///
+    /// Input: `((x + y))`
+    /// Output: `x + y`
     pub fn fix_double_parens(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let mut expr = Expr::from_syntax_node(db, node.clone());
-    
+
         while let Expr::Parenthesized(inner_expr) = expr {
             expr = inner_expr.expr(db);
         }
-    
+
         format!(
             "{}{}",
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
