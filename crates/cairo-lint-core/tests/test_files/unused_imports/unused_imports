@@ -6,6 +6,15 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Unused import: `test::u128_safe_divmod`
+ --> lib.cairo:1:21
+use core::integer::{u128_safe_divmod, u128_byte_reverse};
+                    ^**************^
+
+warning: Unused import: `test::u128_byte_reverse`
+ --> lib.cairo:1:39
+use core::integer::{u128_safe_divmod, u128_byte_reverse};
+                                      ^***************^
 
 //! > fixed
 use core::integer::{u128_safe_divmod, u128_byte_reverse};
@@ -22,6 +31,10 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Unused import: `test::u128_safe_divmod`
+ --> lib.cairo:1:20
+use core::integer::u128_safe_divmod;
+                   ^**************^
 
 //! > fixed
 fn main() {
@@ -37,6 +50,10 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Unused import: `test::foo`
+ --> lib.cairo:1:20
+use core::integer::u128_safe_divmod as foo;
+                   ^*********************^
 
 //! > fixed
 fn main() {
@@ -52,6 +69,10 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Unused import: `test::OverflowingAdd`
+ --> lib.cairo:1:24
+use core::num::traits::OverflowingAdd;
+                       ^************^
 
 //! > fixed
 fn main() {

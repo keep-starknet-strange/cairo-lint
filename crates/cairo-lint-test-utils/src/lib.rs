@@ -62,7 +62,7 @@ macro_rules! test_file {
                 let mut db = AnalysisDatabase::new();
                 let mut fixes = Vec::new();
 
-                let diags = get_diags(setup_test_crate(db.upcast(), &file), &mut db);
+                let diags = get_diags(setup_test_crate_ex(db.upcast(), &file, Some(CRATE_CONFIG)), &mut db);
                 for diag in diags.iter().flat_map(|diags| diags.get_all()) {
                     if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag){
                     let span = fix_node.span(db.upcast());
