@@ -19,7 +19,7 @@ cairo-lang-syntax.workspace = true
 cairo-lang-defs.workspace = true
 cairo-lang-language-server.workspace = true
 salsa.workspace = true
-log = "0.4.22"
+log.workspace = true
 
 [dev-dependencies]
 indoc.workspace = true
