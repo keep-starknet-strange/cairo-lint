@@ -142,10 +142,15 @@ impl Fixer {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
 
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
+    }
+
+    pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        node.get_text(db).replace(" ()", "").to_string()
     }
 
     /// Removes unnecessary double parentheses from a syntax node.

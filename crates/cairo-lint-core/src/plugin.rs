@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::{double_parens, loops, single_match};
+use crate::lints::{breaks, double_parens, loops, single_match};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -23,6 +23,7 @@ pub enum CairoLintKind {
     MatchForEquality,
     DoubleParens,
     Unknown,
+    BreakUnit,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -30,6 +31,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
         single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
         double_parens::DOUBLE_PARENS => CairoLintKind::DoubleParens,
+        breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -79,6 +81,7 @@ impl AnalyzerPlugin for CairoLint {
                         &AstExpr::from_syntax_node(db.upcast(), node),
                         &mut diags,
                     ),
+                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     _ => continue,
                 }
             }
