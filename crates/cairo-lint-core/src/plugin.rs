@@ -24,6 +24,8 @@ pub enum CairoLintKind {
     Unknown,
 }
 
+/// Converts a diagnostic message to the corresponding [`CairoLintKind`]. If the message isn't
+/// recognized will return [`CairoLintKind::Unknown`]
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
@@ -42,23 +44,25 @@ impl AnalyzerPlugin for CairoLint {
         for item in items.iter() {
             match item {
                 ModuleItemId::FreeFunction(func_id) => {
-                    //
                     let func = db.module_free_function_by_id(*func_id).unwrap().unwrap();
+                    // Get everything that is in the function
                     let descendants = func.as_syntax_node().descendants(db.upcast());
                     for descendant in descendants.into_iter() {
+                        // Check what kind of node it is
                         match descendant.kind(db.upcast()) {
+                            // If it's a match check it with the appropriate function.
                             SyntaxKind::ExprMatch => single_match::check_single_match(
                                 db.upcast(),
                                 &ExprMatch::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,
                                 &module_id,
                             ),
+                            // If it's a `(...)` check it with the appropriate function
                             SyntaxKind::ExprParenthesized => double_parens::check_double_parens(
                                 db.upcast(),
                                 &Expr::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,
                             ),
-                            SyntaxKind::ItemExternFunction => (),
                             _ => (),
                         }
                     }

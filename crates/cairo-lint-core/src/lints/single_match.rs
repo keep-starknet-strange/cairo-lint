@@ -14,10 +14,12 @@ pub const DESTRUCT_MATCH: &str =
     "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
 pub const MATCH_FOR_EQUALITY: &str = "you seem to be trying to use `match` for an equality check. Consider using `if`";
 
+/// Checks wether an [`ExprListParenthesized`] is `()` or not
 fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn SyntaxGroup) -> bool {
     expr.expressions(db).elements(db).is_empty()
 }
 
+/// Checks wether a [`ExprBlock`] is `{ () }` or `{ }`
 fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGroup) -> bool {
     let statements = block_expr.statements(db).elements(db);
     if statements.is_empty() {
@@ -37,6 +39,7 @@ fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGro
     }
 }
 
+/// Checks wether an [`Expr`] is `()` or `{ }` or `{ () }`
 pub fn is_expr_unit(expr: Expr, db: &dyn SyntaxGroup) -> bool {
     match expr {
         Expr::Block(block_expr) => is_block_expr_unit_without_comment(&block_expr, db),
@@ -45,6 +48,43 @@ pub fn is_expr_unit(expr: Expr, db: &dyn SyntaxGroup) -> bool {
     }
 }
 
+/// Checks if a [`ExprMatch`] can be rewrote as `if let`. If it can will append the diagnostic.
+///
+/// # Examples
+///
+/// ```ignore
+/// let variable = Some(3u32);
+/// match variable {
+///     Option::Some(a) => println!("{a}"),
+///     Option::None => (),
+/// };
+
+/// ```
+/// This match is useless and can be replaced by
+/// ```ignore
+/// if let Option::Some(a) = variable {
+///     println!("{a}")
+/// };
+/// ```
+/// Also works with underscored matches
+/// ```ignore
+/// enum SomeEnum {
+///     FirstVariant: u32,
+///     SecondVariant: u32,
+///     ThirdVariant: u32,
+///     FourthVariant: u32,
+/// }
+/// match variable {
+///     SomeEnum::FirstVariant(a) => do_something(a),
+///     _ => (),
+/// }
+/// ```
+/// This match is useless it can be replaced by
+/// ```ignore
+/// if let SomeEnum::FirstVariant(a) = variable {
+///     do_something(a)
+/// };
+/// ```
 pub fn check_single_match(
     db: &dyn SemanticGroup,
     match_expr: &ExprMatch,
