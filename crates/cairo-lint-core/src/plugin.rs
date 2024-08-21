@@ -8,7 +8,7 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::single_match;
+use crate::lints::{double_parens, single_match};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -23,13 +23,15 @@ pub enum CairoLintKind {
     DestructMatch,
     MatchForEquality,
     DoubleComparison,
+    DoubleParens,
     Unknown,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
-        CairoLint::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
-        CairoLint::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
+        single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
+        single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
+        double_parens::DOUBLE_PARENS => CairoLintKind::DoubleParens,
         CairoLint::DOUBLE_COMPARISON => CairoLintKind::DoubleComparison,
         _ => CairoLintKind::Unknown,
     }
@@ -93,6 +95,11 @@ impl AnalyzerPlugin for CairoLint {
                             ),
                             SyntaxKind::ExprBinary => CairoLint::check_double_comparison(
                                 &CairoLint,
+                                b.upcast(),
+                                &Expr::from_syntax_node(db.upcast(), descendant),
+                                &mut diags,
+                            ),
+                            SyntaxKind::ExprParenthesized => double_parens::check_double_parens(
                                 db.upcast(),
                                 &Expr::from_syntax_node(db.upcast(), descendant),
                                 &mut diags,
