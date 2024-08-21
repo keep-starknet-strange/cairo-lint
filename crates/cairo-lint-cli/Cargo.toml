@@ -1,9 +1,13 @@
 [package]
-name = "cairo-lint"
+name = "scarb-cairo-lint"
 version.workspace = true
 edition.workspace = true
 repository.workspace = true
 license-file.workspace = true
+
+[[bin]]
+name = "scarb-cairo-lint"
+path = "src/main.rs"
 
 [dependencies]
 cairo-lang-compiler.workspace = true
@@ -17,3 +21,10 @@ cairo-lang-lowering.workspace = true
 cairo-lang-syntax.workspace = true
 cairo-lang-defs.workspace = true
 salsa.workspace = true
+clap = { workspace = true, features = ["derive"] }
+scarb-ui = "0.1.5"
+anyhow.workspace = true
+scarb-metadata = "1.12.0"
+cairo-lint-core = { path = "../cairo-lint-core" }
+# scarb = { git = "https://github.com/software-mansion/scarb", branch = "main" }
+smol_str.workspace = true

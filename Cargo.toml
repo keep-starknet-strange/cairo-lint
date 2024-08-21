@@ -25,6 +25,7 @@ cairo-lang-test-plugin = { git = "https://github.com/0xLucqs/cairo", branch = "l
 cairo-lang-lowering = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
 cairo-lang-syntax = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
 cairo-lang-defs = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
+cairo-lang-starknet = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
 cairo-lang-test-utils = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
 cairo-lang-language-server = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
 salsa = "0.16.1"
