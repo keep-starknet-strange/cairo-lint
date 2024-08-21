@@ -20,6 +20,7 @@ cairo-lang-defs.workspace = true
 cairo-lang-language-server.workspace = true
 salsa.workspace = true
 log.workspace = true
+annotate-snippets = "0.11.4"
 
 [dev-dependencies]
 indoc.workspace = true
@@ -30,3 +31,4 @@ ctor.workspace = true
 cairo-lint-test-utils = { path = "../cairo-lint-test-utils" }
 paste.workspace = true
 itertools.workspace = true
+annotate-snippets = "0.11.4"
