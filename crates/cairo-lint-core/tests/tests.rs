@@ -77,5 +77,8 @@ test_file!(
     "double comparison with greater than and equal to",
     "double comparison with less than and equal to",
     "double comparison with not equal and less than",
-    "double comparison with equal and greater than"
+    "double comparison with equal and greater than",
+    "double comparison with not equal to and less than",
+    "double comparison with equal to and not equal to",
+    "double comparison with not equal to and greater than"
 );

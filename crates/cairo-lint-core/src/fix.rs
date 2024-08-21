@@ -146,6 +146,9 @@ impl Fixer {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::DoubleComparison => {
+                self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             _ => "".to_owned(),
         };
 
@@ -241,41 +244,46 @@ impl Fixer {
             let rhs = binary_op.rhs(db);
 
             if let (Expr::Binary(lhs_inner), Expr::Binary(rhs_inner)) = (&lhs, &rhs) {
-                if let (Some(lhs_var), Some(rhs_var)) =
-                    (Self::extract_variable(lhs_inner, db), Self::extract_variable(rhs_inner, db))
-                {
-                    if lhs_var == rhs_var {
-                        if matches!(
-                            (lhs_inner.op(db), rhs_inner.op(db)),
-                            (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
-                                | (BinaryOperator::LT(_), BinaryOperator::EqEq(_))
-                                | (BinaryOperator::GE(_), BinaryOperator::GT(_))
-                                | (BinaryOperator::LE(_), BinaryOperator::LT(_))
-                        ) {
-                            let simplified_op = match (lhs_inner.op(db), rhs_inner.op(db)) {
-                                (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
-                                | (BinaryOperator::LT(_), BinaryOperator::EqEq(_))
-                                | (BinaryOperator::LE(_), BinaryOperator::LT(_))
-                                | (BinaryOperator::GE(_), BinaryOperator::GT(_)) => "<=",
-                                _ => return node.get_text(db).to_string(),
-                            };
-                            return format!(
-                                "{}{} {} {}\n",
-                                node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
-                                lhs_var,
-                                simplified_op,
-                                lhs_inner.rhs(db).as_syntax_node().get_text_without_trivia(db)
-                            );
-                        }
-                    }
+                let lhs_var = Self::extract_variable(lhs_inner, db);
+                let rhs_var = Self::extract_variable(rhs_inner, db);
+
+                if lhs_var == rhs_var {
+                    let op = binary_op.op(db);
+
+                    let simplified_op = match (op, lhs_inner.op(db), rhs_inner.op(db)) {
+                        (BinaryOperator::Or(_), BinaryOperator::EqEq(_), BinaryOperator::LT(_))
+                        | (BinaryOperator::Or(_), BinaryOperator::LT(_), BinaryOperator::EqEq(_))
+                        | (BinaryOperator::Or(_), BinaryOperator::LE(_), BinaryOperator::LT(_))
+                        | (BinaryOperator::Or(_), BinaryOperator::GE(_), BinaryOperator::GT(_)) => "<=",
+
+                        (BinaryOperator::Or(_), BinaryOperator::EqEq(_), BinaryOperator::GT(_))
+                        | (BinaryOperator::Or(_), BinaryOperator::GT(_), BinaryOperator::EqEq(_))
+                        | (BinaryOperator::Or(_), BinaryOperator::GE(_), BinaryOperator::LE(_)) => ">=",
+
+                        (BinaryOperator::Or(_), BinaryOperator::LT(_), BinaryOperator::GT(_))
+                        | (BinaryOperator::Or(_), BinaryOperator::GT(_), BinaryOperator::LT(_)) => "!=",
+
+                        (BinaryOperator::And(_), BinaryOperator::LE(_), BinaryOperator::GE(_))
+                        | (BinaryOperator::And(_), BinaryOperator::GE(_), BinaryOperator::LE(_)) => "==",
+
+                        _ => return node.get_text(db).to_string(),
+                    };
+
+                    return format!(
+                        "{}{} {} {}\n",
+                        node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
+                        lhs_var,
+                        simplified_op,
+                        lhs_inner.rhs(db).as_syntax_node().get_text_without_trivia(db)
+                    );
                 }
             }
         }
         node.get_text(db).to_string()
     }
 
-    pub fn extract_variable(binary_expr: &ExprBinary, db: &dyn SyntaxGroup) -> Option<String> {
+    pub fn extract_variable(binary_expr: &ExprBinary, db: &dyn SyntaxGroup) -> String {
         let lhs = binary_expr.lhs(db);
-        Some(lhs.as_syntax_node().get_text(db).to_string())
+        lhs.as_syntax_node().get_text(db).to_string()
     }
 }
