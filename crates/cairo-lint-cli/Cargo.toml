@@ -16,5 +16,4 @@ cairo-lang-test-plugin.workspace = true
 cairo-lang-lowering.workspace = true
 cairo-lang-syntax.workspace = true
 cairo-lang-defs.workspace = true
-cairo-lang-language-server.workspace = true
 salsa.workspace = true

@@ -1,3 +1,4 @@
+use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
@@ -10,7 +11,6 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::{debug, warn};
 
-use crate::db::AnalysisDatabase;
 use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
@@ -29,7 +29,7 @@ pub struct Fix {
 ///
 /// # Arguments
 ///
-/// * `db` - A reference to the AnalysisDatabase
+/// * `db` - A reference to the RootDatabase
 /// * `diag` - A reference to the SemanticDiagnostic to be fixed
 ///
 /// # Returns
@@ -37,7 +37,7 @@ pub struct Fix {
 /// An `Option<(SyntaxNode, String)>` where the `SyntaxNode` represents the node to be
 /// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
 /// is available for the given diagnostic.
-pub fn fix_semantic_diagnostic(db: &AnalysisDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
+pub fn fix_semantic_diagnostic(db: &RootDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
     match diag.kind {
         SemanticDiagnosticKind::UnusedVariable => Fixer.fix_unused_variable(db, diag),
         SemanticDiagnosticKind::PluginDiagnostic(ref plugin_diag) => Fixer.fix_plugin_diagnostic(db, diag, plugin_diag),
@@ -56,18 +56,14 @@ impl Fixer {
     ///
     /// # Arguments
     ///
-    /// * `db` - A reference to the AnalysisDatabase
+    /// * `db` - A reference to the RootDatabase
     /// * `diag` - A reference to the SemanticDiagnostic for the unused variable
     ///
     /// # Returns
     ///
     /// An `Option<(SyntaxNode, String)>` containing the node to be replaced and the
     /// suggested replacement (the variable name prefixed with an underscore).
-    pub fn fix_unused_variable(
-        &self,
-        db: &AnalysisDatabase,
-        diag: &SemanticDiagnostic,
-    ) -> Option<(SyntaxNode, String)> {
+    pub fn fix_unused_variable(&self, db: &RootDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
         let node = diag.stable_location.syntax_node(db.upcast());
         let suggestion = format!("_{}", node.get_text(db.upcast()));
         Some((node, suggestion))
@@ -127,7 +123,7 @@ impl Fixer {
     ///
     /// # Arguments
     ///
-    /// * `db` - A reference to the AnalysisDatabase
+    /// * `db` - A reference to the RootDatabase
     /// * `diag` - A reference to the SemanticDiagnostic
     /// * `plugin_diag` - A reference to the PluginDiagnostic
     ///
@@ -137,7 +133,7 @@ impl Fixer {
     /// suggested replacement.
     pub fn fix_plugin_diagnostic(
         &self,
-        db: &AnalysisDatabase,
+        db: &RootDatabase,
         semantic_diag: &SemanticDiagnostic,
         plugin_diag: &PluginDiagnostic,
     ) -> Option<(SyntaxNode, String)> {
@@ -146,7 +142,7 @@ impl Fixer {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-            _ => "".to_owned(),
+            _ => return None,
         };
 
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -191,7 +187,7 @@ impl Fixer {
     ///
     /// # Arguments
     ///
-    /// * `db` - A reference to the AnalysisDatabase
+    /// * `db` - A reference to the RootDatabase
     /// * `diag` - A reference to the SemanticDiagnostic
     /// * `id` - A reference to the UseId of the unused import
     ///
@@ -199,7 +195,7 @@ impl Fixer {
     ///
     /// An `Option<(SyntaxNode, String)>` containing the node to be removed and an empty string
     /// (indicating removal). Returns `None` for multi-import paths.
-    pub fn fix_unused_import(&self, db: &AnalysisDatabase, id: &UseId) -> Option<(SyntaxNode, String)> {
+    pub fn fix_unused_import(&self, db: &RootDatabase, id: &UseId) -> Option<(SyntaxNode, String)> {
         let mut current_node = id.stable_ptr(db).lookup(db.upcast()).as_syntax_node();
         let mut path_to_remove = vec![current_node.clone()];
         let mut remove_entire_statement = true;
