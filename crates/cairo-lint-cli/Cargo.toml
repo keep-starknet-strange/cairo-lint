@@ -11,16 +11,13 @@ path = "src/main.rs"
 
 [dependencies]
 cairo-lang-compiler.workspace = true
-cairo-lang-parser.workspace = true
 cairo-lang-utils.workspace = true
 cairo-lang-semantic.workspace = true
 cairo-lang-filesystem.workspace = true
 cairo-lang-diagnostics.workspace = true
 cairo-lang-test-plugin.workspace = true
-cairo-lang-lowering.workspace = true
-cairo-lang-syntax.workspace = true
 cairo-lang-defs.workspace = true
-salsa.workspace = true
+cairo-lang-starknet.workspace = true
 clap = { workspace = true, features = ["derive"] }
 scarb-ui = "0.1.5"
 anyhow.workspace = true
