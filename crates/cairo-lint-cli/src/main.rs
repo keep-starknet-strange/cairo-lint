@@ -120,47 +120,65 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             Upcast::<dyn FilesGroup>::upcast(&db).intern_crate(CrateLongId::Real(SmolStr::new(&package.name)));
         // Get all the diagnostics
         let mut diags = Vec::new();
+
         for module_id in &*db.crate_modules(crate_id) {
             diags.push(db.module_semantic_diagnostics(*module_id).unwrap());
         }
+
         let renderer = Renderer::styled();
-        let formatted_diags = diags
+
+        let diagnostics = diags
             .iter()
             .flat_map(|diags| {
-                diags.get_all().iter().map(|diag| format_diagnostic(diag, &db, &renderer)).collect::<Vec<_>>()
+                let all_diags = diags.get_all();
+                all_diags.iter().for_each(|diag| ui.print(format_diagnostic(diag, &db, &renderer)));
+                all_diags
             })
-            .collect::<String>();
-        ui.print(formatted_diags);
+            .collect::<Vec<_>>();
+
         if args.fix {
-            let mut fixes = Vec::with_capacity(diags.len());
-            for diag in diags.iter().flat_map(|diags| diags.get_all()) {
+            let mut fixes = HashMap::new();
+            for diag in diagnostics {
                 if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag) {
                     let location = diag.location(db.upcast());
-                    fixes.push(Fix { span: fix_node.span(db.upcast()), file_path: location.file_id, suggestion: fix });
+                    fixes
+                        .entry(location.file_id)
+                        .or_insert_with(Vec::new)
+                        .push(Fix { span: fix_node.span(db.upcast()), suggestion: fix });
                 }
             }
-            fixes.sort_by_key(|fix| Reverse(fix.span.start));
-            let mut fixable_diagnostics = Vec::with_capacity(fixes.len());
-            if fixes.len() <= 1 {
-                fixable_diagnostics = fixes;
-            } else {
-                for i in 0..fixes.len() - 1 {
-                    let first = fixes[i].span;
-                    let second = fixes[i + 1].span;
-                    if second.end <= first.start {
-                        fixable_diagnostics.push(fixes[i].clone());
+            for (file_id, mut fixes) in fixes.into_iter() {
+                ui.print(Status::new("Fixing", &file_id.file_name(db.upcast())));
+                fixes.sort_by_key(|fix| Reverse(fix.span.start));
+                let mut fixable_diagnostics = Vec::with_capacity(fixes.len());
+                if fixes.len() <= 1 {
+                    fixable_diagnostics = fixes;
+                } else {
+                    for i in 0..fixes.len() - 1 {
+                        let first = fixes[i].span;
+                        let second = fixes[i + 1].span;
+                        if first.start >= second.end {
+                            fixable_diagnostics.push(fixes[i].clone());
+                            if i == fixes.len() - 1 {
+                                fixable_diagnostics.push(fixes[i + 1].clone());
+                            }
+                        }
                     }
                 }
-            }
-
-            let mut files: HashMap<FileId, String> = HashMap::default();
-            fixable_diagnostics.into_iter().for_each(|fix| {
-                let file = files.entry(fix.file_path).or_insert(db.file_content(fix.file_path).unwrap().to_string());
-                (*file).replace_range(fix.span.to_str_range(), &fix.suggestion);
-            });
-            for (file_id, file) in files {
-                println!("Fixing {}", file_id.full_path(db.upcast()));
-                std::fs::write(file_id.full_path(db.upcast()), file).unwrap()
+                let mut files: HashMap<FileId, String> = HashMap::default();
+                files.insert(
+                    file_id,
+                    db.file_content(file_id)
+                        .ok_or(anyhow!("{} not found", file_id.file_name(db.upcast())))?
+                        .to_string(),
+                );
+                for fix in fixable_diagnostics {
+                    // Can't fail we just set the file value.
+                    files
+                        .entry(file_id)
+                        .and_modify(|file| file.replace_range(fix.span.to_str_range(), &fix.suggestion));
+                }
+                std::fs::write(file_id.full_path(db.upcast()), files.get(&file_id).unwrap())?
             }
         }
     }
