@@ -142,7 +142,7 @@ impl Fixer {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-            _ => "".to_owned(),
+            _ => return None,
         };
 
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))

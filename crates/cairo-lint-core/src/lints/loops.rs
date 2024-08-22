@@ -20,15 +20,14 @@ pub fn check_loop_match_pop_front(
     if let Some(tail) = &expr_block.tail
         && let Expr::Match(expr_match) = &arenas.exprs[*tail]
         && let Expr::FunctionCall(func_call) = &arenas.exprs[expr_match.matched_expr]
+        && func_call.function.name(db) == SPAN_MATCH_POP_FRONT
     {
-        if func_call.function.name(db) == SPAN_MATCH_POP_FRONT {
-            diagnostics.push(PluginDiagnostic {
-                stable_ptr: loop_expr.stable_ptr.into(),
-                message: LOOP_MATCH_POP_FRONT.to_owned(),
-                severity: Severity::Warning,
-            });
-            return;
-        }
+        diagnostics.push(PluginDiagnostic {
+            stable_ptr: loop_expr.stable_ptr.into(),
+            message: LOOP_MATCH_POP_FRONT.to_owned(),
+            severity: Severity::Warning,
+        });
+        return;
     }
     for statement in &expr_block.statements {
         if let Statement::Expr(stmt_expr) = &arenas.statements[*statement]

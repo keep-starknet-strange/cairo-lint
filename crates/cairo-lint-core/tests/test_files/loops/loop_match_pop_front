@@ -24,7 +24,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating ov
 
 //! > fixed
 fn main() {
-    let mut a: Span<felt252> = array![1, 2, 3, 4, 5].span();
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
     loop {
         match a.pop_front() {
             Option::Some(val) => println!("{val}"),
