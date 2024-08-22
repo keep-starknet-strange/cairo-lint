@@ -72,7 +72,7 @@ macro_rules! test_file {
                 for diag in diags.iter().flat_map(|diags| diags.get_all()) {
                     if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag){
                     let span = fix_node.span(db.upcast());
-                    fixes.push(Fix { span, file_path: diag.location(db.upcast()).file_id, suggestion: fix });
+                    fixes.push(Fix { span, suggestion: fix });
                     }
                 }
                 fixes.sort_by_key(|v| Reverse(v.span.start));
