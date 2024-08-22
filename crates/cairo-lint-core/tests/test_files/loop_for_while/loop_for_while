@@ -1,0 +1,13 @@
+//! > loop with simple if and break
+
+//! > cairo_code
+fn main() {
+    let mut i: usize = 0;
+    loop {
+        if i > 10 {
+            break;
+        }
+        i += 1;
+    }
+}
+

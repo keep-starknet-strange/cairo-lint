@@ -65,3 +65,7 @@ test_file!(
     "double parens in struct field access",
     "double parens in match arm"
 );
+
+test_file!(loop_for_while, 
+    loop_for_while, 
+    "loop with simple if and break");
