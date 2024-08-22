@@ -2,12 +2,26 @@
 
 //! > cairo_code
 fn main() {
-    let mut i: usize = 0;
     loop {
-        if i > 10 {
+        if true {
             break;
         }
-        i += 1;
     }
 }
 
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary treatment for loop, use instead while
+ --> lib.cairo:2:5
+\   loop {
+|       if true {
+|           break;
+|       }
+|   }
+|___^
+
+//! > fixed
+fn main() {
+    while !true {
+
+    }
+}

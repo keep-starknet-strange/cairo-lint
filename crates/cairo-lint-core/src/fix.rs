@@ -156,9 +156,12 @@ impl Fixer {
             }
             CairoLintKind::DestructMatch =>
                 self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::LoopForWhile => { // Añade este caso
+                self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             _ => "".to_owned(),
         };
-
+    
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
 
@@ -231,15 +234,13 @@ impl Fixer {
         }
     
         if found_break {
-            // Construir la expresión while
-            format!("while {} {{\n{}\n}}", condition_text, loop_body.trim())
+            // Construir la expresión while con la condición negada
+            format!("while !{} {{\n    {}}}", condition_text, loop_body.trim())
         } else {
             // Si no se encontró un break, devolvemos el código original
             node.get_text(db).to_string()
         }
     }
-    
-    
 
     /// Attempts to fix an unused import by removing it.
     ///
