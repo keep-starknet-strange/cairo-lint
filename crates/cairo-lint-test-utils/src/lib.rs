@@ -72,7 +72,7 @@ macro_rules! test_file {
                 for diag in diags.iter().flat_map(|diags| diags.get_all()) {
                     if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag){
                     let span = fix_node.span(db.upcast());
-                    fixes.push(Fix { span, suggestion: fix });
+                    fixes.push(Fix { span, file_path: diag.location(db.upcast()).file_id, suggestion: fix });
                     }
                 }
                 fixes.sort_by_key(|v| Reverse(v.span.start));
@@ -83,8 +83,9 @@ macro_rules! test_file {
                 } else {
                     file = "Contains nested diagnostics can't fix it".to_string();
                 }
+                let renderer = Renderer::plain();
                 let formatted_diags =
-                    diags.into_iter().map(|diag| diag.format(db.upcast())).collect::<String>().trim().to_string();
+                    diags.into_iter().flat_map(|diags| diags.get_all().iter().map(|diag| format_diagnostic(diag, &db, &renderer)).collect::<Vec<_>>()).collect::<String>().trim().to_string();
                 if is_fix_mode {
                     let mut new_test = test.clone();
                     new_test.attributes.insert("diagnostics".to_string(), formatted_diags.clone());

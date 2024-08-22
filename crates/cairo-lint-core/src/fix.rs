@@ -1,6 +1,7 @@
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
+use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
@@ -16,9 +17,10 @@ use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
-#[derive(Default)]
+#[derive(Clone)]
 pub struct Fix {
     pub span: TextSpan,
+    pub file_path: FileId,
     pub suggestion: String,
 }
 

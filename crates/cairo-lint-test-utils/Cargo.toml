@@ -14,5 +14,4 @@ cairo-lang-diagnostics.workspace = true
 cairo-lang-semantic.workspace = true
 cairo-lang-defs.workspace = true
 cairo-lang-compiler.workspace = true
-cairo-lint-core = { path = "../cairo-lint-core" }
 paste.workspace = true
