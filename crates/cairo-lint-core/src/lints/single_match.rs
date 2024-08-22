@@ -17,7 +17,7 @@ fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn Syntax
 
 fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGroup) -> bool {
     let statements = block_expr.statements(db).elements(db);
-    if statements.is_empty() {
+    if statements.is_empty() && block_expr.rbrace(db).leading_trivia(db).node.get_text(db).trim().is_empty() {
         return true;
     }
     if statements.len() == 1

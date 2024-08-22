@@ -8,8 +8,10 @@ fn main() {
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
  --> lib.cairo:2:13
-    assert!(((4)) == 4);
-            ^***^
+  |
+2 |     assert!(((4)) == 4);
+  |             -----
+  |
 
 //! > fixed
 fn main() {
@@ -28,13 +30,16 @@ fn main() {
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
  --> lib.cairo:2:13
-    let x = ((10 * 2));
-            ^********^
-
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+  |
+2 |     let x = ((10 * 2));
+  |             ----------
+  |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
  --> lib.cairo:2:9
-    let x = ((10 * 2));
-        ^
+  |
+2 |     let x = ((10 * 2));
+  |         -
+  |
 
 //! > fixed
 fn main() {
@@ -57,19 +62,23 @@ fn main() -> felt252 {
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
- --> lib.cairo:4:14
-        1 => ((10)),
-             ^****^
-
-warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
- --> lib.cairo:5:14
-        5 => ((20)),
-             ^****^
-
-warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
  --> lib.cairo:6:14
-        _ => ((30)),
-             ^****^
+  |
+6 |         1 => ((10)),
+  |              ------
+  |
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:8:14
+  |
+8 |         5 => ((20)),
+  |              ------
+  |
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+  --> lib.cairo:10:14
+   |
+10 |         _ => ((30)),
+   |              ------
+   |
 
 //! > fixed
 fn main() -> felt252 {
@@ -98,9 +107,11 @@ fn main() -> felt252 {
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
- --> lib.cairo:8:12
-    return ((my_struct.y));
-           ^*************^
+  --> lib.cairo:14:12
+   |
+14 |     return ((my_struct.y));
+   |            ---------------
+   |
 
 //! > fixed
 struct MyStruct {
@@ -128,9 +139,11 @@ fn main() -> felt252 {
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
- --> lib.cairo:6:5
-    ((foo(10)))
-    ^*********^
+  --> lib.cairo:10:5
+   |
+10 |     ((foo(10)))
+   |     -----------
+   |
 
 //! > fixed
 fn foo(x: felt252) -> felt252 {
@@ -152,8 +165,10 @@ fn main() -> felt252 {
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
  --> lib.cairo:2:12
-    return ((5 + 7));
-           ^*******^
+  |
+2 |     return ((5 + 7));
+  |            ---------
+  |
 
 //! > fixed
 fn main() -> felt252 {
@@ -188,8 +203,10 @@ fn main() -> u32 {
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
  --> lib.cairo:2:5
-    ((0))
-    ^***^
+  |
+2 |     ((0))
+  |     -----
+  |
 
 //! > fixed
 fn main() -> u32 {
@@ -207,8 +224,10 @@ fn main() -> (felt252, felt252) {
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
  --> lib.cairo:2:5
-    ((1, 2))
-    ^******^
+  |
+2 |     ((1, 2))
+  |     --------
+  |
 
 //! > fixed
 fn main() -> (felt252, felt252) {
@@ -226,8 +245,10 @@ fn main() -> u32 {
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
  --> lib.cairo:2:5
-    ((3 + 5))
-    ^*******^
+  |
+2 |     ((3 + 5))
+  |     ---------
+  |
 
 //! > fixed
 fn main() -> u32 {

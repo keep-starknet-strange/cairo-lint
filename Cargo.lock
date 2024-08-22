@@ -30,6 +30,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c6cb57a04249c6480766f7f7cef5467412af1490f8d1e243141daddada3264f"
 
 [[package]]
+name = "annotate-snippets"
+version = "0.11.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24e35ed54e5ea7997c14ed4c70ba043478db1112e98263b3b035907aa197d991"
+dependencies = [
+ "anstyle",
+ "unicode-width",
+]
+
+[[package]]
 name = "anstream"
 version = "0.6.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -178,7 +188,7 @@ checksum = "c3ac9f8b63eca6fd385229b3675f6cc0dc5c8a5c8a54a59d4f52ffd670d87b0c"
 [[package]]
 name = "cairo-lang-casm"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-utils",
  "indoc",
@@ -191,7 +201,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-compiler"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "anyhow",
  "cairo-lang-defs",
@@ -216,7 +226,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-debug"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-utils",
 ]
@@ -224,7 +234,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-defs"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-diagnostics",
@@ -240,7 +250,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-diagnostics"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-filesystem",
@@ -251,7 +261,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-eq-solver"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-utils",
  "good_lp",
@@ -260,7 +270,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-filesystem"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-utils",
@@ -274,7 +284,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-formatter"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "anyhow",
  "cairo-lang-diagnostics",
@@ -294,7 +304,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-lowering"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-defs",
@@ -317,7 +327,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-parser"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-diagnostics",
  "cairo-lang-filesystem",
@@ -336,7 +346,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-plugins"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-defs",
  "cairo-lang-diagnostics",
@@ -354,7 +364,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-proc-macros"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-debug",
  "quote",
@@ -364,7 +374,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-project"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-filesystem",
  "cairo-lang-utils",
@@ -377,7 +387,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-semantic"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-defs",
@@ -402,7 +412,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "anyhow",
  "cairo-lang-utils",
@@ -428,7 +438,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-ap-change"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-eq-solver",
  "cairo-lang-sierra",
@@ -443,7 +453,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-gas"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-eq-solver",
  "cairo-lang-sierra",
@@ -458,7 +468,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-generator"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-defs",
@@ -481,7 +491,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-to-casm"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "assert_matches",
  "cairo-lang-casm",
@@ -501,7 +511,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-type-size"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-sierra",
  "cairo-lang-utils",
@@ -510,7 +520,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-starknet"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -539,7 +549,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-starknet-classes"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-casm",
  "cairo-lang-sierra",
@@ -561,7 +571,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-syntax"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-filesystem",
@@ -576,7 +586,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-syntax-codegen"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "genco",
  "xshell",
@@ -585,7 +595,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-test-plugin"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -611,7 +621,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-test-utils"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "cairo-lang-formatter",
  "cairo-lang-utils",
@@ -623,7 +633,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-utils"
 version = "2.7.1"
-source = "git+https://github.com/0xLucqs/cairo?branch=lucas/multiline_diag#a83cae9aaab5ad815db17bc1901218383c34c1df"
+source = "git+https://github.com/starkware-libs/cairo?branch=main#aaad921bba52e729dc24ece07fab2edf09ccfa15"
 dependencies = [
  "hashbrown 0.14.5",
  "indexmap 2.4.0",
@@ -655,6 +665,7 @@ dependencies = [
 name = "cairo-lint-core"
 version = "0.1.0"
 dependencies = [
+ "annotate-snippets",
  "cairo-lang-compiler",
  "cairo-lang-defs",
  "cairo-lang-diagnostics",
@@ -1634,9 +1645,9 @@ dependencies = [
 
 [[package]]
 name = "redox_users"
-version = "0.4.5"
+version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd283d9651eeda4b2a83a43c1c91b266c40fd76ecd39a50a8c630ae69dc72891"
+checksum = "ba009ff324d1fc1b900bd1fdb31564febe58a8ccc8a6fdbb93b543d33b13ca43"
 dependencies = [
  "getrandom",
  "libredox",
@@ -2180,9 +2191,9 @@ checksum = "0336d538f7abc86d282a4189614dfaa90810dfc2c6f6427eaf88e16311dd225d"
 
 [[package]]
 name = "unicode-xid"
-version = "0.2.4"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
+checksum = "229730647fbc343e3a80e463c1db7f78f3855d3f3739bee0dda773c9a037c90a"
 
 [[package]]
 name = "version_check"

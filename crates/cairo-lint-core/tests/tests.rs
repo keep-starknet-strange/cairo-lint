@@ -2,13 +2,16 @@ use std::cmp::Reverse;
 use std::path::Path;
 use std::sync::{LazyLock, Mutex};
 
+use annotate_snippets::Renderer;
 use cairo_lang_compiler::db::RootDatabase;
+use cairo_lang_diagnostics::DiagnosticEntry;
 use cairo_lang_semantic::inline_macros::get_default_plugin_suite;
 use cairo_lang_semantic::test_utils::setup_test_crate_ex;
 use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_test_utils::parse_test_file::{dump_to_test_file, parse_test_file, Test};
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_lang_utils::Upcast;
+use cairo_lint_core::diagnostics::format_diagnostic;
 use cairo_lint_core::fix::{fix_semantic_diagnostic, Fix};
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
 use cairo_lint_test_utils::{get_diags, test_file, Tests};
