@@ -205,40 +205,41 @@ impl Fixer {
         let loop_expr = ExprLoop::from_syntax_node(db, node.clone());
         let mut condition_text = String::new();
         let mut loop_body = String::new();
-        let mut found_break = false;
     
-        for statement in loop_expr.body(db).statements(db).elements(db) {
-            if let Statement::Expr(ref expr_statement) = statement {
-                if let Expr::If(if_expr) = expr_statement.expr(db) {
-                    let condition = if_expr.condition(db);
-                    condition_text = condition.as_syntax_node().get_text_without_trivia(db).to_string();
+        if let Some(Statement::Expr(expr_statement)) = loop_expr.body(db).statements(db).elements(db).first() {
+            if let Expr::If(if_expr) = expr_statement.expr(db) {
+                let condition = if_expr.condition(db);
+                condition_text = condition.as_syntax_node().get_text_without_trivia(db).to_string();
     
-                    // Revisamos el cuerpo del if para encontrar un break
-                    for inner_statement in if_expr.if_block(db).statements(db).elements(db) {
-                        if let Statement::Break(_) = inner_statement {
-                            found_break = true;
-                            break;
-                        }
-                    }
+                if condition_text != "true" {
+                    condition_text = Self::invert_condition(&condition_text);
+                }
     
-                    // Si encontramos el break, no incluimos el if block en el loop_body
-                    if found_break {
-                        continue;
-                    }
+                for statement in loop_expr.body(db).statements(db).elements(db).into_iter().skip(1) {
+                    loop_body.push_str(&statement.as_syntax_node().get_text_without_trivia(db));
+                    loop_body.push('\n');
                 }
             }
-    
-            // Agregar el resto del cuerpo del loop al nuevo cuerpo del while
-            loop_body.push_str(&statement.as_syntax_node().get_text_without_trivia(db));
-            loop_body.push('\n');
         }
     
-        if found_break {
-            // Construir la expresión while con la condición negada
-            format!("while !{} {{\n    {}}}", condition_text, loop_body.trim())
+        let indentation = "    "; 
+        format!(
+            "{}while {} {{\n{}{}\n{}}}\n",
+            indentation,
+            condition_text,
+            indentation.repeat(2), 
+            loop_body.trim(),
+            indentation
+        ).trim_end().to_string() 
+    }
+    
+    fn invert_condition(condition: &str) -> String {
+        if condition.contains('>') {
+            condition.replace('>', "<=")
+        } else if condition.contains('<') {
+            condition.replace('<', ">=")
         } else {
-            // Si no se encontró un break, devolvemos el código original
-            node.get_text(db).to_string()
+            format!("!({})", condition)
         }
     }
 

@@ -66,6 +66,17 @@ test_file!(
     "double parens in match arm"
 );
 
-test_file!(loop_for_while, 
+test_file!(
     loop_for_while, 
-    "loop with simple if and break");
+    loop_for_while, 
+    "simple loop with break",
+    "loop with break and additional code",
+    "loop with multiple conditions",
+    "loop with else clause",
+    "loop with break in nested if",
+    "loop with multiple breaks",
+    "loop with break and continue",
+    "loop with complex condition",
+    "loop with break in match expression",
+    "loop with early return"
+);
