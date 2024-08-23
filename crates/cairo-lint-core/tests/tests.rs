@@ -71,3 +71,5 @@ test_file!(
     "double parens in match arm"
 );
 test_file!(loops, loop_match_pop_front, "simple loop match pop front");
+
+test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
