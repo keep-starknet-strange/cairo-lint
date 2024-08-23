@@ -27,11 +27,12 @@ pub enum CairoLintKind {
     MatchForEquality,
     DoubleComparison,
     DoubleParens,
-    Unknown,
     BreakUnit,
     BoolComparison,
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
+    LoopMatchPopFront,
+    Unknown,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -46,6 +47,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
+        loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -86,7 +88,44 @@ impl AnalyzerPlugin for CairoLint {
                     constant_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
                 }
                 ModuleItemId::FreeFunction(free_function_id) => {
+                    let Ok(function_body) = db.function_body(FunctionWithBodyId::Free(*free_function_id)) else {
+                        continue;
+                    };
+                    for (_expression_id, expression) in &function_body.arenas.exprs {
+                        match &expression {
+                            Expr::Match(expr_match) => {
+                                single_match::check_single_match(db, expr_match, &mut diags, &function_body.arenas)
+                            }
+                            Expr::Loop(expr_loop) => {
+                                loops::check_loop_match_pop_front(db, expr_loop, &mut diags, &function_body.arenas)
+                            }
+                            _ => (),
+                        };
+                    }
                     free_function_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
+                }
+                ModuleItemId::Impl(impl_id) => {
+                    let impl_functions = db.impl_functions(*impl_id);
+                    let Ok(functions) = impl_functions else {
+                        continue;
+                    };
+                    for (_fn_name, fn_id) in functions.iter() {
+                        let Ok(function_body) = db.function_body(FunctionWithBodyId::Impl(*fn_id)) else {
+                            continue;
+                        };
+                        for (_expression_id, expression) in &function_body.arenas.exprs {
+                            match &expression {
+                                Expr::Match(expr_match) => {
+                                    single_match::check_single_match(db, expr_match, &mut diags, &function_body.arenas)
+                                }
+                                Expr::Loop(expr_loop) => {
+                                    loops::check_loop_match_pop_front(db, expr_loop, &mut diags, &function_body.arenas)
+                                }
+                                _ => (),
+                            };
+                        }
+                    }
+                    impl_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
                 }
                 _ => continue,
             }
