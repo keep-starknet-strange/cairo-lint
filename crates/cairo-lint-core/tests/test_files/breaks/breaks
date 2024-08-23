@@ -1,21 +1,95 @@
-//! > Simple break
+//! > Break inside of if
 
 //! > cairo_code
 fn main() {
+    let mut a = 1_u32;
     loop {
-        break ();
+        if a == 10 {
+            break ();
+        }
+        a += 1;
     }
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
- --> lib.cairo:3:9
-        break ();
-        ^*******^
+ --> lib.cairo:8:13
+  |
+8 |             break ();
+  |             ---------
+  |
 
 //! > fixed
 fn main() {
+    let mut a = 1_u32;
     loop {
-        break;
+        if a == 10 {
+            break;
+        }
+        a += 1;
     }
+}
+
+//! > ==========================================================================
+
+//! > Break inside of if with comment
+
+//! > cairo_code
+fn main() {
+    let mut a = 1_u32;
+    loop {
+        if a == 10 {
+            // this is a break
+            break ();
+            // this was a break
+        }
+        a += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
+  --> lib.cairo:10:13
+   |
+10 |             break ();
+   |             ---------
+   |
+
+//! > fixed
+fn main() {
+    let mut a = 1_u32;
+    loop {
+        if a == 10 {
+            // this is a break
+            break;
+            // this was a break
+        }
+        a += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > Simple break
+
+//! > cairo_code
+fn main() {
+   loop {
+       break ();
+   }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
+ --> lib.cairo:4:8
+  |
+4 |        break ();
+  |        ---------
+  |
+
+//! > fixed
+fn main() {
+   loop {
+       break;
+   }
 }

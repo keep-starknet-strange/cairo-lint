@@ -150,7 +150,7 @@ impl Fixer {
     }
 
     pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        node.get_text(db).replace(" ()", "").to_string()
+        node.get_text(db).replace("break ();", "break;").to_string()
     }
 
     /// Removes unnecessary double parentheses from a syntax node.
