@@ -4,7 +4,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{Expr, ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{Expr, ExprBinary, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
@@ -143,6 +143,10 @@ impl Fixer {
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::BoolComparison => self.fix_bool_comparison(
+                db,
+                ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            ),
             _ => return None,
         };
 
@@ -151,6 +155,28 @@ impl Fixer {
 
     pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         node.get_text(db).replace("break ();", "break;").to_string()
+    }
+
+    fn generate_fixed_text_for_comparison(&self, db: &dyn SyntaxGroup, lhs: &str, rhs: &str, node: ExprBinary) -> String {
+        let op_kind = node.op(db).as_syntax_node().kind(db);
+        match (lhs, rhs, op_kind) {
+            ("true", _, SyntaxKind::TokenEqEq) => rhs.to_string(),
+            ("false", _, SyntaxKind::TokenEqEq) => format!("!{}", rhs),
+            ("true", _, SyntaxKind::TokenNeq) => format!("!{}", rhs),
+            ("false", _, SyntaxKind::TokenNeq) => rhs.to_string(),
+            (_, "true", SyntaxKind::TokenEqEq) => lhs.to_string(),
+            (_, "false", SyntaxKind::TokenEqEq) => format!("!{}", lhs),
+            (_, "true", SyntaxKind::TokenNeq) => format!("!{}", lhs),
+            (_, "false", SyntaxKind::TokenNeq) => lhs.to_string(),
+            _ => node.as_syntax_node().get_text(db).to_string(),
+        }
+    }
+
+    pub fn fix_bool_comparison(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
+        let lhs = node.lhs(db).as_syntax_node().get_text(db);
+        let rhs = node.rhs(db).as_syntax_node().get_text(db);
+
+        Self::generate_fixed_text_for_comparison(&self, db, lhs.as_str(), rhs.as_str(), node)
     }
 
     /// Removes unnecessary double parentheses from a syntax node.
