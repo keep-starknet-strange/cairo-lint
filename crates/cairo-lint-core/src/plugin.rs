@@ -62,6 +62,9 @@ impl AnalyzerPlugin for CairoLint {
                     Expr::Loop(expr_loop) => {
                         loops::check_loop_match_pop_front(db, expr_loop, &mut diags, &function_body.arenas)
                     }
+                    Expr::If(expr_if) => {
+                        equal_operand::check_redundant_comparison(db, expr_if, &mut diags, &function_body.arenas)
+                    }
                     _ => (),
                 };
             }
