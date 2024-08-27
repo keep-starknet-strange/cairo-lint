@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary, ExprMatch, Pattern, TerminalAnd, TerminalAndAnd, TerminalEqEq, TerminalGE, TerminalGT, TerminalLE, TerminalLT, TerminalOr, TerminalOrOr};
+use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};

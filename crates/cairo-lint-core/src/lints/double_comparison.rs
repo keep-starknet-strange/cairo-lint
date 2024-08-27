@@ -2,7 +2,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const DOUBLE_COMPARISON: &str = "redundant double comparison found. Consider simplifying to a single comparison.";
 
