@@ -11,10 +11,7 @@ pub fn check_double_comparison(db: &dyn SyntaxGroup, expr: &Expr, diagnostics: &
         let lhs = binary_op.lhs(db);
         let rhs = binary_op.rhs(db);
 
-        if let (Some(lhs_op), Some(rhs_op)) = (
-            extract_binary_operator(&lhs, db),
-            extract_binary_operator(&rhs, db),
-        ) {
+        if let (Some(lhs_op), Some(rhs_op)) = (extract_binary_operator(&lhs, db), extract_binary_operator(&rhs, db)) {
             if is_redundant_double_comparison(&lhs_op, &rhs_op) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: expr.stable_ptr().untyped(),
@@ -50,7 +47,7 @@ pub fn extract_variable(binary_expr: &ExprBinary, db: &dyn SyntaxGroup) -> Strin
     let lhs = binary_expr.lhs(db);
     lhs.as_syntax_node().get_text(db).to_string()
 }
-    
+
 pub fn operator_to_replace(lhs_op: BinaryOperator) -> &'static str {
     match lhs_op {
         BinaryOperator::EqEq(_) => "==",

@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::{debug, warn};
+
 use crate::db::AnalysisDatabase;
 use crate::lints::double_comparison;
 use crate::lints::single_match::is_expr_unit;
@@ -241,17 +242,17 @@ impl Fixer {
 
     pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
-    
+
         if let Expr::Binary(binary_op) = expr {
             let lhs = binary_op.lhs(db);
             let rhs = binary_op.rhs(db);
-    
+
             if let (Some(lhs_op), Some(rhs_op)) = (
                 double_comparison::extract_binary_operator(&lhs, db),
                 double_comparison::extract_binary_operator(&rhs, db),
             ) {
                 let simplified_op = Self::determine_simplified_operator(&lhs_op, &rhs_op);
-    
+
                 if let Some(simplified_op) = simplified_op {
                     let operator_to_replace = double_comparison::operator_to_replace(lhs_op);
                     let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
@@ -259,24 +260,28 @@ impl Fixer {
                 }
             }
         }
-    
+
         node.get_text(db).to_string()
     }
-    
+
     fn determine_simplified_operator(lhs_op: &BinaryOperator, rhs_op: &BinaryOperator) -> Option<&'static str> {
         match (lhs_op, rhs_op) {
-            (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
-            | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => Some("<="),
-    
-            (BinaryOperator::EqEq(_), BinaryOperator::GT(_))
-            | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => Some(">="),
-    
-            (BinaryOperator::LT(_), BinaryOperator::GT(_))
-            | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => Some("!="),
-    
-            (BinaryOperator::LE(_), BinaryOperator::GE(_))
-            | (BinaryOperator::GE(_), BinaryOperator::LE(_)) => Some("=="),
-    
+            (BinaryOperator::EqEq(_), BinaryOperator::LT(_)) | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => {
+                Some("<=")
+            }
+
+            (BinaryOperator::EqEq(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => {
+                Some(">=")
+            }
+
+            (BinaryOperator::LT(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => {
+                Some("!=")
+            }
+
+            (BinaryOperator::LE(_), BinaryOperator::GE(_)) | (BinaryOperator::GE(_), BinaryOperator::LE(_)) => {
+                Some("==")
+            }
+
             _ => None,
         }
     }

@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::{double_comparison, breaks, double_parens, loops, single_match};
+use crate::lints::{breaks, double_comparison, double_parens, loops, single_match};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
