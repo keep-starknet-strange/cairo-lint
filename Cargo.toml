@@ -1,6 +1,11 @@
 [workspace]
 resolver = "2"
-members = ["crates/cairo-lint-cli", "crates/cairo-lint-core", "crates/cairo-lint-dev", "crates/cairo-lint-test-utils"]
+members = [
+  "crates/cairo-lint-cli",
+  "crates/cairo-lint-core",
+  "crates/cairo-lint-dev",
+  "crates/cairo-lint-test-utils",
+]
 
 [workspace.package]
 version = "0.1.0"
@@ -10,23 +15,23 @@ license = "Apache-2.0"
 license-file = "LICENSE"
 
 [workspace.dependencies]
-cairo-lang-compiler = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-parser = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-utils = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-semantic = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-filesystem = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-diagnostics = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-test-plugin = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-lowering = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-syntax = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-defs = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-test-utils = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-cairo-lang-language-server = { git = "https://github.com/0xLucqs/cairo", branch = "lucas/multiline_diag" }
-salsa = "0.16.1"
-indoc = "2"
+cairo-lang-compiler = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-filesystem = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-starknet = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
 test-case = "3.0"
 pretty_assertions = "1.4.0"
 ctor = "0.2.8"
 paste = "1.0.15"
 itertools = "0.13.0"
 log = "0.4.22"
+clap = "4.5.16"
+anyhow = "1.0.86"
+smol_str = "0.2.2"
+annotate-snippets = "0.11.4"

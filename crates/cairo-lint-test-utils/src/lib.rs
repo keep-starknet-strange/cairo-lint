@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_defs::ids::ModuleId;
 use cairo_lang_diagnostics::Diagnostics;
@@ -10,13 +11,12 @@ use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_test_utils::parse_test_file::Test;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_lang_utils::LookupIntern;
-use cairo_lint_core::db::AnalysisDatabase;
 
 pub struct Tests {
     pub tests: OrderedHashMap<String, Test>,
     pub should_fix: bool,
 }
-pub fn get_diags(crate_id: CrateId, db: &mut AnalysisDatabase) -> Vec<Diagnostics<SemanticDiagnostic>> {
+pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<SemanticDiagnostic>> {
     init_dev_corelib(db, PathBuf::from(std::env::var("CORELIB_PATH").unwrap()));
     let mut diagnostics = Vec::new();
     let module_file = db.module_main_file(ModuleId::CrateRoot(crate_id)).unwrap();
@@ -24,6 +24,7 @@ pub fn get_diags(crate_id: CrateId, db: &mut AnalysisDatabase) -> Vec<Diagnostic
         match module_file.lookup_intern(db) {
             FileLongId::OnDisk(_path) => {}
             FileLongId::Virtual(_) => panic!("Missing virtual file."),
+            FileLongId::External(_) => (),
         }
     }
 
@@ -59,7 +60,12 @@ macro_rules! test_file {
                 let test = & [<PARSED_TEST_FILE_ $file_path:upper>][test_name];
                 let is_fix_mode = std::env::var("FIX_TESTS") == Ok("1".into());
                 let mut file = test.attributes["cairo_code"].clone();
-                let mut db = AnalysisDatabase::new();
+                let mut db = RootDatabase::builder()
+                    .with_plugin_suite(get_default_plugin_suite())
+                    .with_plugin_suite(test_plugin_suite())
+                    .with_plugin_suite(cairo_lint_plugin_suite())
+                    .build()
+                    .unwrap();
                 let mut fixes = Vec::new();
 
                 let diags = get_diags(setup_test_crate_ex(db.upcast(), &file, Some(CRATE_CONFIG)), &mut db);
@@ -77,8 +83,9 @@ macro_rules! test_file {
                 } else {
                     file = "Contains nested diagnostics can't fix it".to_string();
                 }
+                let renderer = Renderer::plain();
                 let formatted_diags =
-                    diags.into_iter().map(|diag| diag.format(db.upcast())).collect::<String>().trim().to_string();
+                    diags.into_iter().flat_map(|diags| diags.get_all().iter().map(|diag| format_diagnostic(diag, &db, &renderer)).collect::<Vec<_>>()).collect::<String>().trim().to_string();
                 if is_fix_mode {
                     let mut new_test = test.clone();
                     new_test.attributes.insert("diagnostics".to_string(), formatted_diags.clone());

@@ -8,21 +8,17 @@ license-file.workspace = true
 
 [dependencies]
 cairo-lang-compiler.workspace = true
-cairo-lang-parser.workspace = true
 cairo-lang-utils.workspace = true
 cairo-lang-semantic.workspace = true
 cairo-lang-filesystem.workspace = true
 cairo-lang-diagnostics.workspace = true
 cairo-lang-test-plugin.workspace = true
-cairo-lang-lowering.workspace = true
 cairo-lang-syntax.workspace = true
 cairo-lang-defs.workspace = true
-cairo-lang-language-server.workspace = true
-salsa.workspace = true
 log.workspace = true
+annotate-snippets.workspace = true
 
 [dev-dependencies]
-indoc.workspace = true
 cairo-lang-test-utils.workspace = true
 test-case.workspace = true
 pretty_assertions.workspace = true
