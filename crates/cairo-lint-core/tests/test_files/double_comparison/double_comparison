@@ -1,122 +1,9 @@
-//! > complex double comparison
+//! > double comparison equal and greater than
 
 //! > cairo_code
 fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    let z = 3;
-    if (x + z) == y || (x + z) < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:5:8
-    if (x + z) == y || (x + z) < y {
-       ^*************************^
-
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:5:24
-    if (x + z) == y || (x + z) < y {
-                       ^*********^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    let z = 3;
-    if (x + z) == y || (x + z) < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > double comparison with arithmetic
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if (x + 2) == y || (x + 2) < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if (x + 2) == y || (x + 2) < y {
-       ^*************************^
-
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:4:24
-    if (x + 2) == y || (x + 2) < y {
-                       ^*********^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if (x + 2) == y || (x + 2) < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > double comparison with different variables
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x == y || x > z {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x == y || x > z {
-       ^*************^
-
-error: Identifier not found.
- --> lib.cairo:4:22
-    if x == y || x > z {
-                     ^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x == y || x > z {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > double comparison with equal and greater than
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
+    let x = 5_u32;
+    let y = 10_u32;
     if x == y || x > y {
         true
     } else {
@@ -130,16 +17,11 @@ warning: Plugin diagnostic: redundant double comparison found. Consider simplify
     if x == y || x > y {
        ^*************^
 
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:4:18
-    if x == y || x > y {
-                 ^***^
-
 //! > fixed
 fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x == y || x > y {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x >= y {
         true
     } else {
         false
@@ -148,244 +30,12 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > double comparison with equal to and not equal to
+//! > double comparison equal and less than
 
 //! > cairo_code
 fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x == y || x != y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x == y || x != y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > double comparison with greater than and equal to
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x >= y || x == y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:4:8
-    if x >= y || x == y {
-       ^****^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x >= y || x == y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > double comparison with less than and equal to
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x <= y || x < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x <= y || x < y {
-       ^*************^
-
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:4:8
-    if x <= y || x < y {
-       ^****^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x <= y || x < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > double comparison with not equal and less than
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x != y || x < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:4:18
-    if x != y || x < y {
-                 ^***^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x != y || x < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > double comparison with not equal to and greater than
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x != y || x > y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:4:18
-    if x != y || x > y {
-                 ^***^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x != y || x > y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > double comparison with not equal to and less than
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x != y || x < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:4:18
-    if x != y || x < y {
-                 ^***^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x != y || x < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > no double comparison
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    let c = 15;
-    if x == y && y < c {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:5:8
-    if x == y && y < c {
-       ^*************^
-
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:5:18
-    if x == y && y < c {
-                 ^***^
-
-//! > fixed
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    let c = 15;
-    if x == y && y < c {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > simple double comparison
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5;
-    let y = 10;
+    let x = 5_u32;
+    let y = 10_u32;
     if x == y || x < y {
         true
     } else {
@@ -399,16 +49,203 @@ warning: Plugin diagnostic: redundant double comparison found. Consider simplify
     if x == y || x < y {
        ^*************^
 
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
- --> lib.cairo:4:18
-    if x == y || x < y {
-                 ^***^
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x <= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > double comparison greater than and equal
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x > y || x == y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
+ --> lib.cairo:4:8
+    if x > y || x == y {
+       ^*************^
 
 //! > fixed
 fn main() -> bool {
-    let x = 5;
-    let y = 10;
-    if x == y || x < y {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x >= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > double comparison greater than and less than
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x > y || x < y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
+ --> lib.cairo:4:8
+    if x > y || x < y {
+       ^************^
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x != y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > double comparison greater than or equal and less than or equal
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x >= y && x <= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
+ --> lib.cairo:4:8
+    if x >= y && x <= y {
+       ^**************^
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x == y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > double comparison less than and equal
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x < y || x == y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
+ --> lib.cairo:4:8
+    if x < y || x == y {
+       ^*************^
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x <= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > double comparison less than and greater than
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x < y || x > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
+ --> lib.cairo:4:8
+    if x < y || x > y {
+       ^************^
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x != y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > double comparison less than or equal and greater than or equal
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x <= y && x >= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
+ --> lib.cairo:4:8
+    if x <= y && x >= y {
+       ^**************^
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x == y {
         true
     } else {
         false

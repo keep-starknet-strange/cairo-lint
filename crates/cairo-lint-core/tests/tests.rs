@@ -69,16 +69,12 @@ test_file!(
 test_file!(
     double_comparison,
     double_comparison,
-    "simple double comparison",
-    "complex double comparison",
-    "no double comparison",
-    "double comparison with different variables",
-    "double comparison with arithmetic",
-    "double comparison with greater than and equal to",
-    "double comparison with less than and equal to",
-    "double comparison with not equal and less than",
-    "double comparison with equal and greater than",
-    "double comparison with not equal to and less than",
-    "double comparison with equal to and not equal to",
-    "double comparison with not equal to and greater than"
+    "double comparison equal and less than",
+    "double comparison less than and equal",
+    "double comparison equal and greater than",
+    "double comparison greater than and equal",
+    "double comparison less than and greater than",
+    "double comparison greater than and less than",
+    "double comparison less than or equal and greater than or equal",
+    "double comparison greater than or equal and less than or equal"
 );
