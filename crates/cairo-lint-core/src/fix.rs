@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary, ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary, ExprMatch, Pattern, TerminalAnd, TerminalAndAnd, TerminalEqEq, TerminalGE, TerminalGT, TerminalLE, TerminalLT, TerminalOr, TerminalOrOr};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
@@ -11,6 +11,7 @@ use cairo_lang_utils::Upcast;
 use log::{debug, warn};
 
 use crate::db::AnalysisDatabase;
+use crate::lints::double_comparison;
 use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
@@ -147,7 +148,7 @@ impl Fixer {
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::DoubleComparison => {
-                self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
+                Self::fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             _ => "".to_owned(),
         };
@@ -236,54 +237,57 @@ impl Fixer {
         }
     }
 
-    pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
-
+    
         if let Expr::Binary(binary_op) = expr {
             let lhs = binary_op.lhs(db);
             let rhs = binary_op.rhs(db);
-
-            if let (Expr::Binary(lhs_inner), Expr::Binary(rhs_inner)) = (&lhs, &rhs) {
-                let lhs_var = Self::extract_variable(lhs_inner, db);
-                let rhs_var = Self::extract_variable(rhs_inner, db);
-
-                if lhs_var == rhs_var {
-                    let op = binary_op.op(db);
-
-                    let simplified_op = match (op, lhs_inner.op(db), rhs_inner.op(db)) {
-                        (BinaryOperator::Or(_), BinaryOperator::EqEq(_), BinaryOperator::LT(_))
-                        | (BinaryOperator::Or(_), BinaryOperator::LT(_), BinaryOperator::EqEq(_))
-                        | (BinaryOperator::Or(_), BinaryOperator::LE(_), BinaryOperator::LT(_))
-                        | (BinaryOperator::Or(_), BinaryOperator::GE(_), BinaryOperator::GT(_)) => "<=",
-
-                        (BinaryOperator::Or(_), BinaryOperator::EqEq(_), BinaryOperator::GT(_))
-                        | (BinaryOperator::Or(_), BinaryOperator::GT(_), BinaryOperator::EqEq(_))
-                        | (BinaryOperator::Or(_), BinaryOperator::GE(_), BinaryOperator::LE(_)) => ">=",
-
-                        (BinaryOperator::Or(_), BinaryOperator::LT(_), BinaryOperator::GT(_))
-                        | (BinaryOperator::Or(_), BinaryOperator::GT(_), BinaryOperator::LT(_)) => "!=",
-
-                        (BinaryOperator::And(_), BinaryOperator::LE(_), BinaryOperator::GE(_))
-                        | (BinaryOperator::And(_), BinaryOperator::GE(_), BinaryOperator::LE(_)) => "==",
-
-                        _ => return node.get_text(db).to_string(),
-                    };
-
-                    return format!(
-                        "{}{} {} {}\n",
-                        node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
-                        lhs_var,
-                        simplified_op,
-                        lhs_inner.rhs(db).as_syntax_node().get_text_without_trivia(db)
-                    );
-                }
+    
+            if let (Some(lhs_op), Some(rhs_op)) = (
+                Self::extract_binary_operator(&lhs, db),
+                Self::extract_binary_operator(&rhs, db),
+            ) {
+                let simplified_op = match (&lhs_op, &rhs_op) {
+                    (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
+                    | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => "<=",
+    
+                    (BinaryOperator::EqEq(_), BinaryOperator::GT(_))
+                    | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => ">=",
+    
+                    (BinaryOperator::LT(_), BinaryOperator::GT(_))
+                    | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => "!=",
+    
+                    (BinaryOperator::LE(_), BinaryOperator::GE(_))
+                    | (BinaryOperator::GE(_), BinaryOperator::LE(_)) => "==",
+    
+                    _ => return node.get_text(db).to_string(),
+                };
+    
+                // Identify and replace the operator in the lhs_text
+                let operator_to_replace = match lhs_op {
+                    BinaryOperator::EqEq(_) => "==",
+                    BinaryOperator::GT(_) => ">",
+                    BinaryOperator::LT(_) => "<",
+                    BinaryOperator::GE(_) => ">=",
+                    BinaryOperator::LE(_) => "<=",
+                    _ => return node.get_text(db).to_string(),
+                };
+    
+                let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
+                return format!("{}", lhs_text);
             }
         }
+    
         node.get_text(db).to_string()
     }
-
-    pub fn extract_variable(binary_expr: &ExprBinary, db: &dyn SyntaxGroup) -> String {
-        let lhs = binary_expr.lhs(db);
-        lhs.as_syntax_node().get_text(db).to_string()
+    
+    fn extract_binary_operator(expr: &Expr, db: &dyn SyntaxGroup) -> Option<BinaryOperator> {
+        if let Expr::Binary(binary_op) = expr {
+            Some(binary_op.op(db))
+        } else {
+            None
+        }
     }
+    
 }
