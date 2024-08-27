@@ -4,7 +4,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_syntax::node::ast::{Expr, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::TypedSyntaxNode;
 
 use crate::lints::{double_comparison, double_parens, single_match};
 
@@ -33,13 +33,6 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         double_comparison::DOUBLE_COMPARISON => CairoLintKind::DoubleComparison,
         _ => CairoLintKind::Unknown,
     }
-}
-
-impl CairoLint {
-    const DESTRUCT_MATCH: &'static str =
-        "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
-    const MATCH_FOR_EQUALITY: &'static str =
-        "you seem to be trying to use `match` for an equality check. Consider using `if`";
 }
 
 impl AnalyzerPlugin for CairoLint {

@@ -245,49 +245,37 @@ impl Fixer {
             let rhs = binary_op.rhs(db);
     
             if let (Some(lhs_op), Some(rhs_op)) = (
-                Self::extract_binary_operator(&lhs, db),
-                Self::extract_binary_operator(&rhs, db),
+                double_comparison::extract_binary_operator(&lhs, db),
+                double_comparison::extract_binary_operator(&rhs, db),
             ) {
-                let simplified_op = match (&lhs_op, &rhs_op) {
-                    (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
-                    | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => "<=",
+                let simplified_op = Self::determine_simplified_operator(&lhs_op, &rhs_op);
     
-                    (BinaryOperator::EqEq(_), BinaryOperator::GT(_))
-                    | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => ">=",
-    
-                    (BinaryOperator::LT(_), BinaryOperator::GT(_))
-                    | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => "!=",
-    
-                    (BinaryOperator::LE(_), BinaryOperator::GE(_))
-                    | (BinaryOperator::GE(_), BinaryOperator::LE(_)) => "==",
-    
-                    _ => return node.get_text(db).to_string(),
-                };
-    
-                // Identify and replace the operator in the lhs_text
-                let operator_to_replace = match lhs_op {
-                    BinaryOperator::EqEq(_) => "==",
-                    BinaryOperator::GT(_) => ">",
-                    BinaryOperator::LT(_) => "<",
-                    BinaryOperator::GE(_) => ">=",
-                    BinaryOperator::LE(_) => "<=",
-                    _ => return node.get_text(db).to_string(),
-                };
-    
-                let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
-                return format!("{}", lhs_text);
+                if let Some(simplified_op) = simplified_op {
+                    let operator_to_replace = double_comparison::operator_to_replace(lhs_op);
+                    let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
+                    return format!("{}", lhs_text);
+                }
             }
         }
     
         node.get_text(db).to_string()
     }
     
-    fn extract_binary_operator(expr: &Expr, db: &dyn SyntaxGroup) -> Option<BinaryOperator> {
-        if let Expr::Binary(binary_op) = expr {
-            Some(binary_op.op(db))
-        } else {
-            None
+    fn determine_simplified_operator(lhs_op: &BinaryOperator, rhs_op: &BinaryOperator) -> Option<&'static str> {
+        match (lhs_op, rhs_op) {
+            (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
+            | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => Some("<="),
+    
+            (BinaryOperator::EqEq(_), BinaryOperator::GT(_))
+            | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => Some(">="),
+    
+            (BinaryOperator::LT(_), BinaryOperator::GT(_))
+            | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => Some("!="),
+    
+            (BinaryOperator::LE(_), BinaryOperator::GE(_))
+            | (BinaryOperator::GE(_), BinaryOperator::LE(_)) => Some("=="),
+    
+            _ => None,
         }
     }
-    
 }
