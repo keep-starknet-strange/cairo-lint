@@ -12,7 +12,7 @@ pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: 
     let lhs = lhs.trim();
     let rhs = rhs.trim();
 
-    let result = match (lhs, rhs, op_kind) {
+    match (lhs, rhs, op_kind) {
         // lhs
         ("false", _, SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("!{} ", rhs),
         ("true", _, SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("{} ", rhs),
@@ -27,8 +27,6 @@ pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: 
 
         _ => node.as_syntax_node().get_text(db).to_string(),
     };
-
-    result
 }
 
 pub fn check_bool_comparison(db: &dyn SyntaxGroup, node: ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
