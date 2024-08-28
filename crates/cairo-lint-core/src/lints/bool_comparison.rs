@@ -26,7 +26,7 @@ pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: 
         (_, "true", SyntaxKind::TerminalNeq) => format!("!{} ", lhs),
 
         _ => node.as_syntax_node().get_text(db).to_string(),
-    };
+    }
 }
 
 pub fn check_bool_comparison(db: &dyn SyntaxGroup, node: ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
