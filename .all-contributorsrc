@@ -39,6 +39,16 @@
         "test",
         "doc"
       ]
+    },
+    {
+      "login": "lauchaves",
+      "name": "Lau Chaves",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5482929?v=4",
+      "profile": "https://github.com/lauchaves",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
