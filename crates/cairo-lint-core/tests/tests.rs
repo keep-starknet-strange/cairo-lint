@@ -78,7 +78,11 @@ test_file!(
     bool_comparison,
     bool_comparison,
     "Comparison with true",
+    "Comparison with true on LHS",
     "Comparison with false",
+    "Comparison with false on LHS",
     "Negated comparison with true",
-    "Negated comparison with false"
+    "Negated comparison with true on LHS",
+    "Negated comparison with false",
+    "Negated comparison with false on LHS"
 );

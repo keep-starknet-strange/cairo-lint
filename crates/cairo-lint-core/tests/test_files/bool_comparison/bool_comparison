@@ -19,7 +19,35 @@ warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the
 //! > fixed
 fn main() {
     let x = true;
-    if x == false {
+    if !x {
+        println!("x is false");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Comparison with false on LHS
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    if false == x {
+        println!("x is false");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+ --> lib.cairo:4:8
+  |
+4 |     if false == x {
+  |        ----------
+  |
+
+//! > fixed
+fn main() {
+    let x = true;
+    if !x {
         println!("x is false");
     }
 }
@@ -47,7 +75,35 @@ warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the
 //! > fixed
 fn main() {
     let x = true;
-    if x == true {
+    if x {
+        println!("x is true");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Comparison with true on LHS
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    if true == x {
+        println!("x is true");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+ --> lib.cairo:4:8
+  |
+4 |     if true == x {
+  |        ---------
+  |
+
+//! > fixed
+fn main() {
+    let x = true;
+    if x {
         println!("x is true");
     }
 }
@@ -75,7 +131,35 @@ warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the
 //! > fixed
 fn main() {
     let x = true;
-    if x != false {
+    if !x {
+        println!("x is not false");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Negated comparison with false on LHS
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    if false != x {
+        println!("x is not false");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+ --> lib.cairo:4:8
+  |
+4 |     if false != x {
+  |        ----------
+  |
+
+//! > fixed
+fn main() {
+    let x = true;
+    if !x {
         println!("x is not false");
     }
 }
@@ -103,7 +187,35 @@ warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the
 //! > fixed
 fn main() {
     let x = true;
-    if x != true {
+    if !x {
+        println!("x is not true");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Negated comparison with true on LHS
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    if true != x {
+        println!("x is not true");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+ --> lib.cairo:4:8
+  |
+4 |     if true != x {
+  |        ---------
+  |
+
+//! > fixed
+fn main() {
+    let x = true;
+    if !x {
         println!("x is not true");
     }
 }

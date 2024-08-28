@@ -11,6 +11,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::{debug, warn};
 
+use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
 use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
@@ -157,26 +158,12 @@ impl Fixer {
         node.get_text(db).replace("break ();", "break;").to_string()
     }
 
-    fn generate_fixed_text_for_comparison(&self, db: &dyn SyntaxGroup, lhs: &str, rhs: &str, node: ExprBinary) -> String {
-        let op_kind = node.op(db).as_syntax_node().kind(db);
-        match (lhs, rhs, op_kind) {
-            ("true", _, SyntaxKind::TokenEqEq) => rhs.to_string(),
-            ("false", _, SyntaxKind::TokenEqEq) => format!("!{}", rhs),
-            ("true", _, SyntaxKind::TokenNeq) => format!("!{}", rhs),
-            ("false", _, SyntaxKind::TokenNeq) => rhs.to_string(),
-            (_, "true", SyntaxKind::TokenEqEq) => lhs.to_string(),
-            (_, "false", SyntaxKind::TokenEqEq) => format!("!{}", lhs),
-            (_, "true", SyntaxKind::TokenNeq) => format!("!{}", lhs),
-            (_, "false", SyntaxKind::TokenNeq) => lhs.to_string(),
-            _ => node.as_syntax_node().get_text(db).to_string(),
-        }
-    }
-
     pub fn fix_bool_comparison(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
         let lhs = node.lhs(db).as_syntax_node().get_text(db);
         let rhs = node.rhs(db).as_syntax_node().get_text(db);
 
-        Self::generate_fixed_text_for_comparison(&self, db, lhs.as_str(), rhs.as_str(), node)
+        let result = generate_fixed_text_for_comparison(db, lhs.as_str(), rhs.as_str(), node.clone());
+        result
     }
 
     /// Removes unnecessary double parentheses from a syntax node.
