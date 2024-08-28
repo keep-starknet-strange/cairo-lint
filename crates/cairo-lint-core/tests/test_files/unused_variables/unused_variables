@@ -6,10 +6,12 @@ fn main() {
 }
 
 //! > diagnostics
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+warning: Unused variable. Consider ignoring by prefixing with `_`.
  --> lib.cairo:2:9
-    let a: Option<felt252> = Option::Some(1);
-        ^
+  |
+2 |     let a: Option<felt252> = Option::Some(1);
+  |         -
+  |
 
 //! > fixed
 fn main() {
@@ -44,40 +46,48 @@ fn main() {
 }
 
 //! > diagnostics
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:5:13
-        let c = 1_u32;
-            ^
-
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:9:17
-            let d = 3_u32;
-                ^
-
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:11:17
-            let e = false;
-                ^
-
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:13:13
-        let f: Array<u32> = array![];
-            ^
-
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:17:26
-            Option::Some(not_used) => 1_u32,
-                         ^******^
-
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:15:13
-        let g: Option<u32> = Option::None;
-            ^
-
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:3:9
-    let b = 1;
-        ^
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:8:13
+  |
+8 |         let c = 1_u32;
+  |             -
+  |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:16:17
+   |
+16 |             let d = 3_u32;
+   |                 -
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:20:17
+   |
+20 |             let e = false;
+   |                 -
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:24:13
+   |
+24 |         let f: Array<u32> = array![];
+   |             -
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:32:26
+   |
+32 |             Option::Some(not_used) => 1_u32,
+   |                          --------
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:28:13
+   |
+28 |         let g: Option<u32> = Option::None;
+   |             -
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:4:9
+  |
+4 |     let b = 1;
+  |         -
+  |
 
 //! > fixed
 fn main() {
@@ -113,15 +123,18 @@ fn main() {
 }
 
 //! > diagnostics
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
+warning: Unused variable. Consider ignoring by prefixing with `_`.
  --> lib.cairo:2:9
-    let a: Option<felt252> = Option::Some(1);
-        ^
-
-warning[E0001]: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:3:9
-    let b = 1;
-        ^
+  |
+2 |     let a: Option<felt252> = Option::Some(1);
+  |         -
+  |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:4:9
+  |
+4 |     let b = 1;
+  |         -
+  |
 
 //! > fixed
 fn main() {

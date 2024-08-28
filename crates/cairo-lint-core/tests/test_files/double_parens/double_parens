@@ -1,0 +1,255 @@
+//! > assert expressions
+
+//! > cairo_code
+fn main() {
+    assert!(((4)) == 4);
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:2:13
+  |
+2 |     assert!(((4)) == 4);
+  |             -----
+  |
+
+//! > fixed
+fn main() {
+    assert!(4== 4);
+}
+
+//! > ==========================================================================
+
+//! > double parens in let statement
+
+//! > cairo_code
+fn main() {
+    let x = ((10 * 2));
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:2:13
+  |
+2 |     let x = ((10 * 2));
+  |             ----------
+  |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:2:9
+  |
+2 |     let x = ((10 * 2));
+  |         -
+  |
+
+//! > fixed
+fn main() {
+    let _x = 10 * 2;
+}
+
+//! > ==========================================================================
+
+//! > double parens in match arm
+
+//! > cairo_code
+fn main() -> felt252 {
+    let x = 5;
+    match x {
+        1 => ((10)),
+        5 => ((20)),
+        _ => ((30)),
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:6:14
+  |
+6 |         1 => ((10)),
+  |              ------
+  |
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:8:14
+  |
+8 |         5 => ((20)),
+  |              ------
+  |
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+  --> lib.cairo:10:14
+   |
+10 |         _ => ((30)),
+   |              ------
+   |
+
+//! > fixed
+fn main() -> felt252 {
+    let x = 5;
+    match x {
+        1 => 10,
+        5 => 20,
+        _ => 30,
+    }
+}
+
+//! > ==========================================================================
+
+//! > double parens in struct field access
+
+//! > cairo_code
+struct MyStruct {
+    x: felt252,
+    y: felt252,
+}
+
+fn main() -> felt252 {
+    let my_struct = MyStruct { x: 10, y: 20 };
+    return ((my_struct.y));
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+  --> lib.cairo:14:12
+   |
+14 |     return ((my_struct.y));
+   |            ---------------
+   |
+
+//! > fixed
+struct MyStruct {
+    x: felt252,
+    y: felt252,
+}
+
+fn main() -> felt252 {
+    let my_struct = MyStruct { x: 10, y: 20 };
+    return my_struct.y;
+}
+
+//! > ==========================================================================
+
+//! > double parens with function call
+
+//! > cairo_code
+fn foo(x: felt252) -> felt252 {
+    x * 2
+}
+
+fn main() -> felt252 {
+    ((foo(10)))
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+  --> lib.cairo:10:5
+   |
+10 |     ((foo(10)))
+   |     -----------
+   |
+
+//! > fixed
+fn foo(x: felt252) -> felt252 {
+    x * 2
+}
+
+fn main() -> felt252 {
+    foo(10)}
+
+//! > ==========================================================================
+
+//! > double parens with return
+
+//! > cairo_code
+fn main() -> felt252 {
+    return ((5 + 7));
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:2:12
+  |
+2 |     return ((5 + 7));
+  |            ---------
+  |
+
+//! > fixed
+fn main() -> felt252 {
+    return 5 + 7;
+}
+
+//! > ==========================================================================
+
+//! > necessary parentheses in arithmetic expression
+
+//! > cairo_code
+fn main() -> u32 {
+    2 * (3 + 5)
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> u32 {
+    2 * (3 + 5)
+}
+
+//! > ==========================================================================
+
+//! > simple double parens
+
+//! > cairo_code
+fn main() -> u32 {
+    ((0))
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:2:5
+  |
+2 |     ((0))
+  |     -----
+  |
+
+//! > fixed
+fn main() -> u32 {
+    0}
+
+//! > ==========================================================================
+
+//! > tuple double parens
+
+//! > cairo_code
+fn main() -> (felt252, felt252) {
+    ((1, 2))
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:2:5
+  |
+2 |     ((1, 2))
+  |     --------
+  |
+
+//! > fixed
+fn main() -> (felt252, felt252) {
+    (1, 2)}
+
+//! > ==========================================================================
+
+//! > unnecessary parentheses in arithmetic expression
+
+//! > cairo_code
+fn main() -> u32 {
+    ((3 + 5))
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+ --> lib.cairo:2:5
+  |
+2 |     ((3 + 5))
+  |     ---------
+  |
+
+//! > fixed
+fn main() -> u32 {
+    3 + 5}

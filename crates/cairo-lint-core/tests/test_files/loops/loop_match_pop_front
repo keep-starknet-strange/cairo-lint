@@ -1,0 +1,36 @@
+//! > simple loop match pop front
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { break; },
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+ --> lib.cairo:4:5
+  |
+4 |       loop {
+  |  _____-
+5 | |         match a.pop_front() {
+... |
+8 | |         }
+9 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { break; },
+        }
+    }
+}
