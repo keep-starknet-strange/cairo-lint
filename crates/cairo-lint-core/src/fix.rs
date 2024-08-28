@@ -143,7 +143,7 @@ impl Fixer {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-            CairoLintKind::EquatableIfLet => self.fix_equatable_if_let(db, diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::EquatableIfLet => self.fix_equatable_if_let(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };

@@ -75,33 +75,6 @@ test_file!(loops, loop_match_pop_front, "simple loop match pop front");
 test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
 
 test_file!(
-    unused_imports,
-    unused_imports,
-    "single unused import",
-    "multiple unused imports",
-    "unused import aliased",
-    "unused import trait"
-);
-
-test_file!(
-    double_parens,
-    double_parens,
-    "simple double parens",
-    "unnecessary parentheses in arithmetic expression",
-    "necessary parentheses in arithmetic expression",
-    "tuple double parens",
-    "assert expressions",
-    "double parens with function call",
-    "double parens with return",
-    "double parens in let statement",
-    "double parens in struct field access",
-    "double parens in match arm"
-);
-test_file!(loops, loop_match_pop_front, "simple loop match pop front");
-
-test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
-
-test_file!(
     equatable_if_let, 
     equatable_if_let, 
     "simple equality simple pattern", 

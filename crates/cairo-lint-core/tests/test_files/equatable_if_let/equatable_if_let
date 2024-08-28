@@ -10,11 +10,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:3:5
-\   if let Option::Some(1_felt252) = x {
-|       println!("do something");
-|   }
-|___^
+ --> lib.cairo:4:5
+  |
+4 |       if let Option::Some(1_felt252) = x {
+  |  _____-
+5 | |         println!("do something");
+6 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main() {
@@ -86,9 +89,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:3:5
-    if let 2 = a {}
-    ^*************^
+ --> lib.cairo:4:5
+  |
+4 |     if let 2 = a {}
+  |     ---------------
+  |
 
 //! > fixed
 fn main() {
@@ -115,9 +120,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:10:5
-    if let Template { a: 2, b: false } = d {}
-    ^***************************************^
+  --> lib.cairo:18:5
+   |
+18 |     if let Template { a: 2, b: false } = d {}
+   |     -----------------------------------------
+   |
 
 //! > fixed
 #[derive(Drop)]
@@ -152,14 +159,17 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:11:5
-    if let Enum::TupleVariant(32, 64) = e {}
-    ^**************************************^
-
+  --> lib.cairo:20:5
+   |
+20 |     if let Enum::TupleVariant(32, 64) = e {}
+   |     ----------------------------------------
+   |
 error: Identifier not found.
- --> lib.cairo:11:41
-    if let Enum::TupleVariant(32, 64) = e {}
-                                        ^
+  --> lib.cairo:20:41
+   |
+20 |     if let Enum::TupleVariant(32, 64) = e {}
+   |                                         ^
+   |
 
 //! > fixed
 struct Tuple {
@@ -190,19 +200,23 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:6:5
-    if let Enum::RecordVariant { a: 64, b: 32 } = e {}
-    ^************************************************^
-
+  --> lib.cairo:10:5
+   |
+10 |     if let Enum::RecordVariant { a: 64, b: 32 } = e {}
+   |     --------------------------------------------------
+   |
 error: Identifier not found.
- --> lib.cairo:6:51
-    if let Enum::RecordVariant { a: 64, b: 32 } = e {}
-                                                  ^
-
+  --> lib.cairo:10:51
+   |
+10 |     if let Enum::RecordVariant { a: 64, b: 32 } = e {}
+   |                                                   ^
+   |
 error: Not a type.
- --> lib.cairo:6:12
-    if let Enum::RecordVariant { a: 64, b: 32 } = e {}
-           ^*****************^
+  --> lib.cairo:10:12
+   |
+10 |     if let Enum::RecordVariant { a: 64, b: 32 } = e {}
+   |            ^^^^^^^^^^^^^^^^^^^
+   | 
 
 //! > fixed
 enum Enum {
@@ -230,10 +244,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:8:5
-    if let Enum::UnitVariant = e {}
-    ^*****************************^
-
+  --> lib.cairo:14:5
+   |
+14 |     if let Enum::UnitVariant = e {}
+   |     -------------------------------
+   |
 //! > fixed
 enum Enum {
     UnitVariant
