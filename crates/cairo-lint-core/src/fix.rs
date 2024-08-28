@@ -4,13 +4,14 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{Expr, ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{Expr, ExprBinary, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::{debug, warn};
 
+use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
 use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
@@ -143,6 +144,10 @@ impl Fixer {
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::BoolComparison => self.fix_bool_comparison(
+                db,
+                ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            ),
             _ => return None,
         };
 
@@ -151,6 +156,14 @@ impl Fixer {
 
     pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         node.get_text(db).replace("break ();", "break;").to_string()
+    }
+
+    pub fn fix_bool_comparison(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
+        let lhs = node.lhs(db).as_syntax_node().get_text(db);
+        let rhs = node.rhs(db).as_syntax_node().get_text(db);
+
+        let result = generate_fixed_text_for_comparison(db, lhs.as_str(), rhs.as_str(), node.clone());
+        result
     }
 
     /// Removes unnecessary double parentheses from a syntax node.
