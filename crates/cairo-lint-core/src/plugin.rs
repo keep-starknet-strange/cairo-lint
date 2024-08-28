@@ -2,11 +2,11 @@ use cairo_lang_defs::ids::{ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
-use cairo_lang_syntax::node::ast::ExprMatch;
+use cairo_lang_syntax::node::ast::{ExprIf, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
-use crate::lints::single_match;
+use crate::lints::{single_match, equatable_if_let};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -20,6 +20,7 @@ pub struct CairoLint;
 pub enum CairoLintKind {
     DestructMatch,
     MatchForEquality,
+    EquatableIfLet,
     Unknown,
 }
 
@@ -27,6 +28,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
         single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
+        equatable_if_let::EQUATABLE_IF_LET => CairoLintKind::EquatableIfLet,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -51,13 +53,18 @@ impl AnalyzerPlugin for CairoLint {
                                 &mut diags,
                                 &module_id,
                             ),
+                            SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
+                                db.upcast(),
+                                &ExprIf::from_syntax_node(db.upcast(), descendant.clone()),
+                                &mut diags
+                            ),
                             SyntaxKind::ItemExternFunction => (),
                             _ => (),
                         }
                     }
                 }
                 ModuleItemId::ExternFunction(_) => (),
-                _ => (),
+                _ => (), 
             }
         }
         diags
