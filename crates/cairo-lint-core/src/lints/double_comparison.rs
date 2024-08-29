@@ -69,21 +69,51 @@ pub fn operator_to_replace(lhs_op: BinaryOperator) -> &'static str {
     }
 }
 
-pub fn determine_simplified_operator(lhs_op: &BinaryOperator, rhs_op: &BinaryOperator) -> Option<&'static str> {
-    match (lhs_op, rhs_op) {
-        (BinaryOperator::EqEq(_), BinaryOperator::LT(_)) | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => {
+pub fn determine_simplified_operator(
+    lhs_op: &BinaryOperator,
+    rhs_op: &BinaryOperator,
+    middle_op: &BinaryOperator,
+) -> Option<&'static str> {
+    match (lhs_op, rhs_op, middle_op) {
+        
+        (BinaryOperator::EqEq(_), BinaryOperator::LT(_), BinaryOperator::AndAnd(_))
+        | (BinaryOperator::LT(_), BinaryOperator::EqEq(_), BinaryOperator::AndAnd(_)) => {
             Some("<=")
         }
 
-        (BinaryOperator::EqEq(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => {
+        (BinaryOperator::EqEq(_), BinaryOperator::GT(_), BinaryOperator::AndAnd(_))
+        | (BinaryOperator::GT(_), BinaryOperator::EqEq(_), BinaryOperator::AndAnd(_)) => {
             Some(">=")
         }
 
-        (BinaryOperator::LT(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => {
+        (BinaryOperator::LT(_), BinaryOperator::GT(_), BinaryOperator::AndAnd(_))
+        | (BinaryOperator::GT(_), BinaryOperator::LT(_), BinaryOperator::AndAnd(_)) => {
             Some("!=")
         }
 
-        (BinaryOperator::LE(_), BinaryOperator::GE(_)) | (BinaryOperator::GE(_), BinaryOperator::LE(_)) => {
+        (BinaryOperator::LE(_), BinaryOperator::GE(_), BinaryOperator::AndAnd(_))
+        | (BinaryOperator::GE(_), BinaryOperator::LE(_), BinaryOperator::AndAnd(_)) => {
+            Some("==")
+        }
+
+        
+        (BinaryOperator::EqEq(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_))
+        | (BinaryOperator::LT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_)) => {
+            Some("<=")
+        }
+
+        (BinaryOperator::EqEq(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_))
+        | (BinaryOperator::GT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_)) => {
+            Some(">=")
+        }
+
+        (BinaryOperator::LT(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_))
+        | (BinaryOperator::GT(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_)) => {
+            Some("!=")
+        }
+
+        (BinaryOperator::LE(_), BinaryOperator::GE(_), BinaryOperator::OrOr(_))
+        | (BinaryOperator::GE(_), BinaryOperator::LE(_), BinaryOperator::OrOr(_)) => {
             Some("==")
         }
 
