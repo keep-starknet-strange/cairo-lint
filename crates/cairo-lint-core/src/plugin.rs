@@ -85,16 +85,12 @@ impl AnalyzerPlugin for CairoLint {
                         &AstExpr::from_syntax_node(db.upcast(), node),
                         &mut diags,
                     ),
-                    SyntaxKind::ExprBinary => double_comparison::check_double_comparison(
-                        db.upcast(),
-                        &ExprBinary::from_syntax_node(db.upcast(), node),
-                        &mut diags,
-                    ),
-                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
-                        bool_comparison::check_bool_comparison(db.upcast(), expr_binary, &mut diags);
+                        bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
+                        double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
                     }
+                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     _ => continue,
                 }
             }

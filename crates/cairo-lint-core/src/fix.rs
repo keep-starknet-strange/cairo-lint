@@ -4,7 +4,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary, ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{Expr, ExprBinary, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
@@ -268,7 +268,7 @@ impl Fixer {
                 if let Some(simplified_op) = simplified_op {
                     let operator_to_replace = double_comparison::operator_to_replace(lhs_op);
                     let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
-                    return format!("{}", lhs_text);
+                    return lhs_text.to_string();
                 }
             }
         }

@@ -21,14 +21,12 @@ pub fn check_double_comparison(
         let lhs_var = extract_variable_from_expr(lhs.as_syntax_node().get_text(db));
         let rhs_var = extract_variable_from_expr(rhs.as_syntax_node().get_text(db));
 
-        if lhs_var == rhs_var {
-            if is_redundant_double_comparison(&lhs_op, &rhs_op, &middle_op) {
-                diagnostics.push(PluginDiagnostic {
-                    stable_ptr: binary_expr.stable_ptr().untyped(),
-                    message: DOUBLE_COMPARISON.to_string(),
-                    severity: Severity::Warning,
-                });
-            }
+        if lhs_var == rhs_var && is_redundant_double_comparison(&lhs_op, &rhs_op, &middle_op) {
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: binary_expr.stable_ptr().untyped(),
+                message: DOUBLE_COMPARISON.to_string(),
+                severity: Severity::Warning,
+            });
         }
     }
 }
