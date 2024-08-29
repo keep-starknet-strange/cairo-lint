@@ -1,3 +1,71 @@
+//! > contradictory equal and less than
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x == y && x < y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: This double comparison is contradictory and always false.
+ --> lib.cairo:6:8
+  |
+6 |     if x == y && x < y {
+  |        ^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x == y && x < y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > contradictory less than and greater than
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x < y && x > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: This double comparison is contradictory and always false.
+ --> lib.cairo:6:8
+  |
+6 |     if x < y && x > y {
+  |        ^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x < y && x > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
 //! > double comparison equal or greater than
 
 //! > cairo_code
@@ -100,40 +168,6 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > double comparison greater than or less than
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x > y || x < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
-  |
-6 |     if x > y || x < y {
-  |        --------------
-  |
-
-//! > fixed
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x != y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
 //! > double comparison greater than or equal and less than or equal
 
 //! > cairo_code
@@ -160,6 +194,40 @@ fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
     if x == y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > double comparison greater than or less than
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x > y || x < y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This double comparison can be simplified.
+ --> lib.cairo:6:8
+  |
+6 |     if x > y || x < y {
+  |        --------------
+  |
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x != y {
         true
     } else {
         false
@@ -202,40 +270,6 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > double comparison less than or greater than
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x < y || x > y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
-  |
-6 |     if x < y || x > y {
-  |        --------------
-  |
-
-//! > fixed
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x != y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
 //! > double comparison less than or equal and greater than or equal
 
 //! > cairo_code
@@ -262,6 +296,40 @@ fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
     if x == y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > double comparison less than or greater than
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x < y || x > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This double comparison can be simplified.
+ --> lib.cairo:6:8
+  |
+6 |     if x < y || x > y {
+  |        --------------
+  |
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x != y {
         true
     } else {
         false
@@ -300,13 +368,13 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > contradictory less than and greater than
+//! > redundant greater than or equal and less than or equal
 
 //! > cairo_code
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    if x < y && x > y {
+    if x >= y || x <= y {
         true
     } else {
         false
@@ -314,75 +382,18 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-error: Plugin diagnostic: This double comparison is contradictory and always false.
+warning: Plugin diagnostic: Redundant double comparison found. Consider simplifying to a single comparison.
  --> lib.cairo:6:8
   |
-6 |     if x < y && x > y {
-  |        ^^^^^^^^^^^^^^
+6 |     if x >= y || x <= y {
+  |        ----------------
   |
 
 //! > fixed
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    if x < y && x > y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > contradictory equal and less than
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x == y && x < y {
-        true
-    } else {
-        false
-    }
-}
-
-
-//! > diagnostics
-
-//! > fixed
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x == y && x < y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
-//! > contradictory greater than and equal
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x > y && x == y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x == y && x < y {
+    if x >= y || x <= y {
         true
     } else {
         false

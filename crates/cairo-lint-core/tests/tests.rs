@@ -85,7 +85,7 @@ test_file!(
     "not redundant double comparison equal or greater than",
     "contradictory less than and greater than",
     "contradictory equal and less than",
-    "contradictory greater than and equal"
+    "redundant greater than or equal and less than or equal"
 );
 
 test_file!(loops, loop_match_pop_front, "simple loop match pop front");
