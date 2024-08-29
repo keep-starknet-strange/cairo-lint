@@ -88,3 +88,16 @@ test_file!(
 test_file!(loops, loop_match_pop_front, "simple loop match pop front");
 
 test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
+
+test_file!(
+    bool_comparison,
+    bool_comparison,
+    "Comparison with true",
+    "Comparison with true on LHS",
+    "Comparison with false",
+    "Comparison with false on LHS",
+    "Negated comparison with true",
+    "Negated comparison with true on LHS",
+    "Negated comparison with false",
+    "Negated comparison with false on LHS"
+);

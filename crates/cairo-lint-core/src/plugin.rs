@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::{breaks, double_comparison, double_parens, loops, single_match};
+use crate::lints::{double_comparison, bool_comparison, breaks, double_parens, loops, single_match};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -25,6 +25,7 @@ pub enum CairoLintKind {
     DoubleParens,
     Unknown,
     BreakUnit,
+    BoolComparison,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -34,6 +35,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         double_parens::DOUBLE_PARENS => CairoLintKind::DoubleParens,
         double_comparison::DOUBLE_COMPARISON => CairoLintKind::DoubleComparison,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
+        bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -89,6 +91,10 @@ impl AnalyzerPlugin for CairoLint {
                         &mut diags,
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
+                    SyntaxKind::ExprBinary => {
+                        let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
+                        bool_comparison::check_bool_comparison(db.upcast(), expr_binary, &mut diags);
+                    }
                     _ => continue,
                 }
             }
