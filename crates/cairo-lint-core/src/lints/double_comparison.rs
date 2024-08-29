@@ -4,7 +4,10 @@ use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-pub const DOUBLE_COMPARISON: &str = "redundant double comparison found. Consider simplifying to a single comparison.";
+pub const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
+pub const REDUNDANT_COMPARISON: &str =
+    "Redundant double comparison found. Consider simplifying to a single comparison.";
+pub const CONTRADICTORY_COMPARISON: &str = "This double comparison is contradictory and always false.";
 
 pub fn check_double_comparison(
     db: &dyn SyntaxGroup,
@@ -21,12 +24,26 @@ pub fn check_double_comparison(
         let lhs_var = extract_variable_from_expr(lhs.as_syntax_node().get_text(db));
         let rhs_var = extract_variable_from_expr(rhs.as_syntax_node().get_text(db));
 
-        if lhs_var == rhs_var && is_redundant_double_comparison(&lhs_op, &rhs_op, &middle_op) {
-            diagnostics.push(PluginDiagnostic {
-                stable_ptr: binary_expr.stable_ptr().untyped(),
-                message: DOUBLE_COMPARISON.to_string(),
-                severity: Severity::Warning,
-            });
+        if lhs_var == rhs_var {
+            if is_simplifiable_double_comparison(&lhs_op, &rhs_op, &middle_op) {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: binary_expr.stable_ptr().untyped(),
+                    message: SIMPLIFIABLE_COMPARISON.to_string(),
+                    severity: Severity::Warning,
+                });
+            } else if is_redundant_double_comparison(&lhs_op, &rhs_op, &middle_op) {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: binary_expr.stable_ptr().untyped(),
+                    message: REDUNDANT_COMPARISON.to_string(),
+                    severity: Severity::Warning,
+                });
+            } else if is_contradictory_double_comparison(&lhs_op, &rhs_op, &middle_op) {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: binary_expr.stable_ptr().untyped(),
+                    message: CONTRADICTORY_COMPARISON.to_string(),
+                    severity: Severity::Error,
+                });
+            }
         }
     }
 }
@@ -39,7 +56,37 @@ pub fn extract_variable_from_expr(text: String) -> String {
     }
 }
 
+fn is_simplifiable_double_comparison(
+    lhs_op: &BinaryOperator,
+    rhs_op: &BinaryOperator,
+    middle_op: &BinaryOperator,
+) -> bool {
+    matches!(
+        (lhs_op, rhs_op, middle_op),
+        (BinaryOperator::LE(_), BinaryOperator::GE(_), BinaryOperator::AndAnd(_))
+            | (BinaryOperator::GE(_), BinaryOperator::LE(_), BinaryOperator::AndAnd(_))
+            | (BinaryOperator::LT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_))
+            | (BinaryOperator::EqEq(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_))
+            | (BinaryOperator::GT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_))
+            | (BinaryOperator::EqEq(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_))
+            | (BinaryOperator::LT(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_))
+            | (BinaryOperator::GT(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_))
+    )
+}
+
 fn is_redundant_double_comparison(
+    lhs_op: &BinaryOperator,
+    rhs_op: &BinaryOperator,
+    middle_op: &BinaryOperator,
+) -> bool {
+    matches!(
+        (lhs_op, rhs_op, middle_op),
+        (BinaryOperator::LE(_), BinaryOperator::GE(_), BinaryOperator::OrOr(_))
+            | (BinaryOperator::GE(_), BinaryOperator::LE(_), BinaryOperator::OrOr(_))
+    )
+}
+
+fn is_contradictory_double_comparison(
     lhs_op: &BinaryOperator,
     rhs_op: &BinaryOperator,
     middle_op: &BinaryOperator,
@@ -50,18 +97,8 @@ fn is_redundant_double_comparison(
             | (BinaryOperator::LT(_), BinaryOperator::EqEq(_), BinaryOperator::AndAnd(_))
             | (BinaryOperator::EqEq(_), BinaryOperator::GT(_), BinaryOperator::AndAnd(_))
             | (BinaryOperator::GT(_), BinaryOperator::EqEq(_), BinaryOperator::AndAnd(_))
-            | (BinaryOperator::LE(_), BinaryOperator::GE(_), BinaryOperator::AndAnd(_))
-            | (BinaryOperator::GE(_), BinaryOperator::LE(_), BinaryOperator::AndAnd(_))
             | (BinaryOperator::LT(_), BinaryOperator::GT(_), BinaryOperator::AndAnd(_))
             | (BinaryOperator::GT(_), BinaryOperator::LT(_), BinaryOperator::AndAnd(_))
-            | (BinaryOperator::EqEq(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_))
-            | (BinaryOperator::LT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_))
-            | (BinaryOperator::EqEq(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_))
-            | (BinaryOperator::GT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_))
-            | (BinaryOperator::LE(_), BinaryOperator::GE(_), BinaryOperator::OrOr(_))
-            | (BinaryOperator::GE(_), BinaryOperator::LE(_), BinaryOperator::OrOr(_))
-            | (BinaryOperator::LT(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_))
-            | (BinaryOperator::GT(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_))
     )
 }
 
@@ -82,29 +119,17 @@ pub fn determine_simplified_operator(
     middle_op: &BinaryOperator,
 ) -> Option<&'static str> {
     match (lhs_op, rhs_op, middle_op) {
-        (BinaryOperator::EqEq(_), BinaryOperator::LT(_), BinaryOperator::AndAnd(_))
-        | (BinaryOperator::LT(_), BinaryOperator::EqEq(_), BinaryOperator::AndAnd(_)) => Some("<="),
-
-        (BinaryOperator::EqEq(_), BinaryOperator::GT(_), BinaryOperator::AndAnd(_))
-        | (BinaryOperator::GT(_), BinaryOperator::EqEq(_), BinaryOperator::AndAnd(_)) => Some(">="),
-
-        (BinaryOperator::LT(_), BinaryOperator::GT(_), BinaryOperator::AndAnd(_))
-        | (BinaryOperator::GT(_), BinaryOperator::LT(_), BinaryOperator::AndAnd(_)) => Some("!="),
-
         (BinaryOperator::LE(_), BinaryOperator::GE(_), BinaryOperator::AndAnd(_))
         | (BinaryOperator::GE(_), BinaryOperator::LE(_), BinaryOperator::AndAnd(_)) => Some("=="),
 
-        (BinaryOperator::EqEq(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_))
-        | (BinaryOperator::LT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_)) => Some("<="),
+        (BinaryOperator::LT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_))
+        | (BinaryOperator::EqEq(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_)) => Some("<="),
 
-        (BinaryOperator::EqEq(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_))
-        | (BinaryOperator::GT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_)) => Some(">="),
+        (BinaryOperator::GT(_), BinaryOperator::EqEq(_), BinaryOperator::OrOr(_))
+        | (BinaryOperator::EqEq(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_)) => Some(">="),
 
         (BinaryOperator::LT(_), BinaryOperator::GT(_), BinaryOperator::OrOr(_))
         | (BinaryOperator::GT(_), BinaryOperator::LT(_), BinaryOperator::OrOr(_)) => Some("!="),
-
-        (BinaryOperator::LE(_), BinaryOperator::GE(_), BinaryOperator::OrOr(_))
-        | (BinaryOperator::GE(_), BinaryOperator::LE(_), BinaryOperator::OrOr(_)) => Some("=="),
 
         _ => None,
     }
