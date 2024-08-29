@@ -11,8 +11,8 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::{debug, warn};
 
-use crate::lints::double_comparison;
 use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
+use crate::lints::double_comparison;
 use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
@@ -146,7 +146,7 @@ impl Fixer {
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::DoubleComparison => {
                 Self::fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
-            },            
+            }
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BoolComparison => self.fix_bool_comparison(
                 db,
@@ -253,18 +253,18 @@ impl Fixer {
 
     pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
-    
+
         if let Expr::Binary(binary_op) = expr {
             let lhs = binary_op.lhs(db);
             let rhs = binary_op.rhs(db);
             let middle_op = binary_op.op(db);
-    
+
             if let (Some(lhs_op), Some(rhs_op)) = (
                 double_comparison::extract_binary_operator_expr(&lhs, db),
                 double_comparison::extract_binary_operator_expr(&rhs, db),
             ) {
                 let simplified_op = double_comparison::determine_simplified_operator(&lhs_op, &rhs_op, &middle_op);
-    
+
                 if let Some(simplified_op) = simplified_op {
                     let operator_to_replace = double_comparison::operator_to_replace(lhs_op);
                     let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
