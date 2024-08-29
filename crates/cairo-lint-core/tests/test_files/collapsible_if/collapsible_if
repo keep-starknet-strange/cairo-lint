@@ -1,0 +1,244 @@
+//! > collapsible if in boolean conditions
+
+//! > cairo_code
+fn main() {
+  let x = true;
+  let y = true;
+  let z = false;
+
+  if x || z {
+      if y && z {
+          println!("Hello");
+      }
+  }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+  --> lib.cairo:10:3
+   |
+10 |     if x || z {
+   |  ___-
+11 | |       if y && z {
+12 | |           println!("Hello");
+13 | |       }
+14 | |   }
+   | |___-
+   |
+
+//! > fixed
+fn main() {
+  let x = true;
+  let y = true;
+  let z = false;
+
+  x || z && y && z{
+          println!("Hello");
+      }}
+
+//! > ==========================================================================
+
+//! > collapsible if in conditions with complex expressions
+
+//! > cairo_code
+fn main() {
+  let x = 3_u32;
+  let y = 4_u32;
+  let z = 5_u32;
+  let a = 5_u32;
+  let b = 2_u32;
+  let c = 10_u32;
+
+  if x + y > a {
+      if z * b < c {
+          println!("Complex conditions");
+      }
+  }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+  --> lib.cairo:16:3
+   |
+16 |     if x + y > a {
+   |  ___-
+17 | |       if z * b < c {
+18 | |           println!("Complex conditions");
+19 | |       }
+20 | |   }
+   | |___-
+   |
+
+//! > fixed
+fn main() {
+  let x = 3_u32;
+  let y = 4_u32;
+  let z = 5_u32;
+  let a = 5_u32;
+  let b = 2_u32;
+  let c = 10_u32;
+
+  x + y > a && z * b < c{
+          println!("Complex conditions");
+      }}
+
+//! > ==========================================================================
+
+//! > collapsible if with combinable conditions
+
+//! > cairo_code
+fn main() {
+  let x = true;
+  let z = true;
+
+  if x {
+      if z {
+          println!("No fix here");
+      }
+  }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+  --> lib.cairo:8:3
+   |
+ 8 |     if x {
+   |  ___-
+ 9 | |       if z {
+10 | |           println!("No fix here");
+11 | |       }
+12 | |   }
+   | |___-
+   |
+
+//! > fixed
+fn main() {
+  let x = true;
+  let z = true;
+
+  x && z{
+          println!("No fix here");
+      }}
+
+//! > ==========================================================================
+
+//! > collapsible if with simple numerical conditions
+
+//! > cairo_code
+fn main() {
+  let a = 10;
+  let b = 20;
+  let c = 5;
+
+  if a > b {
+      if c < b {
+          println!("Simple numerical conditions");
+      }
+  }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+  --> lib.cairo:10:3
+   |
+10 |     if a > b {
+   |  ___-
+11 | |       if c < b {
+12 | |           println!("Simple numerical conditions");
+13 | |       }
+14 | |   }
+   | |___-
+   |
+error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
+  --> lib.cairo:12:10
+   |
+12 |       if c < b {
+   |          ^^^^^
+   |
+
+//! > fixed
+fn main() {
+  let a = 10;
+  let b = 20;
+  let c = 5;
+
+  a > b && c < b{
+          println!("Simple numerical conditions");
+      }}
+
+//! > ==========================================================================
+
+//! > collapsible_if_with_function_calls
+
+//! > cairo_code
+fn is_valid(_a: bool) -> bool { true } 
+fn is_ready(_b: bool) -> bool { true } 
+
+fn main() {
+  if is_valid(true) {
+      if is_ready(true) {
+          println!("Function calls in conditions");
+      }
+  }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+  --> lib.cairo:8:3
+   |
+ 8 |     if is_valid(true) {
+   |  ___-
+ 9 | |       if is_ready(true) {
+10 | |           println!("Function calls in conditions");
+11 | |       }
+12 | |   }
+   | |___-
+   |
+
+//! > fixed
+fn is_valid(_a: bool) -> bool { true } 
+fn is_ready(_b: bool) -> bool { true } 
+
+fn main() {
+  is_valid(true) && is_ready(true){
+          println!("Function calls in conditions");
+      }}
+
+//! > collapsible if with simple numerical conditions
+
+//! > cairo_code
+fn main() {
+  let a = 10;
+  let b = 20;
+  let c = 5;
+
+  if a > b {
+      if c < b {
+          println!("Simple numerical conditions");
+      }
+  }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+--> lib.cairo:8:5
+ |
+8  |     if a > b {
+ |  ___-
+9  | |       if c < b {
+10 | |           println!("Simple numerical conditions");
+11 | |       }
+12 | |   }
+ | |___-
+ |
+
+//! > fixed
+fn main() {
+  let a = 10;
+  let b = 20;
+  let c = 5;
+
+  if (a > b) && (c < b) { 
+      println!("Simple numerical conditions");
+  }
+}

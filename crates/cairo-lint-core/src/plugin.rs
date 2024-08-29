@@ -11,7 +11,7 @@ use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    eq_op, erasing_op, loop_for_while, loops, panic, single_match,
+    eq_op, erasing_op, loop_for_while, loops, panic, single_match, collapsible_if,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -32,6 +32,7 @@ pub enum CairoLintKind {
     BreakUnit,
     BoolComparison,
     CollapsibleIfElse,
+    CollapsibleIf,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
     ManualUnwrapOrDefault,
@@ -63,6 +64,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
+        collapsible_if::COLLAPSIBLE_IF => CairoLintKind::CollapsibleIf,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
         panic::PANIC_IN_CODE => CairoLintKind::Panic,
@@ -122,6 +124,11 @@ impl AnalyzerPlugin for CairoLint {
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     SyntaxKind::ExprIf => {
+                        collapsible_if::check_collapsible_if(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
                         equatable_if_let::check_equatable_if_let(
                             db.upcast(),
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),

@@ -312,3 +312,16 @@ test_file!(
 test_file!(manual, manual_ok, "test basic ok", "test basic if ok", "test other var", "test if other var");
 
 test_file!(manual, manual_err, "test basic err", "test basic if err", "test other err", "test if other err");
+
+test_file!(
+    collapsible_if,
+    collapsible_if,
+    "collapsible if in boolean conditions",
+    "collapsible if with combinable conditions",
+    "collapsible if in conditions with complex expressions",
+    "collapsible if with function calls",
+    "collapsible if with simple numerical conditions",
+    "collapsible if with else clause",
+    "collapsible if with independent statement",
+    "collapsible if with else on outer if"
+);
