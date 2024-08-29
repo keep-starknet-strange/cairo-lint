@@ -81,7 +81,9 @@ test_file!(
     "double comparison less than and greater than",
     "double comparison greater than and less than",
     "double comparison less than or equal and greater than or equal",
-    "double comparison greater than or equal and less than or equal"
+    "double comparison greater than or equal and less than or equal",
+    "not redundant double comparison equal and greater than",
+    "redundant less than and greater than"
 );
 test_file!(loops, loop_match_pop_front, "simple loop match pop front");
 

@@ -13,9 +13,11 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x == y || x > y {
-       ^*************^
+ --> lib.cairo:6:8
+  |
+6 |     if x == y || x > y {
+  |        ---------------
+  |
 
 //! > fixed
 fn main() -> bool {
@@ -45,9 +47,11 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x == y || x < y {
-       ^*************^
+ --> lib.cairo:6:8
+  |
+6 |     if x == y || x < y {
+  |        ---------------
+  |
 
 //! > fixed
 fn main() -> bool {
@@ -77,9 +81,11 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x > y || x == y {
-       ^*************^
+ --> lib.cairo:6:8
+  |
+6 |     if x > y || x == y {
+  |        ---------------
+  |
 
 //! > fixed
 fn main() -> bool {
@@ -109,9 +115,11 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x > y || x < y {
-       ^************^
+ --> lib.cairo:6:8
+  |
+6 |     if x > y || x < y {
+  |        --------------
+  |
 
 //! > fixed
 fn main() -> bool {
@@ -141,9 +149,11 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x >= y && x <= y {
-       ^**************^
+ --> lib.cairo:6:8
+  |
+6 |     if x >= y && x <= y {
+  |        ----------------
+  |
 
 //! > fixed
 fn main() -> bool {
@@ -173,9 +183,11 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x < y || x == y {
-       ^*************^
+ --> lib.cairo:6:8
+  |
+6 |     if x < y || x == y {
+  |        ---------------
+  |
 
 //! > fixed
 fn main() -> bool {
@@ -205,9 +217,11 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x < y || x > y {
-       ^************^
+ --> lib.cairo:6:8
+  |
+6 |     if x < y || x > y {
+  |        --------------
+  |
 
 //! > fixed
 fn main() -> bool {
@@ -237,15 +251,81 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:4:8
-    if x <= y && x >= y {
-       ^**************^
+ --> lib.cairo:6:8
+  |
+6 |     if x <= y && x >= y {
+  |        ----------------
+  |
 
 //! > fixed
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
     if x == y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > not redundant double comparison equal and greater than
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    let z = 15_u32;
+    if x == y || z > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    let z = 15_u32;
+    if x == y || z > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > redundant less than and greater than
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x < y && x > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant double comparison found. Consider simplifying to a single comparison.
+ --> lib.cairo:6:8
+  |
+6 |     if x < y && x > y {
+  |        --------------
+  |
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x != y {
         true
     } else {
         false

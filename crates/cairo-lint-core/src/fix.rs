@@ -11,7 +11,6 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::{debug, warn};
 
-use crate::db::AnalysisDatabase;
 use crate::lints::double_comparison;
 use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
@@ -146,8 +145,7 @@ impl Fixer {
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::DoubleComparison => {
                 Self::fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
-            }
-            _ => "".to_owned(),
+            },            
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
@@ -248,10 +246,10 @@ impl Fixer {
             let rhs = binary_op.rhs(db);
 
             if let (Some(lhs_op), Some(rhs_op)) = (
-                double_comparison::extract_binary_operator(&lhs, db),
-                double_comparison::extract_binary_operator(&rhs, db),
+                double_comparison::extract_binary_operator_expr(&lhs, db),
+                double_comparison::extract_binary_operator_expr(&rhs, db),
             ) {
-                let simplified_op = Self::determine_simplified_operator(&lhs_op, &rhs_op);
+                let simplified_op = double_comparison::determine_simplified_operator(&lhs_op, &rhs_op);
 
                 if let Some(simplified_op) = simplified_op {
                     let operator_to_replace = double_comparison::operator_to_replace(lhs_op);
@@ -262,27 +260,5 @@ impl Fixer {
         }
 
         node.get_text(db).to_string()
-    }
-
-    fn determine_simplified_operator(lhs_op: &BinaryOperator, rhs_op: &BinaryOperator) -> Option<&'static str> {
-        match (lhs_op, rhs_op) {
-            (BinaryOperator::EqEq(_), BinaryOperator::LT(_)) | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => {
-                Some("<=")
-            }
-
-            (BinaryOperator::EqEq(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => {
-                Some(">=")
-            }
-
-            (BinaryOperator::LT(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => {
-                Some("!=")
-            }
-
-            (BinaryOperator::LE(_), BinaryOperator::GE(_)) | (BinaryOperator::GE(_), BinaryOperator::LE(_)) => {
-                Some("==")
-            }
-
-            _ => None,
-        }
-    }
+    }    
 }
