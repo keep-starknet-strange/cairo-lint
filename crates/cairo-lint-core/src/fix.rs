@@ -1,18 +1,13 @@
-use std::collections::HashMap;
-
 use cairo_lang_compiler::db::RootDatabase;
-use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_diagnostics::Diagnostics;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{Expr, ExprBinary, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
-use log::{debug, warn};
+use log::debug;
 
 use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
 use crate::lints::single_match::is_expr_unit;

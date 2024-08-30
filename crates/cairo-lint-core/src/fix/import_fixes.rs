@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::ids::UseId;
-use cairo_lang_diagnostics::{DiagnosticEntry, Diagnostics};
+use cairo_lang_diagnostics::DiagnosticEntry;
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
@@ -37,8 +37,8 @@ pub fn collect_unused_imports(
         if let SemanticDiagnosticKind::UnusedImport(id) = &diag.kind {
             let file_id = diag.location(db.upcast()).file_id;
 
-            let mut local_fixes = file_fixes.entry(file_id).or_insert_with(HashMap::new);
-            process_unused_import(db, id, &mut local_fixes);
+            let local_fixes = file_fixes.entry(file_id).or_insert_with(HashMap::new);
+            process_unused_import(db, id, local_fixes);
         }
     }
 
@@ -70,7 +70,7 @@ fn process_unused_import(db: &RootDatabase, id: &UseId, fixes: &mut HashMap<Synt
 
 pub fn apply_import_fixes(db: &RootDatabase, fixes: &HashMap<SyntaxNode, ImportFix>) -> Vec<Fix> {
     fixes
-        .into_iter()
+        .iter()
         .flat_map(|(_, import_fix)| {
             let span = import_fix.node.span(db);
 
@@ -124,11 +124,9 @@ fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
 
 fn remove_specific_items(db: &RootDatabase, node: &SyntaxNode, items_to_remove: &[String]) -> Vec<Fix> {
     let use_path_list = find_use_path_list(db, node);
-    let node_text = use_path_list.get_text(db);
     let children = db.get_children(use_path_list.clone());
-    let children_text = children.iter().map(|child| child.get_text(db)).collect::<Vec<_>>().join(", ");
     let children: Vec<SyntaxNode> = children
-        .into_iter()
+        .iter()
         .filter(|child| {
             let text = child.get_text(db).trim().replace('\n', "");
             !text.is_empty() && !text.eq(",")

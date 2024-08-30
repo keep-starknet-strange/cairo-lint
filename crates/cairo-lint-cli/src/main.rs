@@ -145,8 +145,8 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 collect_unused_imports(&db, &diagnostics);
             let mut fixes = HashMap::new();
             unused_imports.keys().for_each(|file_id| {
-                let mut file_fixes: Vec<Fix> = apply_import_fixes(&db, unused_imports.get(file_id).unwrap());
-                fixes.insert(file_id.clone(), file_fixes);
+                let file_fixes: Vec<Fix> = apply_import_fixes(&db, unused_imports.get(file_id).unwrap());
+                fixes.insert(*file_id, file_fixes);
             });
 
             let diags_without_imports = diagnostics
@@ -155,7 +155,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 .collect::<Vec<_>>();
 
             for diag in diags_without_imports {
-                if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag) {
+                if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, diag) {
                     let location = diag.location(db.upcast());
                     fixes
                         .entry(location.file_id)
