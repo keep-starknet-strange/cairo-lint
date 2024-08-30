@@ -9,7 +9,7 @@ use anyhow::{anyhow, Result};
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_compiler::project::{update_crate_root, update_crate_roots_from_project_config};
 use cairo_lang_defs::db::DefsGroup;
-use cairo_lang_diagnostics::DiagnosticEntry;
+use cairo_lang_diagnostics::{DiagnosticEntry, Maybe};
 use cairo_lang_filesystem::db::{init_dev_corelib, FilesGroup, CORELIB_CRATE_NAME};
 use cairo_lang_filesystem::ids::{CrateLongId, FileId};
 use cairo_lang_semantic::db::SemanticGroup;
@@ -77,15 +77,13 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
     // Remove the compilation units that are not requested by the user. If none is specified will lint
     // them all. The test target is a special case and will never be linted unless specified with the
     // `--test` flag
-    let compilation_units = metadata.compilation_units.into_iter().filter(|compilation_unit| {
-        (args.target_names.is_empty() && compilation_unit.target.kind != targets::TEST)
-            || (args.target_names.contains(&compilation_unit.target.kind))
-            || (args.test && compilation_unit.target.kind == targets::TEST)
-    });
+    let packages = args.packages_filter.match_many(&metadata).unwrap();
+
     // Let's lint everything requested
-    for compilation_unit in compilation_units {
+    for package in packages {
         // Get the current package metadata
-        let package = metadata.packages.iter().find(|package| package.id == compilation_unit.package).unwrap();
+        let compilation_unit =
+            metadata.compilation_units.iter().find(|compilation_unit| compilation_unit.package == package.id).unwrap();
         // Print that we're checking this package.
         ui.print(Status::new("Checking", &package.name));
         // Create our db
@@ -124,7 +122,9 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
         let mut diags = Vec::new();
 
         for module_id in &*db.crate_modules(crate_id) {
-            diags.push(db.module_semantic_diagnostics(*module_id).unwrap());
+            if let Maybe::Ok(module_diags) = db.module_semantic_diagnostics(*module_id) {
+                diags.push(module_diags);
+            }
         }
 
         let renderer = Renderer::styled();
