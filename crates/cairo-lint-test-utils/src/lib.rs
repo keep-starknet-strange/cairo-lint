@@ -72,8 +72,12 @@ macro_rules! test_file {
                 let semantic_diags: Vec<_> = diags.clone().into_iter().flat_map(|diag| diag.get_all()).collect();
                 let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
                     collect_unused_imports(&db, &semantic_diags);
-                let current_file_id = unused_imports.keys().next().unwrap();
-                let mut fixes: Vec<Fix> = apply_import_fixes(&db, unused_imports.get(&current_file_id).unwrap());
+                let mut fixes = if unused_imports.keys().len() > 0 {
+                    let current_file_id = unused_imports.keys().next().unwrap();
+                    apply_import_fixes(&db, unused_imports.get(&current_file_id).unwrap())
+                } else {
+                    Vec::new()
+                };
 
                 // Handle other types of fixes
                 for diag in diags.iter().flat_map(|diags| diags.get_all()) {

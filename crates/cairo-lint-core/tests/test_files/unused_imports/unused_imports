@@ -7,7 +7,7 @@ use core::{
 };
 
 fn main() {
-    let _ = Option::Some(5);
+    let _ = Option::<u128>::Some(5);
 }
 
 //! > diagnostics
@@ -23,18 +23,12 @@ warning: Unused import: `test::u128_byte_reverse`
 2 |     integer::{u128_safe_divmod, u128_byte_reverse},
   |                                 -----------------
   |
-error: Cannot infer trait core::integer::NumericLiteral::<?0>. First generic argument must be known.
-  --> lib.cairo:12:26
-   |
-12 |     let _ = Option::Some(5);
-   |                          ^
-   |
 
 //! > fixed
 use core::option::Option;
 
 fn main() {
-    let _ = Option::Some(5);
+    let _ = Option::<u128>::Some(5);
 }
 
 //! > ==========================================================================
@@ -54,12 +48,6 @@ warning: Unused import: `test::u128_safe_divmod`
 0 | use core::integer::{u128_safe_divmod, u128_byte_reverse};
  |                     ----------------
  |
-error: Type mismatch: `core::integer::u128` and `core::felt252`.
- --> lib.cairo:4:23
-  |
-4 |     u128_byte_reverse(10_u128);
-  |                       ^^^^^^^
-  |
 
 //! > fixed
 use core::integer::u128_byte_reverse;
@@ -77,8 +65,8 @@ use core::array::ArrayTrait;
 use core::box::BoxTrait;
 
 fn main() {
-    let _ = Option::Some(5);
-    let _res = BoxTrait::new(5);
+    let _ = Option::<u128>::Some(5);
+    let _res = BoxTrait::<u128>::new(5);
 }
 
 //! > diagnostics
@@ -88,20 +76,14 @@ warning: Unused import: `test::ArrayTrait`
 2 | use core::array::ArrayTrait;
   |                  ----------
   |
-error: Cannot infer trait core::integer::NumericLiteral::<?0>. First generic argument must be known.
-  --> lib.cairo:12:30
-   |
-12 |     let _res = BoxTrait::new(5);
-   |                              ^
-   |
 
 //! > fixed
 use core::option::Option;
 use core::box::BoxTrait;
 
 fn main() {
-    let _ = Option::Some(5);
-    let _res = BoxTrait::new(5);
+    let _ = Option::<u128>::Some(5);
+    let _res = BoxTrait::<u128>::new(5);
 }
 
 //! > ==========================================================================

@@ -43,7 +43,10 @@ pub fn fix_semantic_diagnostic(db: &RootDatabase, diag: &SemanticDiagnostic) -> 
     match diag.kind {
         SemanticDiagnosticKind::UnusedVariable => Fixer.fix_unused_variable(db, diag),
         SemanticDiagnosticKind::PluginDiagnostic(ref plugin_diag) => Fixer.fix_plugin_diagnostic(db, diag, plugin_diag),
-        // SemanticDiagnosticKind::UnusedImport(ref id) => Fixer.fix_unused_import(db, id),
+        SemanticDiagnosticKind::UnusedImport(_) => {
+            debug!("Unused imports should be handled in preemptively");
+            None
+        }
         _ => {
             debug!("No fix available for diagnostic: {:?}", diag.kind);
             None
