@@ -68,8 +68,12 @@ macro_rules! test_file {
                     .unwrap();
 
                 let diags = get_diags(setup_test_crate_ex(db.upcast(), &file, Some(CRATE_CONFIG)), &mut db);
-                let unused_imports: HashMap<SyntaxNode, ImportFix> = collect_unused_imports(&db, &diags);
-                let mut fixes: Vec<Fix> = apply_import_fixes(&db, unused_imports);
+                // Transform Vec<Diagnostics<Semantic>> into Vec<Semantic>
+                let semantic_diags: Vec<_> = diags.clone().into_iter().flat_map(|diag| diag.get_all()).collect();
+                let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
+                    collect_unused_imports(&db, &semantic_diags);
+                let current_file_id = unused_imports.keys().next().unwrap();
+                let mut fixes: Vec<Fix> = apply_import_fixes(&db, unused_imports.get(&current_file_id).unwrap());
 
                 // Handle other types of fixes
                 for diag in diags.iter().flat_map(|diags| diags.get_all()) {

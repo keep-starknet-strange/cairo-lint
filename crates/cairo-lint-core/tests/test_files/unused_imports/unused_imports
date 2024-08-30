@@ -1,28 +1,41 @@
-//! > multiple unused imports
+//! > mix of multi and leaf imports in a single statement
 
 //! > cairo_code
-use core::integer::{u128_safe_divmod, u128_byte_reverse};
+use core::{
+    integer::{u128_safe_divmod, u128_byte_reverse},
+    option::Option,
+};
+
 fn main() {
+    let _ = Option::Some(5);
 }
 
 //! > diagnostics
 warning: Unused import: `test::u128_safe_divmod`
---> lib.cairo:0:21
- |
-0 | use core::integer::{u128_safe_divmod, u128_byte_reverse};
- |                     ----------------
- |
+ --> lib.cairo:2:15
+  |
+2 |     integer::{u128_safe_divmod, u128_byte_reverse},
+  |               ----------------
+  |
 warning: Unused import: `test::u128_byte_reverse`
---> lib.cairo:0:39
- |
-0 | use core::integer::{u128_safe_divmod, u128_byte_reverse};
- |                                       -----------------
- |
+ --> lib.cairo:2:33
+  |
+2 |     integer::{u128_safe_divmod, u128_byte_reverse},
+  |                                 -----------------
+  |
+error: Cannot infer trait core::integer::NumericLiteral::<?0>. First generic argument must be known.
+  --> lib.cairo:12:26
+   |
+12 |     let _ = Option::Some(5);
+   |                          ^
+   |
 
 //! > fixed
-fn main() {
-}
+use core::option::Option;
 
+fn main() {
+    let _ = Option::Some(5);
+}
 
 //! > ==========================================================================
 
@@ -54,10 +67,71 @@ fn main() {
     u128_byte_reverse(10_u128);
 }
 
+//! > ==========================================================================
 
+//! > multiple import statements lines with some used and some unused
+
+//! > cairo_code
+use core::option::Option;
+use core::array::ArrayTrait;
+use core::box::BoxTrait;
+
+fn main() {
+    let _ = Option::Some(5);
+    let _res = BoxTrait::new(5);
+}
+
+//! > diagnostics
+warning: Unused import: `test::ArrayTrait`
+ --> lib.cairo:2:18
+  |
+2 | use core::array::ArrayTrait;
+  |                  ----------
+  |
+error: Cannot infer trait core::integer::NumericLiteral::<?0>. First generic argument must be known.
+  --> lib.cairo:12:30
+   |
+12 |     let _res = BoxTrait::new(5);
+   |                              ^
+   |
+
+//! > fixed
+use core::option::Option;
+use core::box::BoxTrait;
+
+fn main() {
+    let _ = Option::Some(5);
+    let _res = BoxTrait::new(5);
+}
 
 //! > ==========================================================================
 
+//! > multiple unused imports
+
+//! > cairo_code
+use core::integer::{u128_safe_divmod, u128_byte_reverse};
+fn main() {
+}
+
+//! > diagnostics
+warning: Unused import: `test::u128_safe_divmod`
+--> lib.cairo:0:21
+ |
+0 | use core::integer::{u128_safe_divmod, u128_byte_reverse};
+ |                     ----------------
+ |
+warning: Unused import: `test::u128_byte_reverse`
+--> lib.cairo:0:39
+ |
+0 | use core::integer::{u128_safe_divmod, u128_byte_reverse};
+ |                                       -----------------
+ |
+
+//! > fixed
+fn main() {
+}
+
+//! > ==========================================================================
 
 //! > single unused import
 

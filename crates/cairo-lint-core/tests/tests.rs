@@ -5,6 +5,7 @@ use std::sync::{LazyLock, Mutex};
 
 use annotate_snippets::Renderer;
 use cairo_lang_compiler::db::RootDatabase;
+use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::inline_macros::get_default_plugin_suite;
 use cairo_lang_semantic::test_utils::setup_test_crate_ex;
@@ -57,7 +58,9 @@ test_file!(
     "multiple unused imports",
     "unused import aliased",
     "unused import trait",
-    "multi with one used and one unused"
+    "multi with one used and one unused",
+    "mix of multi and leaf imports in a single statement",
+    "multiple import statements lines with some used and some unused"
 );
 
 test_file!(
