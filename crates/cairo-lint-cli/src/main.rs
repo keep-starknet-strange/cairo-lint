@@ -105,7 +105,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
         let package_path = package.root.clone().into();
         // Build the config for this package.
         let config = build_project_config(
-            &compilation_unit,
+            compilation_unit,
             corelib_id,
             corelib.clone(),
             package_path,
