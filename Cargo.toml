@@ -15,16 +15,16 @@ license = "Apache-2.0"
 license-file = "LICENSE"
 
 [workspace.dependencies]
-cairo-lang-compiler = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-filesystem = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-starknet = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
-cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", branch = "main" }
+cairo-lang-compiler = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-filesystem = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-starknet = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
+cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", tag = "v2.8.0" }
 test-case = "3.0"
 pretty_assertions = "1.4.0"
 ctor = "0.2.8"
