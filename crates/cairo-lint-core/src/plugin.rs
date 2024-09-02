@@ -6,7 +6,7 @@ use cairo_lang_syntax::node::ast::{Expr, ExprLoop, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
-use crate::lints::{ loop_for_while, double_parens, single_match};
+use crate::lints::{double_parens, loop_for_while, single_match};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();

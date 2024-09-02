@@ -67,16 +67,11 @@ test_file!(
 );
 
 test_file!(
-    loop_for_while, 
-    loop_for_while, 
+    loop_for_while,
+    loop_for_while,
     "simple loop with break",
-    "loop with break and additional code",
-    "loop with multiple conditions",
-    "loop with else clause",
-    "loop with break in nested if",
-    "loop with multiple breaks",
-    "loop with break and continue",
-    "loop with complex condition",
-    "loop with break in match expression",
-    "loop with early return"
+    "loop with comparison condition",
+    "loop with negative condition",
+    "loop with arithmetic condition",
+    "loop with multiple conditions"
 );

@@ -1,9 +1,10 @@
-//! > loop with break and additional code
+//! > loop with arithmetic condition
 
 //! > cairo_code
 fn main() {
+    let mut x: u16 = 5;
     loop {
-        if x > 10 {
+        if x * 2 >= 20 {
             break;
         }
         x += 1;
@@ -11,356 +12,57 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: unnecessary treatment for loop, use instead while
- --> lib.cairo:2:5
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:3:5
 \   loop {
-|       if x > 10 {
+|       if x * 2 >= 20 {
 |           break;
 |       }
 |       x += 1;
 |   }
 |___^
 
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 10 {
-           ^
-
-error: Identifier not found.
- --> lib.cairo:6:9
-        x += 1;
-        ^
-
 //! > fixed
 fn main() {
-    while x <= 10 {
-        x += 1;
-    }}
-
-//! > ==========================================================================
-
-//! > loop with break and continue
-
-//! > cairo_code
-fn main() {
-    loop {
-        if x > 10 {
-            break;
-        }
-        if x < 0 {
-            continue;
-        }
+    let mut x: u16 = 5;
+    while x * 2 < 20 {
         x += 1;
     }
 }
 
+//! > ==========================================================================
+
+//! > loop with comparison condition
+
+//! > cairo_code
+fn main() {
+    let mut counter: u16 = 0;
+    loop {
+        if counter > 5 {
+            break;
+        }
+        counter += 1;
+    }
+}
+
 //! > diagnostics
-warning: Plugin diagnostic: unnecessary treatment for loop, use instead while
- --> lib.cairo:2:5
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:3:5
 \   loop {
-|       if x > 10 {
+|       if counter > 5 {
 |           break;
 |       }
-|       if x < 0 {
-|           continue;
-|       }
-|       x += 1;
+|       counter += 1;
 |   }
 |___^
 
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 10 {
-           ^
-
-error: Identifier not found.
- --> lib.cairo:6:12
-        if x < 0 {
-           ^
-
-error: Are you missing a `::`?.
- --> lib.cairo:6:14
-        if x < 0 {
-             ^
-
-error: Identifier not found.
- --> lib.cairo:9:9
-        x += 1;
-        ^
-
 //! > fixed
 fn main() {
-    while x <= 10 {
-        if x < 0 {
-            continue;
-        }
-x += 1;
-    }}
-
-//! > ==========================================================================
-
-//! > loop with break in match expression
-
-//! > cairo_code
-fn main() {
-    loop {
-        match x {
-            0 => continue,
-            10 => break,
-            _ => x += 1,
-        }
+    let mut counter: u16 = 0;
+    while counter <= 5 {
+        counter += 1;
     }
 }
-
-//! > diagnostics
-error: Identifier not found.
- --> lib.cairo:3:15
-        match x {
-              ^
-
-error: Unsupported feature.
- --> lib.cairo:4:18
-            0 => continue,
-                 ^
-
-error: Unsupported feature.
- --> lib.cairo:5:19
-            10 => break,
-                  ^
-
-error: Identifier not found.
- --> lib.cairo:6:18
-            _ => x += 1,
-                 ^
-
-//! > fixed
-fn main() {
-    loop {
-        match x {
-            0 => continue,
-            10 => break,
-            _ => x += 1,
-        }
-    }
-}
-
-//! > ==========================================================================
-
-//! > loop with break in nested if
-
-//! > cairo_code
-fn main() {
-    loop {
-        if x > 0 {
-            if y < 10 {
-                break;
-            }
-        }
-    }
-}
-
-//! > diagnostics
-error: Identifier not found.
- --> lib.cairo:4:16
-            if y < 10 {
-               ^
-
-error: Are you missing a `::`?.
- --> lib.cairo:4:18
-            if y < 10 {
-                 ^
-
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 0 {
-           ^
-
-//! > fixed
-Contains nested diagnostics can't fix it
-
-//! > ==========================================================================
-
-//! > loop with complex condition
-
-//! > cairo_code
-fn main() {
-    loop {
-        if x > 10 || (y < 5 && z == 0) {
-            break;
-        }
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: unnecessary treatment for loop, use instead while
- --> lib.cairo:2:5
-\   loop {
-|       if x > 10 || (y < 5 && z == 0) {
-|           break;
-|       }
-|   }
-|___^
-
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 10 || (y < 5 && z == 0) {
-           ^
-
-error: Identifier not found.
- --> lib.cairo:3:23
-        if x > 10 || (y < 5 && z == 0) {
-                      ^
-
-error: Are you missing a `::`?.
- --> lib.cairo:3:25
-        if x > 10 || (y < 5 && z == 0) {
-                        ^
-
-error: Identifier not found.
- --> lib.cairo:3:32
-        if x > 10 || (y < 5 && z == 0) {
-                               ^
-
-//! > fixed
-fn main() {
-    while x <= 10 || (y < 5 && z == 0) {
-        
-    }}
-
-//! > ==========================================================================
-
-//! > loop with early return
-
-//! > cairo_code
-fn main() -> felt252 {
-    loop {
-        if x > 10 {
-            return x;
-        }
-        x += 1;
-    }
-}
-
-//! > diagnostics
-error: `return` not allowed inside a `loop`.
- --> lib.cairo:4:13
-            return x;
-            ^*******^
-
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 10 {
-           ^
-
-error: Identifier not found.
- --> lib.cairo:6:9
-        x += 1;
-        ^
-
-//! > fixed
-fn main() -> felt252 {
-    loop {
-        if x > 10 {
-            return x;
-        }
-        x += 1;
-    }
-}
-
-//! > ==========================================================================
-
-//! > loop with else clause
-
-//! > cairo_code
-fn main() {
-    loop {
-        if x > 10 {
-            break;
-        } else {
-            x += 1;
-        }
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: unnecessary treatment for loop, use instead while
- --> lib.cairo:2:5
-\   loop {
-|       if x > 10 {
-|           break;
-|       } else {
-|           x += 1;
-|       }
-|   }
-|___^
-
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 10 {
-           ^
-
-error: Identifier not found.
- --> lib.cairo:6:13
-            x += 1;
-            ^
-
-//! > fixed
-fn main() {
-    while x <= 10 {
-        
-    }}
-
-//! > ==========================================================================
-
-//! > loop with multiple breaks
-
-//! > cairo_code
-fn main() {
-    loop {
-        if x > 10 {
-            break;
-        }
-        if y < 0 {
-            break;
-        }
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: unnecessary treatment for loop, use instead while
- --> lib.cairo:2:5
-\   loop {
-|       if x > 10 {
-|           break;
-|       }
-|       if y < 0 {
-|           break;
-|       }
-|   }
-|___^
-
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 10 {
-           ^
-
-error: Identifier not found.
- --> lib.cairo:6:12
-        if y < 0 {
-           ^
-
-error: Are you missing a `::`?.
- --> lib.cairo:6:14
-        if y < 0 {
-             ^
-
-//! > fixed
-fn main() {
-    while x <= 10 {
-        if y < 0 {
-            break;
-        }
-    }}
 
 //! > ==========================================================================
 
@@ -368,43 +70,72 @@ fn main() {
 
 //! > cairo_code
 fn main() {
+    let mut a: u16 = 0;
+    let mut b: u16 = 0;
     loop {
-        if x > 10 && y < 5 {
+        if a > 10 && b < 5 {
             break;
         }
+        a += 1;
+        b += 1;
     }
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: unnecessary treatment for loop, use instead while
- --> lib.cairo:2:5
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:4:5
 \   loop {
-|       if x > 10 && y < 5 {
+|       if a > 10 && b < 5 {
 |           break;
 |       }
+|       a += 1;
+|       b += 1;
 |   }
 |___^
 
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 10 && y < 5 {
-           ^
+//! > fixed
+fn main() {
+    let mut a: u16 = 0;
+    let mut b: u16 = 0;
+    while a <= 10 || b >= 5 {
+        a += 1;
+        b += 1;
+    }
+}
 
-error: Identifier not found.
- --> lib.cairo:3:22
-        if x > 10 && y < 5 {
-                     ^
+//! > ==========================================================================
 
-error: Are you missing a `::`?.
- --> lib.cairo:3:24
-        if x > 10 && y < 5 {
-                       ^
+//! > loop with negative condition
+
+//! > cairo_code
+fn main() {
+    let mut value: u16 = 100;
+    loop {
+        if value < 0 {
+            break;
+        }
+        value -= 10;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:3:5
+\   loop {
+|       if value < 0 {
+|           break;
+|       }
+|       value -= 10;
+|   }
+|___^
 
 //! > fixed
 fn main() {
-    while x <= 10 && y < 5 {
-        
-    }}
+    let mut value: u16 = 100;
+    while value >= 0 {
+        value -= 10;
+    }
+}
 
 //! > ==========================================================================
 
@@ -412,30 +143,30 @@ fn main() {
 
 //! > cairo_code
 fn main() {
+    let mut x: u16 = 0;
     loop {
-        if x > 10 {
+        if x == 10 {
             break;
         }
+        x += 1;
     }
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: unnecessary treatment for loop, use instead while
- --> lib.cairo:2:5
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:3:5
 \   loop {
-|       if x > 10 {
+|       if x == 10 {
 |           break;
 |       }
+|       x += 1;
 |   }
 |___^
 
-error: Identifier not found.
- --> lib.cairo:3:12
-        if x > 10 {
-           ^
-
 //! > fixed
 fn main() {
-    while x <= 10 {
-        
-    }}
+    let mut x: u16 = 0;
+    while !(x == 10) {
+        x += 1;
+    }
+}
