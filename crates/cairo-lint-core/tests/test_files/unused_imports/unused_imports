@@ -1,3 +1,93 @@
+//! > mix of multi and leaf imports in a single statement
+
+//! > cairo_code
+use core::{
+    integer::{u128_safe_divmod, u128_byte_reverse},
+    option::Option,
+};
+
+fn main() {
+    let _ = Option::<u128>::Some(5);
+}
+
+//! > diagnostics
+warning: Unused import: `test::u128_safe_divmod`
+ --> lib.cairo:2:15
+  |
+2 |     integer::{u128_safe_divmod, u128_byte_reverse},
+  |               ----------------
+  |
+warning: Unused import: `test::u128_byte_reverse`
+ --> lib.cairo:2:33
+  |
+2 |     integer::{u128_safe_divmod, u128_byte_reverse},
+  |                                 -----------------
+  |
+
+//! > fixed
+use core::option::Option;
+
+fn main() {
+    let _ = Option::<u128>::Some(5);
+}
+
+//! > ==========================================================================
+
+//! > multi with one used and one unused
+
+//! > cairo_code
+use core::integer::{u128_safe_divmod, u128_byte_reverse};
+fn main() {
+    u128_byte_reverse(10_u128);
+}
+
+//! > diagnostics
+warning: Unused import: `test::u128_safe_divmod`
+--> lib.cairo:0:21
+ |
+0 | use core::integer::{u128_safe_divmod, u128_byte_reverse};
+ |                     ----------------
+ |
+
+//! > fixed
+use core::integer::u128_byte_reverse;
+fn main() {
+    u128_byte_reverse(10_u128);
+}
+
+//! > ==========================================================================
+
+//! > multiple import statements lines with some used and some unused
+
+//! > cairo_code
+use core::option::Option;
+use core::array::ArrayTrait;
+use core::box::BoxTrait;
+
+fn main() {
+    let _ = Option::<u128>::Some(5);
+    let _res = BoxTrait::<u128>::new(5);
+}
+
+//! > diagnostics
+warning: Unused import: `test::ArrayTrait`
+ --> lib.cairo:2:18
+  |
+2 | use core::array::ArrayTrait;
+  |                  ----------
+  |
+
+//! > fixed
+use core::option::Option;
+use core::box::BoxTrait;
+
+fn main() {
+    let _ = Option::<u128>::Some(5);
+    let _res = BoxTrait::<u128>::new(5);
+}
+
+//! > ==========================================================================
+
 //! > multiple unused imports
 
 //! > cairo_code
@@ -20,7 +110,6 @@ warning: Unused import: `test::u128_byte_reverse`
  |
 
 //! > fixed
-use core::integer::{u128_safe_divmod, u128_byte_reverse};
 fn main() {
 }
 

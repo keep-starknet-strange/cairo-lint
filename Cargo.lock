@@ -1711,6 +1711,7 @@ dependencies = [
  "cairo-lang-filesystem",
  "cairo-lang-semantic",
  "cairo-lang-starknet",
+ "cairo-lang-syntax",
  "cairo-lang-test-plugin",
  "cairo-lang-utils",
  "cairo-lint-core",

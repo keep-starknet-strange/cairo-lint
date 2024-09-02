@@ -13,12 +13,14 @@ use cairo_lang_diagnostics::DiagnosticEntry;
 use cairo_lang_filesystem::db::{init_dev_corelib, FilesGroup, CORELIB_CRATE_NAME};
 use cairo_lang_filesystem::ids::{CrateLongId, FileId};
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::inline_macros::get_default_plugin_suite;
 use cairo_lang_starknet::starknet_plugin_suite;
+use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::{Upcast, UpcastMut};
 use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fix::{fix_semantic_diagnostic, Fix};
+use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
 use clap::Parser;
 use helpers::*;
@@ -137,9 +139,23 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             .collect::<Vec<_>>();
 
         if args.fix {
+            // Handling unused imports separately as we need to run pre-analysis on the diagnostics.
+            // to handle complex cases.
+            let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
+                collect_unused_imports(&db, &diagnostics);
             let mut fixes = HashMap::new();
-            for diag in diagnostics {
-                if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag) {
+            unused_imports.keys().for_each(|file_id| {
+                let file_fixes: Vec<Fix> = apply_import_fixes(&db, unused_imports.get(file_id).unwrap());
+                fixes.insert(*file_id, file_fixes);
+            });
+
+            let diags_without_imports = diagnostics
+                .iter()
+                .filter(|diag| !matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)))
+                .collect::<Vec<_>>();
+
+            for diag in diags_without_imports {
+                if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, diag) {
                     let location = diag.location(db.upcast());
                     fixes
                         .entry(location.file_id)
