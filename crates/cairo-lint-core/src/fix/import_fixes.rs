@@ -180,17 +180,17 @@ fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
     while let Some(parent) = current_node.parent() {
         // Go up until we find a UsePathList on the path - then, we can remove the current node from that
         // list.
-        if matches!(parent.kind(db), SyntaxKind::UsePathList) {
+        if parent.kind(db) == SyntaxKind::UsePathList {
             // To remove the current node from the UsePathList, we need to:
             // 1. Get the text of the current node, which becomes "to remove"
             // 2. Rewrite the UsePathList with the current node text removed.
             let items_to_remove = vec![current_node.get_text_without_trivia(db)];
-            let parent = parent.parent().unwrap().clone();
-            let fix = handle_multi_import(db, &parent, &items_to_remove);
-            return fix;
+            if let Some(grandparent) = parent.parent() {
+                return handle_multi_import(db, &grandparent, &items_to_remove);
+            }
         }
-        if matches!(parent.kind(db), SyntaxKind::ItemUse) {
-            current_node = parent.clone();
+        if parent.kind(db) == SyntaxKind::ItemUse {
+            current_node = parent;
             break;
         }
         current_node = parent;
