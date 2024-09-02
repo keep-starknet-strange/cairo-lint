@@ -110,3 +110,13 @@ test_file!(
     "Negated comparison with false",
     "Negated comparison with false on LHS"
 );
+
+test_file!(
+    comparison,
+    eq_op,
+    "if comparison",
+    "calling attribute",
+    "function comparison",
+    "function comparison v2",
+    "function comparison from struct"
+);

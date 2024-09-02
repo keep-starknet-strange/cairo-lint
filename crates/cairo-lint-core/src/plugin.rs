@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
+use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
@@ -23,6 +23,7 @@ pub enum CairoLintKind {
     MatchForEquality,
     DoubleComparison,
     DoubleParens,
+    RedundantComparison,
     Unknown,
     BreakUnit,
     BoolComparison,
@@ -38,6 +39,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         double_comparison::CONTRADICTORY_COMPARISON => CairoLintKind::DoubleComparison,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
+        equal_operand::REDUNDANT_COMPARISON => CairoLintKind::RedundantComparison,
         _ => CairoLintKind::Unknown,
     }
 }

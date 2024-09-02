@@ -1,0 +1,167 @@
+//! > calling attribute
+
+//! > cairo_code
+struct Test {
+    x: u32,
+}
+
+fn main() {
+    let my_test = Test {x: 1};
+    if my_test.x == my_test.x {}
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant comparison found. This expression always evaluates to true or false.
+  --> lib.cairo:12:8
+   |
+12 |     if my_test.x == my_test.x {}
+   |        ----------------------
+   |
+
+//! > fixed
+struct Test {
+    x: u32,
+}
+
+fn main() {
+    let my_test = Test {x: 1};
+    if my_test.x == my_test.x {}
+}
+
+//! > ==========================================================================
+
+//! > function comparison
+
+//! > cairo_code
+fn my_function() -> i32 {
+    42
+}
+
+fn main() {
+    if my_function() == my_function() {
+        // It should be ignored because is a function call
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn my_function() -> i32 {
+    42
+}
+
+fn main() {
+    if my_function() == my_function() {
+        // It should be ignored because is a function call
+    }
+}
+
+//! > ==========================================================================
+
+//! > function comparison from struct
+
+//! > cairo_code
+struct Test1 {
+    x: u32
+}
+
+trait TestTrait {
+    fn get(self: @Test1) -> u32;
+}
+
+impl Test1Impl of TestTrait {
+    fn get(self: @Test1) -> u32 {
+        *self.x
+    }
+}
+
+fn main() {
+    let test = Test1{ x: 5 };
+    if test.get() == test.get() {
+        // It should be ignored because is a function call
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant comparison found. This expression always evaluates to true or false.
+  --> lib.cairo:32:8
+   |
+32 |     if test.get() == test.get() {
+   |        ------------------------
+   |
+
+//! > fixed
+struct Test1 {
+    x: u32
+}
+
+trait TestTrait {
+    fn get(self: @Test1) -> u32;
+}
+
+impl Test1Impl of TestTrait {
+    fn get(self: @Test1) -> u32 {
+        *self.x
+    }
+}
+
+fn main() {
+    let test = Test1{ x: 5 };
+    if test.get() == test.get() {
+        // It should be ignored because is a function call
+    }
+}
+
+//! > ==========================================================================
+
+//! > function comparison v2
+
+//! > cairo_code
+fn my_function() -> i32 {
+    42
+}
+
+fn main() {
+    let y = 5;
+    if y == my_function() {
+        // It should be ignored because there is a function call
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn my_function() -> i32 {
+    42
+}
+
+fn main() {
+    let y = 5;
+    if y == my_function() {
+        // It should be ignored because there is a function call
+    }
+}
+
+//! > ==========================================================================
+
+//! > if comparison
+
+//! > cairo_code
+fn main() {
+    let x = 0;
+    if x == x {}
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: redundant comparison found. This expression always evaluates to true or false.
+ --> lib.cairo:4:8
+  |
+4 |     if x == x {}
+  |        ------
+  |
+
+//! > fixed
+fn main() {
+    let x = 0;
+    if x == x {}
+}
