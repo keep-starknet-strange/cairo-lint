@@ -204,6 +204,8 @@ fn main() {
           println!("Function calls in conditions");
       }}
 
+//! > ==========================================================================
+
 //! > collapsible if with simple numerical conditions
 
 //! > cairo_code
