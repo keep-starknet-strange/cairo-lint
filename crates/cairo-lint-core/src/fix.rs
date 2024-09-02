@@ -156,12 +156,13 @@ impl Fixer {
             }
             CairoLintKind::DestructMatch =>
                 self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-            CairoLintKind::LoopForWhile => { // Añade este caso
+            CairoLintKind::LoopForWhile => {
+                // Añade este caso
                 self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             _ => "".to_owned(),
         };
-    
+
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
 
@@ -201,38 +202,90 @@ impl Fixer {
         )
     }
 
+    /// Converts a `loop` with a conditionally-breaking `if` statement into a `while` loop.
+    ///
+    /// This function transforms loops that have a conditional `if` statement
+    /// followed by a `break` into a `while` loop, which can simplify the logic
+    /// and improve readability.
+    ///
+    /// # Arguments
+    ///
+    /// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+    /// * `node` - The `SyntaxNode` representing the loop expression.
+    ///
+    /// # Returns
+    ///
+    /// A `String` containing the transformed loop as a `while` loop, preserving
+    /// the original formatting and indentation.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// fn main() {
+    ///     let mut x = 0;
+    ///     loop {
+    ///         if x > 5 {
+    ///             break;
+    ///         }
+    ///         x += 1;
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// Would be converted to:
+    ///
+    /// ```
+    /// fn main() {
+    ///     let mut x = 0;
+    ///     while x <= 5 {
+    ///         x += 1;
+    ///     }
+    /// }
+    /// ```
     pub fn fix_loop_break(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let loop_expr = ExprLoop::from_syntax_node(db, node.clone());
         let mut condition_text = String::new();
         let mut loop_body = String::new();
-    
-        if let Some(Statement::Expr(expr_statement)) = loop_expr.body(db).statements(db).elements(db).first() {
+
+        if
+            let Some(Statement::Expr(expr_statement)) = loop_expr
+                .body(db)
+                .statements(db)
+                .elements(db)
+                .first()
+        {
             if let Expr::If(if_expr) = expr_statement.expr(db) {
                 let condition = if_expr.condition(db);
                 condition_text = condition.as_syntax_node().get_text_without_trivia(db).to_string();
-    
+
                 if condition_text != "true" {
                     condition_text = Self::invert_condition(&condition_text);
                 }
-    
-                for statement in loop_expr.body(db).statements(db).elements(db).into_iter().skip(1) {
+
+                for statement in loop_expr.body(db).statements(db).elements(db).iter().skip(1) {
                     loop_body.push_str(&statement.as_syntax_node().get_text_without_trivia(db));
                     loop_body.push('\n');
                 }
             }
         }
-    
-        let indentation = "    "; 
+
+        let original_indent = node
+            .get_text(db)
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect::<String>();
+
         format!(
-            "{}while {} {{\n{}{}\n{}}}\n",
-            indentation,
-            condition_text,
-            indentation.repeat(2), 
-            loop_body.trim(),
-            indentation
-        ).trim_end().to_string() 
+            "{indent}while {condition} {{\n{body}{indent}}}",
+            indent = original_indent,
+            condition = condition_text,
+            body = loop_body
+                .lines()
+                .map(|line| format!("{indent}{line}\n", indent = original_indent))
+                .collect::<String>()
+        )
     }
-    
+
     fn invert_condition(condition: &str) -> String {
         if condition.contains('>') {
             condition.replace('>', "<=")
