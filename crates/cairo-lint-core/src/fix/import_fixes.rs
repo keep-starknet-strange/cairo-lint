@@ -223,7 +223,7 @@ fn remove_specific_items(db: &RootDatabase, node: &SyntaxNode, items_to_remove: 
     let mut items: Vec<_> = children.iter().map(|child| child.get_text(db).trim().to_string()).collect();
     items.retain(|item| !items_to_remove.contains(&item.to_string()));
 
-    let text = if items.len() == 1 { items[0].to_string() } else { format!("{{ {} }}", items.join(", ")) };
+    let text = if items.len() == 1 { items[0].to_string() } else { format!("{{{}}}", items.join(", ")) };
 
     vec![Fix { span: node.span(db), suggestion: text }]
 }
