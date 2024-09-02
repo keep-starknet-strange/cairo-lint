@@ -24,7 +24,7 @@ use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_seman
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
 use clap::Parser;
 use helpers::*;
-use scarb_metadata::{Metadata, MetadataCommand, PackageMetadata, TargetMetadata};
+use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
 use scarb_ui::args::{PackagesFilter, VerbositySpec};
 use scarb_ui::components::Status;
 use scarb_ui::{OutputFormat, Ui};
@@ -78,7 +78,6 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
     // never be linted unless specified with the `--test` flag
 
     let matched = args.packages_filter.match_many(&metadata)?;
-    let filter = PackagesFilter::generate_for::<Metadata>(matched.iter());
 
     // Let's lint everything requested
     for package in matched {
