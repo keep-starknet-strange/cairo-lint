@@ -66,17 +66,30 @@ macro_rules! test_file {
                     .with_plugin_suite(cairo_lint_plugin_suite())
                     .build()
                     .unwrap();
-                let mut fixes = Vec::new();
 
                 let diags = get_diags(setup_test_crate_ex(db.upcast(), &file, Some(CRATE_CONFIG)), &mut db);
+                // Transform Vec<Diagnostics<Semantic>> into Vec<Semantic>
+                let semantic_diags: Vec<_> = diags.clone().into_iter().flat_map(|diag| diag.get_all()).collect();
+                let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
+                    collect_unused_imports(&db, &semantic_diags);
+                let mut fixes = if unused_imports.keys().len() > 0 {
+                    let current_file_id = unused_imports.keys().next().unwrap();
+                    apply_import_fixes(&db, unused_imports.get(&current_file_id).unwrap())
+                } else {
+                    Vec::new()
+                };
+
+                // Handle other types of fixes
                 for diag in diags.iter().flat_map(|diags| diags.get_all()) {
-                    if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag){
-                    let span = fix_node.span(db.upcast());
-                    println!("sug: {:?}", span);
-                    fixes.push(Fix { span, suggestion: fix });
+                    if !matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)) {
+                        if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag) {
+                            let span = fix_node.span(db.upcast());
+                            fixes.push(Fix { span, suggestion: fix });
+                        }
                     }
                 }
-                fixes.sort_by_key(|v| Reverse(v.span.start));
+
+                fixes.sort_by_key(|v| std::cmp::Reverse(v.span.start));
                 if !test_name.contains("nested") {
                     for fix in fixes.iter() {
                         file.replace_range(fix.span.to_str_range(), &fix.suggestion);

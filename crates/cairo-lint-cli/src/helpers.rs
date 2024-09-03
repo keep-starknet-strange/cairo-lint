@@ -47,7 +47,9 @@ pub fn to_cairo_edition(edition: &str) -> Result<Edition> {
     }
 }
 
-/// Gets a bunch of informations related to the project from several objects. Mostly a copy pasta of
+/// Gets a bunch of informations related to the project from several objects.
+///
+/// Mostly a copy pasta of
 /// https://github.com/software-mansion/scarb/blob/fb34a0ce85e0a46e15f58abd3fbaaf1d3c4bf012/scarb/src/compiler/helpers.rs#L17-L62
 /// but with metadata objects
 pub fn build_project_config(

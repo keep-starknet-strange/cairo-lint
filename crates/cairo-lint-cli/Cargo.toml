@@ -15,6 +15,7 @@ cairo-lang-utils.workspace = true
 cairo-lang-semantic.workspace = true
 cairo-lang-filesystem.workspace = true
 cairo-lang-diagnostics.workspace = true
+cairo-lang-syntax.workspace = true
 cairo-lang-test-plugin.workspace = true
 cairo-lang-defs.workspace = true
 cairo-lang-starknet.workspace = true
