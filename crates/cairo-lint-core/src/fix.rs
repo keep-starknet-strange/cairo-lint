@@ -147,7 +147,7 @@ impl Fixer {
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
-
+        
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
 
@@ -266,12 +266,17 @@ impl Fixer {
             expr.if_block(db).rbrace(db).as_syntax_node().get_text(db)
             );
        
-        format!(
+        let u = format!(
             "{}{}{}{}",
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
             expr.if_kw(db).as_syntax_node().get_text_without_trivia(db),
             fixed_condition,
             if_block,
-        )
+        );
+
+        println!("{:?} -> {:?} -> {:?}", u, fixed_condition, if_block);
+
+        return u;
+
     }
 }

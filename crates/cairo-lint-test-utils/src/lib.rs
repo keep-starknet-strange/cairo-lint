@@ -72,6 +72,7 @@ macro_rules! test_file {
                 for diag in diags.iter().flat_map(|diags| diags.get_all()) {
                     if let Some((fix_node, fix)) = fix_semantic_diagnostic(&db, &diag){
                     let span = fix_node.span(db.upcast());
+                    println!("sug: {:?}", span);
                     fixes.push(Fix { span, suggestion: fix });
                     }
                 }

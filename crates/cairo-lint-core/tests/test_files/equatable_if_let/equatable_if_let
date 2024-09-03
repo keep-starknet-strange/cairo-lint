@@ -190,41 +190,56 @@ fn main() {
 //! > Enum Record Variant Pattern Matching
 
 //! > cairo_code
+#[derive(Drop)] 
+struct B {
+    a: i64,
+    b: u32
+}
+
+#[derive(Drop)]
 enum Enum {
-    RecordVariant { a: i64, b: u32 }
+    RecordVariant: B
 }
 
 fn main() {
-    if let Enum::RecordVariant { a: 64, b: 32 } = e {}
+    let e = Enum::RecordVariant(B {a: 1, b: 2});
+    if let Enum::RecordVariant(B {a, b}) = e {}
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-  --> lib.cairo:10:5
+  --> lib.cairo:26:5
    |
-10 |     if let Enum::RecordVariant { a: 64, b: 32 } = e {}
-   |     --------------------------------------------------
+26 |     if let Enum::RecordVariant(B {a, b}) = e {}
+   |     -------------------------------------------
    |
-error: Identifier not found.
-  --> lib.cairo:10:51
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:26:35
    |
-10 |     if let Enum::RecordVariant { a: 64, b: 32 } = e {}
-   |                                                   ^
+26 |     if let Enum::RecordVariant(B {a, b}) = e {}
+   |                                   -
    |
-error: Not a type.
-  --> lib.cairo:10:12
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:26:38
    |
-10 |     if let Enum::RecordVariant { a: 64, b: 32 } = e {}
-   |            ^^^^^^^^^^^^^^^^^^^
-   | 
-
+26 |     if let Enum::RecordVariant(B {a, b}) = e {}
+   |                                      -
+   |
 //! > fixed
+#[derive(Drop)] 
+struct B {
+    a: i64,
+    b: u32
+}
+
+#[derive(Drop)]
 enum Enum {
-    RecordVariant { a: i64, b: u32 }
+    RecordVariant: B
 }
 
 fn main() {
-    if e == (Enum::RecordVariant { a: 64, b: 32 }) {}
+    let e = Enum::RecordVariant(B {a: 1, b: 2});
+    if e == Enum::RecordVariant(B {a, b}) {}
 }
 
 //! > ==========================================================================

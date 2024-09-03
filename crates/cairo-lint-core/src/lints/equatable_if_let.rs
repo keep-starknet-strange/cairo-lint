@@ -29,7 +29,7 @@ fn is_simple_equality_expr(expr: &Expr) -> bool {
         Expr::Literal(_) | Expr::False(_) | Expr::True(_) | Expr::ShortString(_) | Expr::String(_) => true,
 
         // Path expression (typically variables or constants)
-        Expr::Path(_) => {println!("PATH   "); return true;},
+        Expr::Path(_) => true,
 
         // If it's any other expression, it’s considered complex
         _ => false,
