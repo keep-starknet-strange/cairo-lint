@@ -112,7 +112,7 @@ test_file!(
 );
 
 test_file!(
-    comparison,
+    eq_op,
     eq_op,
     "if comparison",
     "calling attribute",

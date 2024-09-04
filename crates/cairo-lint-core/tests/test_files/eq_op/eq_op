@@ -11,12 +11,6 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: redundant comparison found. This expression always evaluates to true or false.
-  --> lib.cairo:12:8
-   |
-12 |     if my_test.x == my_test.x {}
-   |        ----------------------
-   |
 
 //! > fixed
 struct Test {
@@ -83,12 +77,6 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: redundant comparison found. This expression always evaluates to true or false.
-  --> lib.cairo:32:8
-   |
-32 |     if test.get() == test.get() {
-   |        ------------------------
-   |
 
 //! > fixed
 struct Test1 {
@@ -153,12 +141,6 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: redundant comparison found. This expression always evaluates to true or false.
- --> lib.cairo:4:8
-  |
-4 |     if x == x {}
-  |        ------
-  |
 
 //! > fixed
 fn main() {
