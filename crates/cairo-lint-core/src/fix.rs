@@ -5,11 +5,9 @@ use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{ExprIf, Condition, Expr, ExprBinary, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
-use log::{debug, warn};
-use cairo_lang_defs::ids::UseId;
+use log::debug;
 
 use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
 use crate::lints::single_match::is_expr_unit;
@@ -158,7 +156,6 @@ impl Fixer {
             ),
             _ => return None,
         };
-        
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
 
@@ -204,55 +201,6 @@ impl Fixer {
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
             expr.as_syntax_node().get_text_without_trivia(db),
         )
-    }
-
-    /// Attempts to fix an unused import by removing it.
-    ///
-    /// This function handles both single imports and imports within a use tree.
-    /// For multi-import paths, it currently does not provide a fix.
-    ///
-    /// # Arguments
-    ///
-    /// * `db` - A reference to the RootDatabase
-    /// * `diag` - A reference to the SemanticDiagnostic
-    /// * `id` - A reference to the UseId of the unused import
-    ///
-    /// # Returns
-    ///
-    /// An `Option<(SyntaxNode, String)>` containing the node to be removed and an empty string
-    /// (indicating removal). Returns `None` for multi-import paths.
-    pub fn fix_unused_import(&self, db: &RootDatabase, id: &UseId) -> Option<(SyntaxNode, String)> {
-        let mut current_node = id.stable_ptr(db).lookup(db.upcast()).as_syntax_node();
-        let mut path_to_remove = vec![current_node.clone()];
-        let mut remove_entire_statement = true;
-
-        while let Some(parent) = current_node.parent() {
-            match parent.kind(db) {
-                SyntaxKind::UsePathSingle => {
-                    path_to_remove.push(parent.clone());
-                    current_node = parent;
-                }
-                SyntaxKind::UsePathMulti => {
-                    path_to_remove.push(parent.clone());
-                    remove_entire_statement = false;
-                    break;
-                }
-                SyntaxKind::ItemUse => {
-                    if remove_entire_statement {
-                        path_to_remove.push(parent.clone());
-                    }
-                    break;
-                }
-                _ => current_node = parent,
-            }
-        }
-
-        if remove_entire_statement {
-            Some((path_to_remove.last().unwrap().clone(), String::new()))
-        } else {
-            warn!("Autofix not supported for multi-import paths: {:?}", id);
-            None
-        }
     }
 
     pub fn fix_equatable_if_let(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
