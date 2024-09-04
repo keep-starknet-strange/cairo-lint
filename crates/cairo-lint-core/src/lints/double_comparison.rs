@@ -24,14 +24,30 @@ pub fn check_double_comparison(
     if let (Some(lhs_var), Some(rhs_var), Some(lhs_op), Some(rhs_op)) = (lhs_var, rhs_var, lhs_op, rhs_op) {
         if lhs_var == rhs_var {
             if is_simplifiable_double_comparison(&lhs_op, &rhs_op, &middle_op) {
-                diagnostics.push(create_diagnostic(SIMPLIFIABLE_COMPARISON, binary_expr.stable_ptr().untyped(), Severity::Warning));
+                diagnostics.push(create_diagnostic(
+                    SIMPLIFIABLE_COMPARISON,
+                    binary_expr.stable_ptr().untyped(),
+                    Severity::Warning,
+                ));
             } else if is_redundant_double_comparison(&lhs_op, &rhs_op, &middle_op) {
-                diagnostics.push(create_diagnostic(REDUNDANT_COMPARISON, binary_expr.stable_ptr().untyped(), Severity::Warning));
+                diagnostics.push(create_diagnostic(
+                    REDUNDANT_COMPARISON,
+                    binary_expr.stable_ptr().untyped(),
+                    Severity::Warning,
+                ));
             } else if is_contradictory_double_comparison(&lhs_op, &rhs_op, &middle_op) {
-                diagnostics.push(create_diagnostic(CONTRADICTORY_COMPARISON, binary_expr.stable_ptr().untyped(), Severity::Error));
+                diagnostics.push(create_diagnostic(
+                    CONTRADICTORY_COMPARISON,
+                    binary_expr.stable_ptr().untyped(),
+                    Severity::Error,
+                ));
             }
         } else if is_redundant_inverted_comparison(&lhs_var, &rhs_var) {
-            diagnostics.push(create_diagnostic(REDUNDANT_COMPARISON, binary_expr.stable_ptr().untyped(), Severity::Warning));
+            diagnostics.push(create_diagnostic(
+                REDUNDANT_COMPARISON,
+                binary_expr.stable_ptr().untyped(),
+                Severity::Warning,
+            ));
         }
     }
 }
@@ -41,14 +57,14 @@ fn is_redundant_inverted_comparison(lhs_var: &str, rhs_var: &str) -> bool {
 }
 
 pub fn extract_identifier_from_expr(expr: &Expr, db: &dyn SyntaxGroup) -> Option<String> {
-    Some(expr.as_syntax_node().get_text_without_trivia(db))     
+    Some(expr.as_syntax_node().get_text_without_trivia(db))
 }
 
 pub fn extract_variable_from_expr(expr: &Expr, db: &dyn SyntaxGroup) -> Option<String> {
     if let Expr::Binary(binary_expr) = expr {
         let lhs = binary_expr.lhs(db);
         let rhs = binary_expr.rhs(db);
-        
+
         let lhs_text = lhs.as_syntax_node().get_text_without_trivia(db);
         let rhs_text = rhs.as_syntax_node().get_text_without_trivia(db);
 
@@ -58,13 +74,8 @@ pub fn extract_variable_from_expr(expr: &Expr, db: &dyn SyntaxGroup) -> Option<S
 }
 
 fn create_diagnostic(message: &str, stable_ptr: SyntaxStablePtrId, severity: Severity) -> PluginDiagnostic {
-    PluginDiagnostic {
-        stable_ptr,
-        message: message.to_string(),
-        severity,
-    }
+    PluginDiagnostic { stable_ptr, message: message.to_string(), severity }
 }
-
 
 fn is_simplifiable_double_comparison(
     lhs_op: &BinaryOperator,
