@@ -266,9 +266,10 @@ impl Fixer {
                 let simplified_op = double_comparison::determine_simplified_operator(&lhs_op, &rhs_op, &middle_op);
 
                 if let Some(simplified_op) = simplified_op {
-                    let operator_to_replace = double_comparison::operator_to_replace(lhs_op);
-                    let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
-                    return lhs_text.to_string();
+                    if let Some(operator_to_replace) = double_comparison::operator_to_replace(lhs_op) {
+                        let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
+                        return lhs_text.to_string();
+                    }
                 }
             }
         }
