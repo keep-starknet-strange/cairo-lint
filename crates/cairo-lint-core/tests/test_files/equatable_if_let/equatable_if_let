@@ -190,56 +190,61 @@ fn main() {
 //! > Enum Record Variant Pattern Matching
 
 //! > cairo_code
-#[derive(Drop)] 
+#[derive(PartialEq, Drop)] 
 struct B {
     a: i64,
     b: u32
 }
 
-#[derive(Drop)]
+#[derive(PartialEq, Drop)]
 enum Enum {
     RecordVariant: B
 }
 
 fn main() {
-    let e = Enum::RecordVariant(B {a: 1, b: 2});
+    let a = 1;
+    let b = 1;
+    let e = Enum::RecordVariant(B {a, b});
     if let Enum::RecordVariant(B {a, b}) = e {}
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-  --> lib.cairo:26:5
+  --> lib.cairo:30:5
    |
-26 |     if let Enum::RecordVariant(B {a, b}) = e {}
+30 |     if let Enum::RecordVariant(B {a, b}) = e {}
    |     -------------------------------------------
    |
 warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:26:35
+  --> lib.cairo:30:35
    |
-26 |     if let Enum::RecordVariant(B {a, b}) = e {}
+30 |     if let Enum::RecordVariant(B {a, b}) = e {}
    |                                   -
    |
 warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:26:38
+  --> lib.cairo:30:38
    |
-26 |     if let Enum::RecordVariant(B {a, b}) = e {}
+30 |     if let Enum::RecordVariant(B {a, b}) = e {}
    |                                      -
    |
 //! > fixed
-#[derive(Drop)] 
+#[derive(PartialEq, Drop)] 
 struct B {
     a: i64,
     b: u32
 }
 
-#[derive(Drop)]
+#[derive(PartialEq, Drop)]
 enum Enum {
     RecordVariant: B
 }
 
 fn main() {
-    let e = Enum::RecordVariant(B {a: 1, b: 2});
+    let a = 1;
+    let b = 1;
+    let e = Enum::RecordVariant(B {a, b});
     if e == Enum::RecordVariant(B {a, b}) {}
+}
 }
 
 //! > ==========================================================================

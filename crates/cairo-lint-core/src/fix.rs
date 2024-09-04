@@ -5,9 +5,11 @@ use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{ExprIf, Condition, Expr, ExprBinary, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
+use cairo_lang_syntax::node::kind::SyntaxKind;
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
-use log::debug;
+use log::{debug, warn};
+use cairo_lang_defs::ids::UseId;
 
 use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
 use crate::lints::single_match::is_expr_unit;
@@ -283,17 +285,12 @@ impl Fixer {
             expr.if_block(db).rbrace(db).as_syntax_node().get_text(db)
             );
        
-        let u = format!(
+        format!(
             "{}{}{}{}",
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
             expr.if_kw(db).as_syntax_node().get_text_without_trivia(db),
             fixed_condition,
             if_block,
-        );
-
-        println!("{:?} -> {:?} -> {:?}", u, fixed_condition, if_block);
-
-        return u;
-
+        )
     }
 }
