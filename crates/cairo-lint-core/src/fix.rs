@@ -149,7 +149,7 @@ impl Fixer {
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::DoubleComparison => {
-                Self::fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
+                self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BoolComparison => self.fix_bool_comparison(
@@ -206,7 +206,7 @@ impl Fixer {
         )
     }
 
-    pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
 
         if let Expr::Binary(binary_op) = expr {

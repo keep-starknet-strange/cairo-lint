@@ -42,18 +42,8 @@ pub fn check_double_comparison(
                     Severity::Error,
                 ));
             }
-        } else if is_redundant_inverted_comparison(&lhs_var, &rhs_var) {
-            diagnostics.push(create_diagnostic(
-                REDUNDANT_COMPARISON,
-                binary_expr.stable_ptr().untyped(),
-                Severity::Warning,
-            ));
         }
     }
-}
-
-fn is_redundant_inverted_comparison(lhs_var: &str, rhs_var: &str) -> bool {
-    lhs_var == rhs_var.chars().rev().collect::<String>()
 }
 
 pub fn extract_identifier_from_expr(expr: &Expr, db: &dyn SyntaxGroup) -> Option<String> {

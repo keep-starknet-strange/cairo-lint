@@ -168,40 +168,6 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > double comparison greater than or equal and greater than or equal inverted
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x >= y && y >= x {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: Redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:6:8
-  |
-6 |     if x >= y && y >= x {
-  |        ----------------
-  |
-
-//! > fixed
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    if x >= y && y >= x {
-        true
-    } else {
-        false
-    }
-}
-
-//! > ==========================================================================
-
 //! > double comparison greater than or equal and less than or equal
 
 //! > cairo_code
