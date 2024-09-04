@@ -1,0 +1,14 @@
+//! > Test name
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    if x {
+        println!("x is true");
+    }
+    else {
+        if !x {
+            println!("x is false");
+        }
+    }
+}
