@@ -10,6 +10,7 @@ use cairo_lang_utils::Upcast;
 use log::debug;
 
 use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
+use crate::lints::double_comparison;
 use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
@@ -147,6 +148,9 @@ impl Fixer {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::DoubleComparison => {
+                self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BoolComparison => self.fix_bool_comparison(
                 db,
@@ -200,5 +204,31 @@ impl Fixer {
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
             expr.as_syntax_node().get_text_without_trivia(db),
         )
+    }
+
+    pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr = Expr::from_syntax_node(db, node.clone());
+
+        if let Expr::Binary(binary_op) = expr {
+            let lhs = binary_op.lhs(db);
+            let rhs = binary_op.rhs(db);
+            let middle_op = binary_op.op(db);
+
+            if let (Some(lhs_op), Some(rhs_op)) = (
+                double_comparison::extract_binary_operator_expr(&lhs, db),
+                double_comparison::extract_binary_operator_expr(&rhs, db),
+            ) {
+                let simplified_op = double_comparison::determine_simplified_operator(&lhs_op, &rhs_op, &middle_op);
+
+                if let Some(simplified_op) = simplified_op {
+                    if let Some(operator_to_replace) = double_comparison::operator_to_replace(lhs_op) {
+                        let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
+                        return lhs_text.to_string();
+                    }
+                }
+            }
+        }
+
+        node.get_text(db).to_string()
     }
 }
