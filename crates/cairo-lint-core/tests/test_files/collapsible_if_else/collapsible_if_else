@@ -12,3 +12,29 @@ fn main() {
         }
     }
 }
+
+//! > diagnostics
+warning: Plugin diagnostic: Consider using 'else if' instead of 'else { if ... }'
+  --> lib.cairo:10:5
+   |
+10 |       else {
+   |  _____-
+11 | |         if !x {
+12 | |             println!("x is false");
+13 | |         }
+14 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let x = true;
+    if x {
+        println!("x is true");
+    }
+    else {
+        if !x {
+            println!("x is false");
+        }
+    }
+}

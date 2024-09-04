@@ -6,18 +6,6 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const COLLAPSIBLE_ELSE_IF: &str = "Consider using 'else if' instead of 'else { if ... }'";
 
-pub fn is_else_if(db: &dyn SyntaxGroup, else_clause: &ElseClause) -> bool {
-    // Extract the expression from the ElseClause
-    let else_expr = else_clause.else_block_or_if(db);
-
-    // Check if the expression is an if statement (else if)
-    if let BlockOrIf::If(_) = else_expr {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 pub fn is_first_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bool {
     // Get the list of statements from the block expression
     let statements: Vec<Statement> = block_expr.statements(db).elements(db);
@@ -42,14 +30,11 @@ pub fn is_first_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bo
 
 pub fn check_collapsible_else_if(db: &dyn SyntaxGroup, else_clause: &ElseClause, diagnostics: &mut Vec<PluginDiagnostic>) {
 
-    let else_if = is_else_if(db, &else_clause);
+    // Extract the expression from the ElseClause
+    let else_expr = else_clause.else_block_or_if(db);
 
-    if !else_if {
-        // If the else clause is not an else if, check if there is an if statement inside the else clause
-        let else_expr = else_clause.else_block_or_if(db);
-
-        let BlockOrIf::Block(block_expr) = else_expr else { todo!() };
-
+    // Check if the expression is a block (not else if)
+    if let BlockOrIf::Block(block_expr) = else_expr {
         let is_if = is_first_statement_if(db, &block_expr);
 
         if is_if {
