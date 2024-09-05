@@ -281,6 +281,14 @@ impl Fixer {
                             while let Some(c) = chars.next() {
                                 // Skip the closing brace of the if block
                                 if c == '}' {
+                                    // Remove preceding spaces and newline
+                                    while let Some(prev_char) = result.chars().rev().next() {
+                                        if prev_char.is_whitespace() {
+                                            result.pop();
+                                        } else {
+                                            break;
+                                        }
+                                    }
                                     break;
                                 }
                                 else if c == '\n' {
