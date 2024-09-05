@@ -241,9 +241,6 @@ impl Fixer {
                 temp.push(chars.next().unwrap());
                 temp.push(chars.next().unwrap());
                 temp.push(chars.next().unwrap());
-
-                // Calculate indentation before "else"
-                let else_indentation = result.chars().rev().take_while(|&c| c == ' ').count();
     
                 // Skip any whitespace between "else" and "{"
                 while let Some(&next_char) = chars.peek() {
@@ -268,8 +265,6 @@ impl Fixer {
                             break;
                         }
                     }
-
-                    let indentation_diff = if_indentation - else_indentation;
     
                     if chars.peek() == Some(&'i') {
                         temp.push(chars.next().unwrap());
@@ -305,7 +300,7 @@ impl Fixer {
                                         }
                                     }
 
-                                    for _ in 0..(line_indentation - indentation_diff) {
+                                    for _ in 0..(line_indentation - (line_indentation - if_indentation)) {
                                         result.push(' ');
                                     }
                                 }

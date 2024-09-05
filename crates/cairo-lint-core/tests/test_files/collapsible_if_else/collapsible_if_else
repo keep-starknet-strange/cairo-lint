@@ -35,7 +35,7 @@ fn main() {
         if a == 10 {
             a += 1;
         } else if a == 15 {
-    break;
+            break;
             a += 2;
         }
     }
@@ -134,7 +134,7 @@ fn main() {
 
 //! > ==========================================================================
 
-//! > Simple else if
+//! > Simple else if with new line
 
 //! > cairo_code
 fn main() {
@@ -169,6 +169,45 @@ fn main() {
         println!("x is true");
     }
     else if !x {
+        println!("x is false");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Simple else if without new line
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    if x {
+        println!("x is true");
+    } else {
+        if !x {
+            println!("x is false");
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consider using else if instead of else { if ... }
+  --> lib.cairo:8:7
+   |
+ 8 |       } else {
+   |  _______-
+ 9 | |         if !x {
+10 | |             println!("x is false");
+11 | |         }
+12 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let x = true;
+    if x {
+        println!("x is true");
+    } else if !x {
         println!("x is false");
     }
 }

@@ -96,7 +96,8 @@ test_file!(
 test_file!(
     collapsible_if_else,
     collapsible_if_else,
-    "Simple else if",
+    "Simple else if with new line",
+    "Simple else if without new line",
     "Multiple else if",
     "Else if with multiple statements",
     "Else if inside loop"
