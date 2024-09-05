@@ -4,7 +4,7 @@ use cairo_lang_syntax::node::ast::{Expr, ElseClause, BlockOrIf, ExprBlock, State
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using 'else if' instead of 'else { if ... }'";
+pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
 
 pub fn is_first_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bool {
     // Get the list of statements from the block expression

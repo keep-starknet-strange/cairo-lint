@@ -93,4 +93,11 @@ test_file!(
     "Negated comparison with false on LHS"
 );
 
-test_file!(collapsible_if_else, collapsible_if_else, "Test name");
+test_file!(
+    collapsible_if_else,
+    collapsible_if_else,
+    "Simple else if",
+    "Multiple else if",
+    "Else if with multiple statements",
+    "Else if inside loop"
+);
