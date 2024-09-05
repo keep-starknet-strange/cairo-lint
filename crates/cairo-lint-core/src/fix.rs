@@ -232,6 +232,7 @@ impl Fixer {
     fn transform_if_else(&self, text: String) -> String {
         let mut result = String::new();
         let mut chars = text.chars().peekable();
+        let mut if_indentation = 0;
     
         while let Some(c) = chars.next() {
             if c == 'e' && chars.peek() == Some(&'l') {
@@ -240,6 +241,9 @@ impl Fixer {
                 temp.push(chars.next().unwrap());
                 temp.push(chars.next().unwrap());
                 temp.push(chars.next().unwrap());
+
+                // Calculate indentation before "else"
+                let else_indentation = result.chars().rev().take_while(|&c| c == ' ').count();
     
                 // Skip any whitespace between "else" and "{"
                 while let Some(&next_char) = chars.peek() {
@@ -256,11 +260,16 @@ impl Fixer {
                     // Skip any whitespace between "{" and "if"
                     while let Some(&next_char) = chars.peek() {
                         if next_char.is_whitespace() {
+                            if next_char != '\n' {
+                                if_indentation += 1;
+                            }
                             chars.next();
                         } else {
                             break;
                         }
                     }
+
+                    let indentation_diff = if_indentation - else_indentation;
     
                     if chars.peek() == Some(&'i') {
                         temp.push(chars.next().unwrap());
@@ -268,12 +277,33 @@ impl Fixer {
     
                         if temp.ends_with("else {if") || temp.ends_with("else{if") {
                             result.push_str("else if");
+
                             while let Some(c) = chars.next() {
                                 // Skip the closing brace of the if block
                                 if c == '}' {
                                     break;
                                 }
-                                result.push(c);
+                                else if c == '\n' {
+                                    result.push(c);
+                                    let mut line_indentation = 0;
+
+                                    // Count spaces before the next non-space character
+                                    while let Some(&next_char) = chars.peek() {
+                                        if next_char == ' ' {
+                                            line_indentation += 1;
+                                            chars.next().unwrap();
+                                        } else {
+                                            break;
+                                        }
+                                    }
+
+                                    for _ in 0..(line_indentation - indentation_diff) {
+                                        result.push(' ');
+                                    }
+                                }
+                                else {
+                                    result.push(c);
+                                }
                             }
                             continue;
                         }
