@@ -152,6 +152,10 @@ impl Fixer {
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
+            CairoLintKind::CollapsibleIfElse => self.fix_collapsible_if_else(
+                db,
+                plugin_diag.stable_ptr.lookup(db.upcast())
+            ),
             _ => return None,
         };
 
@@ -200,5 +204,87 @@ impl Fixer {
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
             expr.as_syntax_node().get_text_without_trivia(db),
         )
+    }
+
+    /// Transforms nested `if-else` statements into a more compact `if-else if` format.
+    ///
+    /// Simplifies an expression by converting nested `if-else` structures into a single `if-else if`
+    /// statement while preserving the original formatting and indentation.
+    ///
+    /// # Arguments
+    ///
+    /// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+    /// * `node` - The `SyntaxNode` containing the expression.
+    ///
+    /// # Returns
+    ///
+    /// A `String` with the refactored `if-else` structure.
+    ///
+    
+    pub fn fix_collapsible_if_else(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        // Call the transformation function to handle collapsible if-else
+        let fixed_text = self.transform_if_else(node.get_text(db));
+
+        fixed_text
+    }
+
+    // Transforms text to replace "else { if" pattern with "else if"
+    fn transform_if_else(&self, text: String) -> String {
+        let mut result = String::new();
+        let mut chars = text.chars().peekable();
+    
+        while let Some(c) = chars.next() {
+            if c == 'e' && chars.peek() == Some(&'l') {
+                let mut temp = String::new();
+                temp.push(c);
+                temp.push(chars.next().unwrap());
+                temp.push(chars.next().unwrap());
+                temp.push(chars.next().unwrap());
+    
+                // Skip any whitespace between "else" and "{"
+                while let Some(&next_char) = chars.peek() {
+                    if next_char.is_whitespace() {
+                        temp.push(chars.next().unwrap());
+                    } else {
+                        break;
+                    }
+                }
+    
+                if chars.peek() == Some(&'{') {
+                    temp.push(chars.next().unwrap());
+    
+                    // Skip any whitespace between "{" and "if"
+                    while let Some(&next_char) = chars.peek() {
+                        if next_char.is_whitespace() {
+                            chars.next();
+                        } else {
+                            break;
+                        }
+                    }
+    
+                    if chars.peek() == Some(&'i') {
+                        temp.push(chars.next().unwrap());
+                        temp.push(chars.next().unwrap());
+    
+                        if temp.ends_with("else {if") || temp.ends_with("else{if") {
+                            result.push_str("else if");
+                            while let Some(c) = chars.next() {
+                                // Skip the closing brace of the if block
+                                if c == '}' {
+                                    break;
+                                }
+                                result.push(c);
+                            }
+                            continue;
+                        }
+                    }
+                }
+                result.push_str(&temp);
+            } else {
+                result.push(c);
+            }
+        }
+    
+        result
     }
 }

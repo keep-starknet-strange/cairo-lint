@@ -32,9 +32,8 @@ fn main() {
     if x {
         println!("x is true");
     }
-    else {
-        if !x {
+    else if !x {
             println!("x is false");
-        }
+        
     }
 }

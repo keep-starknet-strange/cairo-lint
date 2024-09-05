@@ -4,7 +4,7 @@ use cairo_lang_syntax::node::ast::{Expr, ElseClause, BlockOrIf, ExprBlock, State
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-pub const COLLAPSIBLE_ELSE_IF: &str = "Consider using 'else if' instead of 'else { if ... }'";
+pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using 'else if' instead of 'else { if ... }'";
 
 pub fn is_first_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bool {
     // Get the list of statements from the block expression
@@ -21,14 +21,14 @@ pub fn is_first_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bo
                 false
             }
         } else {
-            return false
+            false
         }
     } else {
         false
     }
 }
 
-pub fn check_collapsible_else_if(db: &dyn SyntaxGroup, else_clause: &ElseClause, diagnostics: &mut Vec<PluginDiagnostic>) {
+pub fn check_collapsible_if_else(db: &dyn SyntaxGroup, else_clause: &ElseClause, diagnostics: &mut Vec<PluginDiagnostic>) {
 
     // Extract the expression from the ElseClause
     let else_expr = else_clause.else_block_or_if(db);
@@ -40,7 +40,7 @@ pub fn check_collapsible_else_if(db: &dyn SyntaxGroup, else_clause: &ElseClause,
         if is_if {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: else_clause.stable_ptr().untyped(),
-                message: COLLAPSIBLE_ELSE_IF.to_string(),
+                message: COLLAPSIBLE_IF_ELSE.to_string(),
                 severity: Severity::Warning,
             });
         }

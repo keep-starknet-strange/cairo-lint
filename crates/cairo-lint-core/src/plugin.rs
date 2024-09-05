@@ -35,7 +35,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         double_parens::DOUBLE_PARENS => CairoLintKind::DoubleParens,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
-        collapsible_if_else::COLLAPSIBLE_ELSE_IF => CairoLintKind::CollapsibleIfElse,
+        collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -91,7 +91,7 @@ impl AnalyzerPlugin for CairoLint {
                         bool_comparison::check_bool_comparison(db.upcast(), expr_binary, &mut diags);
                     },
                     SyntaxKind::ElseClause => {
-                        collapsible_if_else::check_collapsible_else_if(
+                        collapsible_if_else::check_collapsible_if_else(
                             db.upcast(),
                             &ElseClause::from_syntax_node(db.upcast(), node),
                             &mut diags,
