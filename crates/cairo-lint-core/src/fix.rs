@@ -235,6 +235,7 @@ impl Fixer {
         let mut if_indentation = 0;
         let mut diff_indentation = 0;
         let mut inside_else_clause = false;
+        let mut extra_else = false;
     
         while let Some(c) = chars.next() {
             // Check for "else"
@@ -287,6 +288,7 @@ impl Fixer {
                                         let last_4_chars = result.chars().rev().take(4).collect::<String>().chars().rev().collect::<String>();
 
                                         if last_5_chars == "else " {
+                                            extra_else = true;
                                             // remove the last "else "
                                             for _ in 0..5 {
                                                 result.pop();
@@ -301,6 +303,7 @@ impl Fixer {
                                             }
                                         }
                                         else if last_4_chars == "else" {
+                                            extra_else = true;
                                             // remove the last "else"
                                             for _ in 0..4 {
                                                 result.pop();
@@ -382,6 +385,25 @@ impl Fixer {
                                         // reduce an indentation level
                                         for _ in 0..(line_indentation - (line_indentation - if_indentation)) {
                                             result.push(' ');
+                                        }
+                                    }
+                                    else if inside_else_clause {
+
+                                        //peek on the next character
+                                        if let Some(&next_char) = chars.peek() {
+                                            if next_char == '}' && extra_else {
+                                                // maintain the same indentation level
+                                                for _ in 0..(line_indentation - diff_indentation) {
+                                                    result.push(' ');
+                                                }
+                                                extra_else = false;
+                                            }
+                                            else {
+                                                // maintain the same indentation level
+                                                for _ in 0..line_indentation {
+                                                    result.push(' ');
+                                                }
+                                            }
                                         }
                                     }
                                     else {

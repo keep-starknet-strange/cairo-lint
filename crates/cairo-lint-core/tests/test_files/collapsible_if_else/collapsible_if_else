@@ -131,7 +131,7 @@ fn main() {
         println!("x is false");
     } else {
         println!("x is neither true nor false");
-        }
+    }
 }
 
 //! > ==========================================================================
