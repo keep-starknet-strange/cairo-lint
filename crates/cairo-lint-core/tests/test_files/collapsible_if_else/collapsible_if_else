@@ -173,7 +173,6 @@ fn main() {
     }
     else if !x {
         println!("x is false");
-    } else {
     }
 }
 
@@ -213,6 +212,5 @@ fn main() {
         println!("x is true");
     } else if !x {
         println!("x is false");
-    } else {
     }
 }

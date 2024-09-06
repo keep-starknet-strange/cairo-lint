@@ -346,6 +346,13 @@ impl Fixer {
                 result.push(c);
             }
         }
+
+        let spaces = " ".repeat(diff_indentation);
+        let pattern =" else {\n".to_owned() + &spaces + "}";
+    
+        // Replace the pattern with an empty string
+        // to remove the unnecessary else block
+        let result = result.replace(&pattern, "");
     
         result
     }
