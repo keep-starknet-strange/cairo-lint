@@ -91,7 +91,7 @@ impl AnalyzerPlugin for CairoLint {
                     ),
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
-                        bool_comparison::check_bool_comparison(db.upcast(), expr_binary, &mut diags);
+                        bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
                     },
                     SyntaxKind::ElseClause => {
