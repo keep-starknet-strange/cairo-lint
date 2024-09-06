@@ -36,6 +36,7 @@ fn main() {
             a += 1;
         } else if a == 15 {
             break;
+        } else {
             a += 2;
         }
     }
@@ -81,6 +82,7 @@ fn main() {
     }
     else if !x {
         println!("x is false");
+    } else {
         let y = 10;
         println!("y is {}", y);
     }
@@ -127,6 +129,7 @@ fn main() {
     }
     else if !x {
         println!("x is false");
+    } else {
         else {println!("x is neither true nor false");
         }
     }
@@ -170,6 +173,7 @@ fn main() {
     }
     else if !x {
         println!("x is false");
+    } else {
     }
 }
 
@@ -209,5 +213,6 @@ fn main() {
         println!("x is true");
     } else if !x {
         println!("x is false");
+    } else {
     }
 }

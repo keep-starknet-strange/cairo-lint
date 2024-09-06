@@ -233,8 +233,10 @@ impl Fixer {
         let mut result = String::new();
         let mut chars = text.chars().peekable();
         let mut if_indentation = 0;
+        let mut diff_indentation = 0;
     
         while let Some(c) = chars.next() {
+            // Check for "else"
             if c == 'e' && chars.peek() == Some(&'l') {
                 let mut temp = String::new();
                 temp.push(c);
@@ -266,6 +268,7 @@ impl Fixer {
                         }
                     }
     
+                    // Check for "if"
                     if chars.peek() == Some(&'i') {
                         temp.push(chars.next().unwrap());
                         temp.push(chars.next().unwrap());
@@ -273,18 +276,39 @@ impl Fixer {
                         if temp.ends_with("else {if") || temp.ends_with("else{if") {
                             result.push_str("else if");
 
+                            let mut open_braces = 0;
+
                             while let Some(c) = chars.next() {
-                                // Skip the closing brace of the if block
-                                if c == '}' {
-                                    // Remove preceding spaces and newline
-                                    while let Some(prev_char) = result.chars().rev().next() {
-                                        if prev_char.is_whitespace() {
+                                if c == '{' {
+                                    open_braces += 1;
+                                    result.push(c);
+                                }
+                                else if c == '}' {
+                                    if open_braces == 1 {
+                                        //todo: check if the else if necessary
+
+                                        //remove an indentation level
+                                        for _ in 0..diff_indentation {
                                             result.pop();
-                                        } else {
-                                            break;
                                         }
+                                        result.push_str("} else {");
                                     }
-                                    break;
+                                    if open_braces == 0 {
+                                        result.push_str("}\n");
+                                        result.push(c);
+                                    }
+                                    else {
+                                        // Remove preceding spaces and newline
+                                        while let Some(prev_char) = result.chars().rev().next() {
+                                            if prev_char.is_whitespace() {
+                                                result.pop();
+                                            } else {
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    open_braces -= 1;
                                 }
                                 else if c == '\n' {
                                     result.push(c);
@@ -298,6 +322,11 @@ impl Fixer {
                                         } else {
                                             break;
                                         }
+                                    }
+                                    // just save the first indentation diff
+                                    // to see how many spaces are in an indentation level
+                                    if diff_indentation == 0 {
+                                        diff_indentation =  line_indentation - if_indentation;
                                     }
 
                                     for _ in 0..(line_indentation - (line_indentation - if_indentation)) {
