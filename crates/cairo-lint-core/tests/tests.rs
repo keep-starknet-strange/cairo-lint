@@ -76,6 +76,24 @@ test_file!(
     "double parens in struct field access",
     "double parens in match arm"
 );
+
+test_file!(
+    double_comparison,
+    double_comparison,
+    "double comparison equal or greater than",
+    "double comparison equal or less than",
+    "double comparison greater than or equal",
+    "double comparison greater than or less than",
+    "double comparison greater than or equal and less than or equal",
+    "double comparison less than or equal",
+    "double comparison less than or greater than",
+    "double comparison less than or equal and greater than or equal",
+    "not redundant double comparison equal or greater than",
+    "contradictory less than and greater than",
+    "contradictory equal and less than",
+    "redundant greater than or equal and less than or equal"
+);
+
 test_file!(loops, loop_match_pop_front, "simple loop match pop front");
 
 test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");

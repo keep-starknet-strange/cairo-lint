@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary, ElseClause};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::{collapsible_if_else, bool_comparison, breaks, double_parens, loops, single_match};
+use crate::lints::{collapsible_if_else, bool_comparison, breaks, double_comparison, double_parens, loops, single_match};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -21,6 +21,7 @@ pub struct CairoLint;
 pub enum CairoLintKind {
     DestructMatch,
     MatchForEquality,
+    DoubleComparison,
     DoubleParens,
     Unknown,
     BreakUnit,
@@ -33,6 +34,9 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
         single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
         double_parens::DOUBLE_PARENS => CairoLintKind::DoubleParens,
+        double_comparison::SIMPLIFIABLE_COMPARISON => CairoLintKind::DoubleComparison,
+        double_comparison::REDUNDANT_COMPARISON => CairoLintKind::DoubleComparison,
+        double_comparison::CONTRADICTORY_COMPARISON => CairoLintKind::DoubleComparison,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
@@ -85,10 +89,10 @@ impl AnalyzerPlugin for CairoLint {
                         &AstExpr::from_syntax_node(db.upcast(), node),
                         &mut diags,
                     ),
-                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), expr_binary, &mut diags);
+                        double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
                     },
                     SyntaxKind::ElseClause => {
                         collapsible_if_else::check_collapsible_if_else(
@@ -97,6 +101,7 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
+                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     _ => continue,
                 }
             }
