@@ -84,7 +84,7 @@ fn main() {
         println!("x is false");
     } else {
         let y = 10;
-        println!("y is {", y);
+        println!("y is {}", y);
     }
 }
 

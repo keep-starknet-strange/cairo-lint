@@ -315,8 +315,17 @@ impl Fixer {
                                             }
                                         }
                                         else {
-                                            open_braces += 1;
-                                            result.push(c);
+                                            // peek on the next character
+                                            if let Some(&next_char) = chars.peek() {
+                                                if next_char == '}' {
+                                                    result.push_str("{}");
+                                                    chars.next();
+                                                }
+                                            }
+                                            else {
+                                                open_braces += 1;
+                                                result.push(c);
+                                            }
                                         }
                                     } else {
                                         open_braces += 1;
