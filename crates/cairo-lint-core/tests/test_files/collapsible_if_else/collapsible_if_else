@@ -84,7 +84,7 @@ fn main() {
         println!("x is false");
     } else {
         let y = 10;
-        println!("y is {}", y);
+        println!("y is {", y);
     }
 }
 
@@ -130,9 +130,8 @@ fn main() {
     else if !x {
         println!("x is false");
     } else {
-        else {println!("x is neither true nor false");
+        println!("x is neither true nor false");
         }
-    }
 }
 
 //! > ==========================================================================

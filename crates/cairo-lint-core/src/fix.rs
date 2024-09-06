@@ -234,6 +234,7 @@ impl Fixer {
         let mut chars = text.chars().peekable();
         let mut if_indentation = 0;
         let mut diff_indentation = 0;
+        let mut inside_else_clause = false;
     
         while let Some(c) = chars.next() {
             // Check for "else"
@@ -280,22 +281,61 @@ impl Fixer {
 
                             while let Some(c) = chars.next() {
                                 if c == '{' {
-                                    open_braces += 1;
-                                    result.push(c);
+                                    if inside_else_clause {
+                                        // check if the last characters are "else" or "else "
+                                        let last_5_chars = result.chars().rev().take(5).collect::<String>().chars().rev().collect::<String>();
+                                        let last_4_chars = result.chars().rev().take(4).collect::<String>().chars().rev().collect::<String>();
+
+                                        if last_5_chars == "else " {
+                                            // remove the last "else "
+                                            for _ in 0..5 {
+                                                result.pop();
+                                            }
+                                            // Remove preceding spaces and newline
+                                            while let Some(prev_char) = result.chars().rev().next() {
+                                                if prev_char.is_whitespace() {
+                                                    result.pop();
+                                                } else {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        else if last_4_chars == "else" {
+                                            // remove the last "else"
+                                            for _ in 0..4 {
+                                                result.pop();
+                                            }
+                                            // Remove preceding spaces and newline
+                                            while let Some(prev_char) = result.chars().rev().next() {
+                                                if prev_char.is_whitespace() {
+                                                    result.pop();
+                                                } else {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            open_braces += 1;
+                                            result.push(c);
+                                        }
+                                    } else {
+                                        open_braces += 1;
+                                        result.push(c);
+                                    }
                                 }
                                 else if c == '}' {
                                     if open_braces == 1 {
-                                        //todo: check if the else if necessary
-
-                                        //remove an indentation level
-                                        for _ in 0..diff_indentation {
-                                            result.pop();
+                                        if !inside_else_clause {
+                                            //remove an indentation level
+                                            for _ in 0..diff_indentation {
+                                                result.pop();
+                                            }
+                                            result.push_str("} else {");
+                                            inside_else_clause = true;
                                         }
-                                        result.push_str("} else {");
                                     }
-                                    if open_braces == 0 {
-                                        result.push_str("}\n");
-                                        result.push(c);
+                                    else if open_braces == 0 {
+                                        result.push_str("}");
                                     }
                                     else {
                                         // Remove preceding spaces and newline
@@ -329,8 +369,17 @@ impl Fixer {
                                         diff_indentation =  line_indentation - if_indentation;
                                     }
 
-                                    for _ in 0..(line_indentation - (line_indentation - if_indentation)) {
-                                        result.push(' ');
+                                    if line_indentation > if_indentation {
+                                        // reduce an indentation level
+                                        for _ in 0..(line_indentation - (line_indentation - if_indentation)) {
+                                            result.push(' ');
+                                        }
+                                    }
+                                    else {
+                                        // maintain the same indentation level
+                                        for _ in 0..line_indentation {
+                                            result.push(' ');
+                                        }
                                     }
                                 }
                                 else {
