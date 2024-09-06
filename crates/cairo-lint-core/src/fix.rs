@@ -156,6 +156,7 @@ impl Fixer {
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
+            CairoLintKind::DuplicateUnderscoreArgs => self.fix_duplicate_underscore_args(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
 
@@ -164,6 +165,10 @@ impl Fixer {
 
     pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         node.get_text(db).replace("break ();", "break;").to_string()
+    }
+
+    pub fn fix_duplicate_underscore_args(&self, _db: &dyn SyntaxGroup, _node: SyntaxNode) -> String {
+        return String::from("_diff");
     }
 
     pub fn fix_bool_comparison(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
