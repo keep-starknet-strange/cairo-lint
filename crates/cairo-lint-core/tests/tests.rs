@@ -115,5 +115,8 @@ test_file!(
     duplicate_underscore_args, 
     duplicate_underscore_args, 
     "duplicate underscore args", 
-    "duplicate underscore args2"
+    "duplicate underscore args2",
+    "duplicate underscore longer args",
+    "duplicate underscore longer args2",
+    "duplicate underscore longer args3"
 );

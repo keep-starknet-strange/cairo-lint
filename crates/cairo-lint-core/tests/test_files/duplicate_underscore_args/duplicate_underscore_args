@@ -11,6 +11,9 @@ warning: Plugin diagnostic: duplicate arguments, having another argument having 
  |                --
  |
 
+//! > fixed
+fn foo(a: u32, _a: u32) {}
+
 //! > ==========================================================================
 
 //! > duplicate underscore args2
@@ -25,3 +28,60 @@ warning: Plugin diagnostic: duplicate arguments, having another argument having 
 0 | fn foo(c: u32, _c: u32) {}
  |                --
  |
+
+//! > fixed
+fn foo(c: u32, _c: u32) {}
+
+//! > ==========================================================================
+
+//! > duplicate underscore longer args
+
+//! > cairo_code
+fn foo(test: u32, _test: u32) {}
+
+//! > diagnostics
+warning: Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult
+--> lib.cairo:0:19
+ |
+0 | fn foo(test: u32, _test: u32) {}
+ |                   -----
+ |
+
+//! > fixed
+fn foo(test: u32, _test: u32) {}
+
+//! > ==========================================================================
+
+//! > duplicate underscore longer args2
+
+//! > cairo_code
+fn foo(darth: u32, _darth: u32) {}
+
+//! > diagnostics
+warning: Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult
+--> lib.cairo:0:20
+ |
+0 | fn foo(darth: u32, _darth: u32) {}
+ |                    ------
+ |
+
+//! > fixed
+fn foo(darth: u32, _darth: u32) {}
+
+//! > ==========================================================================
+
+//! > duplicate underscore longer args3
+
+//! > cairo_code
+fn foo(stark: u32, _stark: u32) {}
+
+//! > diagnostics
+warning: Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult
+--> lib.cairo:0:20
+ |
+0 | fn foo(stark: u32, _stark: u32) {}
+ |                    ------
+ |
+
+//! > fixed
+fn foo(stark: u32, _stark: u32) {}
