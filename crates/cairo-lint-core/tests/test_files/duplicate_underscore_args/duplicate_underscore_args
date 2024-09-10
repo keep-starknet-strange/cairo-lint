@@ -85,3 +85,21 @@ warning: Plugin diagnostic: duplicate arguments, having another argument having 
 
 //! > fixed
 fn foo(stark: u32, _stark: u32) {}
+
+//! > ==========================================================================
+
+//! > duplicate underscore longer args4
+
+//! > cairo_code
+fn foo(_test: u32, test: u32) {}
+
+//! > diagnostics
+warning: Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult
+--> lib.cairo:0:20
+ |
+0 | fn foo(_test: u32, test: u32) {}
+ |                    ----
+ |
+
+//! > fixed
+fn foo(_test: u32, test: u32) {}

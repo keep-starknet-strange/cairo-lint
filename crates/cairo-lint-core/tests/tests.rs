@@ -118,5 +118,6 @@ test_file!(
     "duplicate underscore args2",
     "duplicate underscore longer args",
     "duplicate underscore longer args2",
-    "duplicate underscore longer args3"
+    "duplicate underscore longer args3",
+    "duplicate underscore longer args4"
 );
