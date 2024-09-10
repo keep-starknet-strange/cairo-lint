@@ -172,6 +172,7 @@ impl Fixer {
             }
             CairoLintKind::EquatableIfLet => self.fix_equatable_if_let(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::CollapsibleIf => self.fix_collapsible_if(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BoolComparison => self.fix_bool_comparison(
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
@@ -345,7 +346,7 @@ impl Fixer {
 
     /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let expr = Expr::from_syntax_node(db, node.clone());
+        let expr: Expr = Expr::from_syntax_node(db, node.clone());
 
         if let Expr::Binary(binary_op) = expr {
             let lhs = binary_op.lhs(db);

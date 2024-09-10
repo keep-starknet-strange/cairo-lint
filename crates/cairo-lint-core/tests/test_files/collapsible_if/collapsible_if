@@ -69,7 +69,6 @@ warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which
    | |___-
    |
 
-//! > fixed
 fn main() {
   let x = 3_u32;
   let y = 4_u32;
