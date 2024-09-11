@@ -112,6 +112,17 @@ test_file!(
 );
 
 test_file!(
+    duplicate_underscore_args,
+    duplicate_underscore_args,
+    "duplicate underscore args",
+    "duplicate underscore args2",
+    "duplicate underscore longer args",
+    "duplicate underscore longer args2",
+    "duplicate underscore longer args3",
+    "duplicate underscore longer args4"
+);
+
+test_file!(
     collapsible_if_else,
     collapsible_if_else,
     "Simple else if with new line",
