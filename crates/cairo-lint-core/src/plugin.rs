@@ -7,7 +7,10 @@ use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::{bool_comparison, breaks, double_comparison, double_parens, loops, single_match};
+use crate::lints::{
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+};
+use crate::plugin::duplicate_underscore_args::check_duplicate_underscore_args;
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -26,6 +29,7 @@ pub enum CairoLintKind {
     Unknown,
     BreakUnit,
     BoolComparison,
+    DuplicateUnderscoreArgs,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -38,6 +42,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         double_comparison::CONTRADICTORY_COMPARISON => CairoLintKind::DoubleComparison,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
+        duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -49,6 +54,10 @@ impl AnalyzerPlugin for CairoLint {
             return diags;
         };
         for free_func_id in free_functions_ids.iter() {
+            check_duplicate_underscore_args(
+                db.function_with_body_signature(FunctionWithBodyId::Free(*free_func_id)).unwrap().params,
+                &mut diags,
+            );
             let Ok(function_body) = db.function_body(FunctionWithBodyId::Free(*free_func_id)) else {
                 return diags;
             };
