@@ -7,7 +7,9 @@ use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::{bool_comparison, breaks, double_comparison, double_parens, loops, single_match, duplicate_underscore_args};
+use crate::lints::{
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+};
 use crate::plugin::duplicate_underscore_args::check_duplicate_underscore_args;
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -27,7 +29,7 @@ pub enum CairoLintKind {
     Unknown,
     BreakUnit,
     BoolComparison,
-    DuplicateUnderscoreArgs
+    DuplicateUnderscoreArgs,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -52,7 +54,10 @@ impl AnalyzerPlugin for CairoLint {
             return diags;
         };
         for free_func_id in free_functions_ids.iter() {
-            check_duplicate_underscore_args(db.function_with_body_signature(FunctionWithBodyId::Free(*free_func_id)).unwrap().params, &mut diags);
+            check_duplicate_underscore_args(
+                db.function_with_body_signature(FunctionWithBodyId::Free(*free_func_id)).unwrap().params,
+                &mut diags,
+            );
             let Ok(function_body) = db.function_body(FunctionWithBodyId::Free(*free_func_id)) else {
                 return diags;
             };

@@ -1,9 +1,11 @@
-use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_semantic::Parameter;
-use cairo_lang_diagnostics::Severity;
 use std::collections::HashSet;
 
-pub const DUPLICATE_UNDERSCORE_ARGS: &str = "duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult";
+use cairo_lang_defs::plugin::PluginDiagnostic;
+use cairo_lang_diagnostics::Severity;
+use cairo_lang_semantic::Parameter;
+
+pub const DUPLICATE_UNDERSCORE_ARGS: &str = "duplicate arguments, having another argument having almost the same name \
+                                             makes code comprehension and documentation more difficult";
 
 pub fn check_duplicate_underscore_args(params: Vec<Parameter>, diagnostics: &mut Vec<PluginDiagnostic>) {
     let mut registered_names: HashSet<String> = HashSet::new();
