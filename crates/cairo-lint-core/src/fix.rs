@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{Expr, ExprBinary, ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{Expr, ExprBinary, ExprMatch, Pattern, ElseClause, BlockOrIf, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
@@ -158,7 +158,7 @@ impl Fixer {
             ),
             CairoLintKind::CollapsibleIfElse => self.fix_collapsible_if_else(
                 db,
-                plugin_diag.stable_ptr.lookup(db.upcast())
+                &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             ),
             _ => return None,
         };
@@ -225,220 +225,27 @@ impl Fixer {
     /// A `String` with the refactored `if-else` structure.
     ///
     
-    pub fn fix_collapsible_if_else(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        // Call the transformation function to handle collapsible if-else
-        let fixed_text = self.transform_if_else(node.get_text(db));
+    pub fn fix_collapsible_if_else(&self, db: &dyn SyntaxGroup, else_clause: &ElseClause) -> String {
+        if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db) {
+            if let Some(Statement::Expr(statement_expr)) = block_expr.statements(db).elements(db).first() {
+                if let Expr::If(if_expr) = statement_expr.expr(db) {
+                    // Construct the new "else if" expression
+                    let condition = if_expr.condition(db).as_syntax_node().get_text(db);
+                    let if_body = if_expr.if_block(db).as_syntax_node().get_text(db);
+                    let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
 
-        fixed_text
-    }
+                    // Preserve original indentation
+                    let original_indent = else_clause.as_syntax_node().get_text(db).chars()
+                        .take_while(|c| c.is_whitespace())
+                        .collect::<String>();
 
-    // Transforms text to replace "else { if" pattern with "else if"
-    fn transform_if_else(&self, text: String) -> String {
-        let mut result = String::new();
-        let mut chars = text.chars().peekable();
-        let mut if_indentation = 0;
-        let mut diff_indentation = 0;
-        let mut inside_else_clause = false;
-        let mut extra_else = false;
-    
-        while let Some(c) = chars.next() {
-            // Check for "else"
-            if c == 'e' && chars.peek() == Some(&'l') {
-                let mut temp = String::new();
-                temp.push(c);
-                temp.push(chars.next().unwrap());
-                temp.push(chars.next().unwrap());
-                temp.push(chars.next().unwrap());
-    
-                // Skip any whitespace between "else" and "{"
-                while let Some(&next_char) = chars.peek() {
-                    if next_char.is_whitespace() {
-                        temp.push(chars.next().unwrap());
-                    } else {
-                        break;
-                    }
+                    return format!("{}else if {} {} {}", original_indent, condition, if_body, else_body);
                 }
-    
-                if chars.peek() == Some(&'{') {
-                    temp.push(chars.next().unwrap());
-    
-                    // Skip any whitespace between "{" and "if"
-                    while let Some(&next_char) = chars.peek() {
-                        if next_char.is_whitespace() {
-                            if next_char != '\n' {
-                                if_indentation += 1;
-                            }
-                            chars.next();
-                        } else {
-                            break;
-                        }
-                    }
-    
-                    // Check for "if"
-                    if chars.peek() == Some(&'i') {
-                        temp.push(chars.next().unwrap());
-                        temp.push(chars.next().unwrap());
-    
-                        if temp.ends_with("else {if") || temp.ends_with("else{if") {
-                            result.push_str("else if");
-
-                            let mut open_braces = 0;
-
-                            while let Some(c) = chars.next() {
-                                if c == '{' {
-                                    if inside_else_clause {
-                                        // check if the last characters are "else" or "else "
-                                        let last_5_chars = result.chars().rev().take(5).collect::<String>().chars().rev().collect::<String>();
-                                        let last_4_chars = result.chars().rev().take(4).collect::<String>().chars().rev().collect::<String>();
-
-                                        if last_5_chars == "else " {
-                                            extra_else = true;
-                                            // remove the last "else "
-                                            for _ in 0..5 {
-                                                result.pop();
-                                            }
-                                            // Remove preceding spaces and newline
-                                            while let Some(prev_char) = result.chars().rev().next() {
-                                                if prev_char.is_whitespace() {
-                                                    result.pop();
-                                                } else {
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        else if last_4_chars == "else" {
-                                            extra_else = true;
-                                            // remove the last "else"
-                                            for _ in 0..4 {
-                                                result.pop();
-                                            }
-                                            // Remove preceding spaces and newline
-                                            while let Some(prev_char) = result.chars().rev().next() {
-                                                if prev_char.is_whitespace() {
-                                                    result.pop();
-                                                } else {
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        else {
-                                            // peek on the next character
-                                            if let Some(&next_char) = chars.peek() {
-                                                if next_char == '}' {
-                                                    result.push_str("{}");
-                                                    chars.next();
-                                                }
-                                            }
-                                            else {
-                                                open_braces += 1;
-                                                result.push(c);
-                                            }
-                                        }
-                                    } else {
-                                        open_braces += 1;
-                                        result.push(c);
-                                    }
-                                }
-                                else if c == '}' {
-                                    if open_braces == 1 {
-                                        if !inside_else_clause {
-                                            //remove an indentation level
-                                            for _ in 0..diff_indentation {
-                                                result.pop();
-                                            }
-                                            result.push_str("} else {");
-                                            inside_else_clause = true;
-                                        }
-                                    }
-                                    else if open_braces == 0 {
-                                        result.push_str("}");
-                                    }
-                                    else {
-                                        // Remove preceding spaces and newline
-                                        while let Some(prev_char) = result.chars().rev().next() {
-                                            if prev_char.is_whitespace() {
-                                                result.pop();
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                        break;
-                                    }
-                                    open_braces -= 1;
-                                }
-                                else if c == '\n' {
-                                    result.push(c);
-                                    let mut line_indentation = 0;
-
-                                    // Count spaces before the next non-space character
-                                    while let Some(&next_char) = chars.peek() {
-                                        if next_char == ' ' {
-                                            line_indentation += 1;
-                                            chars.next().unwrap();
-                                        } else {
-                                            break;
-                                        }
-                                    }
-                                    // just save the first indentation diff
-                                    // to see how many spaces are in an indentation level
-                                    if diff_indentation == 0 {
-                                        diff_indentation =  line_indentation - if_indentation;
-                                    }
-
-                                    if line_indentation > if_indentation {
-                                        // reduce an indentation level
-                                        for _ in 0..(line_indentation - (line_indentation - if_indentation)) {
-                                            result.push(' ');
-                                        }
-                                    }
-                                    else if inside_else_clause {
-
-                                        //peek on the next character
-                                        if let Some(&next_char) = chars.peek() {
-                                            if next_char == '}' && extra_else {
-                                                // maintain the same indentation level
-                                                for _ in 0..(line_indentation - diff_indentation) {
-                                                    result.push(' ');
-                                                }
-                                                extra_else = false;
-                                            }
-                                            else {
-                                                // maintain the same indentation level
-                                                for _ in 0..line_indentation {
-                                                    result.push(' ');
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        // maintain the same indentation level
-                                        for _ in 0..line_indentation {
-                                            result.push(' ');
-                                        }
-                                    }
-                                }
-                                else {
-                                    result.push(c);
-                                }
-                            }
-                            continue;
-                        }
-                    }
-                }
-                result.push_str(&temp);
-            } else {
-                result.push(c);
             }
         }
 
-        let spaces = " ".repeat(diff_indentation);
-        let pattern =" else {\n".to_owned() + &spaces + "}";
-    
-        // Replace the pattern with an empty string
-        // to remove the unnecessary else block
-        let result = result.replace(&pattern, "");
-    
-        result
+        // If we can't transform it, return the original text
+        else_clause.as_syntax_node().get_text(db)
     }
     
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {

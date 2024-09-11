@@ -10,7 +10,9 @@ fn main() {
             if a == 15 {
                 break;
             }
-            a += 2;
+            else {
+                a += 2;
+            }
         }
     }
 }
@@ -23,8 +25,8 @@ warning: Plugin diagnostic: Consider using else if instead of else { if ... }
    |  ___________-
 11 | |             if a == 15 {
 ...  |
-14 | |             a += 2;
-15 | |         }
+16 | |             }
+17 | |         }
    | |_________-
    |
 
@@ -34,11 +36,12 @@ fn main() {
     loop {
         if a == 10 {
             a += 1;
-        } else if a == 15 {
-            break;
-        } else {
-            a += 2;
-        }
+        } else if a == 15  {
+                break;
+            }
+             else {
+                a += 2;
+            }
     }
 }
 
@@ -56,8 +59,10 @@ fn main() {
         if !x {
             println!("x is false");
         }
-        let y = 10;
-        println!("y is {}", y);
+        else {
+            let y = 10;
+            println!("y is {}", y);
+        }
     }
 }
 
@@ -69,8 +74,8 @@ warning: Plugin diagnostic: Consider using else if instead of else { if ... }
    |  _____-
 11 | |         if !x {
 ...  |
-15 | |         println!("y is {}", y);
-16 | |     }
+17 | |         }
+18 | |     }
    | |_____-
    |
 
@@ -80,12 +85,13 @@ fn main() {
     if x {
         println!("x is true");
     }
-    else if !x {
-        println!("x is false");
-    } else {
-        let y = 10;
-        println!("y is {}", y);
-    }
+    else if !x  {
+            println!("x is false");
+        }
+         else {
+            let y = 10;
+            println!("y is {}", y);
+        }
 }
 
 //! > ==========================================================================
@@ -127,11 +133,12 @@ fn main() {
     if x {
         println!("x is true");
     }
-    else if !x {
-        println!("x is false");
-    } else {
-        println!("x is neither true nor false");
-    }
+    else if !x  {
+            println!("x is false");
+        }
+         else {
+            println!("x is neither true nor false");
+        }
 }
 
 //! > ==========================================================================
@@ -170,10 +177,10 @@ fn main() {
     if x {
         println!("x is true");
     }
-    else if !x {
-        println!("x is false");
-    }
-}
+    else if !x  {
+            println!("x is false");
+        }
+ }
 
 //! > ==========================================================================
 
@@ -209,7 +216,7 @@ fn main() {
     let x = true;
     if x {
         println!("x is true");
-    } else if !x {
-        println!("x is false");
-    }
-}
+    } else if !x  {
+            println!("x is false");
+        }
+ }
