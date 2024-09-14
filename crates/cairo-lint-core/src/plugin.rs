@@ -7,7 +7,9 @@ use cairo_lang_syntax::node::ast::{ExprIf, Expr as AstExpr, ExprBinary};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::{bool_comparison, breaks, double_parens, loops, single_match, equatable_if_let};
+use crate::lints::{
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match, equatable_if_let};
+use crate::plugin::duplicate_underscore_args::check_duplicate_underscore_args;
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -21,11 +23,13 @@ pub struct CairoLint;
 pub enum CairoLintKind {
     DestructMatch,
     MatchForEquality,
+    DoubleComparison,
     DoubleParens,
     EquatableIfLet,
     Unknown,
     BreakUnit,
     BoolComparison,
+    DuplicateUnderscoreArgs,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -33,9 +37,13 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
         single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
         double_parens::DOUBLE_PARENS => CairoLintKind::DoubleParens,
+        double_comparison::SIMPLIFIABLE_COMPARISON => CairoLintKind::DoubleComparison,
+        double_comparison::REDUNDANT_COMPARISON => CairoLintKind::DoubleComparison,
+        double_comparison::CONTRADICTORY_COMPARISON => CairoLintKind::DoubleComparison,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         equatable_if_let::EQUATABLE_IF_LET => CairoLintKind::EquatableIfLet,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
+        duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -47,6 +55,10 @@ impl AnalyzerPlugin for CairoLint {
             return diags;
         };
         for free_func_id in free_functions_ids.iter() {
+            check_duplicate_underscore_args(
+                db.function_with_body_signature(FunctionWithBodyId::Free(*free_func_id)).unwrap().params,
+                &mut diags,
+            );
             let Ok(function_body) = db.function_body(FunctionWithBodyId::Free(*free_func_id)) else {
                 return diags;
             };
@@ -93,7 +105,8 @@ impl AnalyzerPlugin for CairoLint {
                     ),
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
-                        bool_comparison::check_bool_comparison(db.upcast(), expr_binary, &mut diags);
+                        bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
+                        double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
                     }
                     _ => continue,
                 }

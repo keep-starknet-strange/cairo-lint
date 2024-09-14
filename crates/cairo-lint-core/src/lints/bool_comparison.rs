@@ -29,7 +29,7 @@ pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: 
     }
 }
 
-pub fn check_bool_comparison(db: &dyn SyntaxGroup, node: ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
+pub fn check_bool_comparison(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
     let lhs = node.lhs(db);
     let op = node.op(db);
     let rhs = node.rhs(db);
