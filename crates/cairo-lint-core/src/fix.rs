@@ -209,18 +209,10 @@ impl Fixer {
 
         let fixed_condition = match condition {
             Condition::Let(condition_let) => {
-
-                let need_parentheses = match &condition_let.patterns(db).elements(db)[0] {
-                    Pattern::Struct(_) => true,
-                    _ => false
-                };
-
                 format!(
-                    " {} == {}{}{} ", 
+                    " {} == {} ", 
                     condition_let.expr(db).as_syntax_node().get_text_without_trivia(db),
-                    if need_parentheses {"("} else {""},
                     condition_let.patterns(db).as_syntax_node().get_text_without_trivia(db),
-                    if need_parentheses {")"} else {""}
                 )
             },
             _ => panic!("Incorrect diagnostic")

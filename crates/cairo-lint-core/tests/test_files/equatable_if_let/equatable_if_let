@@ -1,34 +1,3 @@
-//! > simple equality simple pattern
-
-//! > cairo_code
-fn main() {
-    let x = Option::Some(1_felt252);
-    if let Option::Some(1_felt252) = x {
-        println!("do something");
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:4:5
-  |
-4 |       if let Option::Some(1_felt252) = x {
-  |  _____-
-5 | |         println!("do something");
-6 | |     }
-  | |_____-
-  |
-
-//! > fixed
-fn main() {
-    let x = Option::Some(1_felt252);
-    if x == Option::Some(1_felt252) {
-        println!("do something");
-    }
-}
-
-//! > ==========================================================================
-
 //! > simple equality cases ok
 
 //! > cairo_code
@@ -103,152 +72,6 @@ fn main() {
 
 //! > ==========================================================================
 
-//! > Struct Pattern Matching
-
-//! > cairo_code
-#[derive(Drop)]
-struct Template {
-    a: u8,
-    b: bool
-}
-
-fn main() {
-    let d = Template { a: 2, b: false };
-
-    if let Template { a: 2, b: false } = d {}
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-  --> lib.cairo:18:5
-   |
-18 |     if let Template { a: 2, b: false } = d {}
-   |     -----------------------------------------
-   |
-
-//! > fixed
-#[derive(Drop)]
-struct Template {
-    a: u8,
-    b: bool
-}
-
-fn main() {
-    let d = Template { a: 2, b: false };
-
-    if d == (Template { a: 2, b: false }) {}
-}
-
-//! > ==========================================================================
-
-//! > Enum Tuple Variant Pattern Matching with Tuple Struct
-
-//! > cairo_code
-struct Tuple {
-    first: u32,
-    second: u32
-}
-
-enum Enum {
-    TupleVariant(Tuple)
-}
-
-fn main() {
-    if let Enum::TupleVariant(32, 64) = e {}
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-  --> lib.cairo:20:5
-   |
-20 |     if let Enum::TupleVariant(32, 64) = e {}
-   |     ----------------------------------------
-   |
-error: Identifier not found.
-  --> lib.cairo:20:41
-   |
-20 |     if let Enum::TupleVariant(32, 64) = e {}
-   |                                         ^
-   |
-
-//! > fixed
-struct Tuple {
-    first: u32,
-    second: u32
-}
-
-enum Enum {
-    TupleVariant(Tuple)
-}
-
-fn main() {
-    if e == Enum::TupleVariant(32, 64 {}
-}
-
-//! > ==========================================================================
-
-//! > Enum Record Variant Pattern Matching
-
-//! > cairo_code
-#[derive(PartialEq, Drop)] 
-struct B {
-    a: i64,
-    b: u32
-}
-
-#[derive(PartialEq, Drop)]
-enum Enum {
-    RecordVariant: B
-}
-
-fn main() {
-    let a = 1;
-    let b = 1;
-    let e = Enum::RecordVariant(B {a, b});
-    if let Enum::RecordVariant(B {a, b}) = e {}
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-  --> lib.cairo:30:5
-   |
-30 |     if let Enum::RecordVariant(B {a, b}) = e {}
-   |     -------------------------------------------
-   |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:30:35
-   |
-30 |     if let Enum::RecordVariant(B {a, b}) = e {}
-   |                                   -
-   |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:30:38
-   |
-30 |     if let Enum::RecordVariant(B {a, b}) = e {}
-   |                                      -
-   |
-//! > fixed
-#[derive(PartialEq, Drop)] 
-struct B {
-    a: i64,
-    b: u32
-}
-
-#[derive(PartialEq, Drop)]
-enum Enum {
-    RecordVariant: B
-}
-
-fn main() {
-    let a = 1;
-    let b = 1;
-    let e = Enum::RecordVariant(B {a, b});
-    if e == Enum::RecordVariant(B {a, b}) {}
-}
-}
-
-//! > ==========================================================================
-
 //! > Enum Unit Variant Pattern Matching
 
 //! > cairo_code
@@ -279,3 +102,64 @@ fn main() {
 
     if e == Enum::UnitVariant {}
 }
+
+//! > ==========================================================================
+
+//! > Complex Equality Destructuring
+
+//! > cairo_code
+fn main() {
+    let x = Option::Some(1_felt252);
+    if let Option::Some(val) = x {
+        println!("{val}");
+    }
+}
+
+//! > diagnostics
+
+
+//! > fixed
+fn main() {
+    let x = Option::Some(1_felt252);
+    if let Option::Some(val) = x {
+        println!("{val}");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Matching With Simple Structs field
+
+//! > cairo_code
+fn main() {
+    let x = Option::Some(2);
+    if let Option::Some(2) = x {
+        do_thing();
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
+ --> lib.cairo:4:5
+  |
+4 |       if let Option::Some(2) = x {
+  |  _____-
+5 | |         do_thing();
+6 | |     }
+  | |_____-
+  |
+error: Function not found.
+ --> lib.cairo:6:9
+  |
+6 |         do_thing();
+  |         ^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x = Option::Some(2);
+    if x == Option::Some(2) {
+        do_thing();
+    }
+}
+

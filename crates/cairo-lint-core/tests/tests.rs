@@ -83,14 +83,12 @@ test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside o
 test_file!(
     equatable_if_let, 
     equatable_if_let, 
-    "simple equality simple pattern", 
     "simple equality cases ok", 
     "complex equality destructuring if let",
     "Simple Value Pattern Matching",
-    "Struct Pattern Matching", 
-    "Enum Tuple Variant Pattern Matching with Tuple Struct",
-    "Enum Record Variant Pattern Matching", 
-    "Enum Unit Variant Pattern Matching"
+    "Enum Unit Variant Pattern Matching", 
+    "Complex Equality Destructuring",
+    "Matching With Simple Structs field"
 );
 
 test_file!(
