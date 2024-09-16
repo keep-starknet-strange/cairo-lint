@@ -223,8 +223,6 @@ impl Fixer {
     /// # Returns
     ///
     /// A `String` with the refactored `if-else` structure.
-    ///
-    
     pub fn fix_collapsible_if_else(&self, db: &dyn SyntaxGroup, else_clause: &ElseClause) -> String {
         if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db) {
             if let Some(Statement::Expr(statement_expr)) = block_expr.statements(db).elements(db).first() {
