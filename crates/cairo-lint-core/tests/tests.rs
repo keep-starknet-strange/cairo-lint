@@ -94,7 +94,6 @@ test_file!(
     "redundant greater than or equal and less than or equal"
 );
 
-test_file!(loops, loop_match_pop_front, "simple loop match pop front");
 test_file!(
     loops,
     loop_match_pop_front,

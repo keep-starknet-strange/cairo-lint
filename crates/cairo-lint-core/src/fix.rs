@@ -229,7 +229,6 @@ impl Fixer {
                         })
                         .collect::<String>()
                 } else {
-                    println!("Not block {:?}", arm.expression(db));
                     arm.expression(db).as_syntax_node().get_text(db)
                 }
             }
