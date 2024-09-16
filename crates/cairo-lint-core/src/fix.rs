@@ -27,6 +27,37 @@ pub struct Fix {
     pub suggestion: String,
 }
 
+fn indent_snippet(input: &str, initial_indentation: usize) -> String {
+    let mut indented_code = String::new();
+    let mut indentation_level = initial_indentation;
+    let indent = "    "; // 4 spaces for each level of indentation
+    let mut lines = input.split('\n').peekable();
+    while let Some(line) = lines.next() {
+        let trim = line.trim();
+        println!("{trim}");
+
+        // Decrease indentation level if line starts with a closing brace
+        if trim.starts_with('}') && indentation_level > 0 {
+            indentation_level -= 1;
+        }
+
+        // Add current indentation level to the line
+        if !trim.is_empty() {
+            indented_code.push_str(&indent.repeat(indentation_level));
+        }
+        indented_code.push_str(trim);
+        if lines.peek().is_some() {
+            indented_code.push('\n');
+        }
+        // Increase indentation level if line ends with an opening brace
+        if trim.ends_with('{') {
+            indentation_level += 1;
+        }
+    }
+
+    indented_code
+}
+
 /// Attempts to fix a semantic diagnostic.
 ///
 /// This function is the entry point for fixing semantic diagnostics. It examines the
@@ -117,13 +148,15 @@ impl Fixer {
         let mut pattern_span = pattern.span(db);
         pattern_span.end = pattern.span_start_without_trivia(db);
         let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
-        let trivia = pattern.clone().get_text_of_span(db, pattern_span).trim().to_string();
-        let trivia = if trivia.is_empty() { trivia } else { format!("{indent}{trivia}\n") };
-        format!(
-            "{trivia}{indent}if let {} = {} {{ {} }}",
-            pattern.get_text_without_trivia(db),
-            match_expr.expr(db).as_syntax_node().get_text_without_trivia(db),
-            first_expr.expression(db).as_syntax_node().get_text_without_trivia(db),
+        let trivia = pattern.clone().get_text_of_span(db, pattern_span);
+        indent_snippet(
+            &format!(
+                "{trivia}{indent}if let {} = {} {{\n{}\n}}",
+                pattern.get_text_without_trivia(db),
+                match_expr.expr(db).as_syntax_node().get_text_without_trivia(db),
+                first_expr.expression(db).as_syntax_node().get_text_without_trivia(db),
+            ),
+            indent.len() / 4,
         )
     }
 
@@ -207,7 +240,7 @@ impl Fixer {
         let mut loop_span = node.span(db);
         loop_span.end = node.span_start_without_trivia(db);
         let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
-        let trivia = node.clone().get_text_of_span(db, loop_span).trim().to_string();
+        let trivia = node.clone().get_text_of_span(db, loop_span);
         let trivia = if trivia.is_empty() { trivia } else { format!("{indent}{trivia}\n") };
         for arm in arms {
             if let Pattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0]
@@ -215,26 +248,13 @@ impl Fixer {
             {
                 elt_name = var.pattern(db).as_syntax_node().get_text_without_trivia(db);
                 some_arm = if let Expr::Block(block_expr) = arm.expression(db) {
-                    block_expr
-                        .statements(db)
-                        .elements(db)
-                        .iter()
-                        .map(|statement| {
-                            statement
-                                .as_syntax_node()
-                                .get_text(db)
-                                .lines()
-                                .map(|line| line.strip_prefix("        ").unwrap_or(line).to_owned() + "\n")
-                                .collect::<String>()
-                        })
-                        .collect::<String>()
+                    block_expr.statements(db).as_syntax_node().get_text(db)
                 } else {
                     arm.expression(db).as_syntax_node().get_text(db)
                 }
             }
         }
-
-        format!("{trivia}{indent}for {elt_name} in {span_name} {{\n{some_arm}\n{indent}}};\n")
+        indent_snippet(&format!("{trivia}for {elt_name} in {span_name} {{\n{some_arm}\n}};\n"), indent.len() / 4)
     }
 
     /// Removes unnecessary double parentheses from a syntax node.
@@ -262,10 +282,9 @@ impl Fixer {
             expr = inner_expr.expr(db);
         }
 
-        format!(
-            "{}{}",
-            node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
-            expr.as_syntax_node().get_text_without_trivia(db),
+        indent_snippet(
+            &expr.as_syntax_node().get_text_without_trivia(db),
+            node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>().len() / 4,
         )
     }
 

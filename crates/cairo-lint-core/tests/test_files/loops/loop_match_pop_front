@@ -66,6 +66,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating ov
 //! > fixed
 fn main() {
     let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+
     for val in a {
         // This is a comment
         println!("{val}")
@@ -138,8 +139,9 @@ warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating ov
 //! > fixed
 fn main() {
     let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+
     for val in a {
-println!("{val}")
+        println!("{val}")
     };
 }
 
@@ -176,8 +178,9 @@ warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating ov
 use core::array::SpanImpl;
 fn main() {
     let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+
     for val in a {
-println!("{val}")
+        println!("{val}")
     };
 }
 
@@ -224,7 +227,8 @@ struct B {
 }
 fn main() {
     let mut a = A { b: B {c: array![1, 2, 3, 4, 5].span()} };
+
     for val in a.b.c {
-println!("{val}")
+        println!("{val}")
     };
 }
