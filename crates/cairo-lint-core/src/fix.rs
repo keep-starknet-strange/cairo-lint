@@ -146,10 +146,7 @@ impl Fixer {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-            CairoLintKind::LoopForWhile => {
-                // Añade este caso
-                self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
-            }
+            CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => "".to_owned(),
         };
 
@@ -236,9 +233,7 @@ impl Fixer {
                 let condition = if_expr.condition(db);
                 condition_text = condition.as_syntax_node().get_text_without_trivia(db).to_string();
 
-                if condition_text != "true" {
-                    condition_text = Self::invert_condition(&condition_text);
-                }
+                condition_text = Self::invert_condition(&condition_text);
 
                 for statement in loop_expr.body(db).statements(db).elements(db).iter().skip(1) {
                     loop_body.push_str(&format!(
@@ -276,10 +271,6 @@ impl Fixer {
             condition.replace(">=", "<")
         } else if condition.contains("<=") {
             condition.replace("<=", ">")
-        } else if condition.contains('>') {
-            condition.replace('>', "<=")
-        } else if condition.contains('<') {
-            condition.replace('<', ">=")
         } else {
             format!("!({})", condition)
         }

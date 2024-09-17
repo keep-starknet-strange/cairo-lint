@@ -59,7 +59,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 //! > fixed
 fn main() {
     let mut counter: u16 = 0;
-    while counter <= 5 {
+    while !(counter > 5) {
         counter += 1;
     }
 }
@@ -97,7 +97,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 fn main() {
     let mut a: u16 = 0;
     let mut b: u16 = 0;
-    while a <= 10 || b >= 5 {
+    while !(a > 10) || !(b < 5) {
         a += 1;
         b += 1;
     }
@@ -132,7 +132,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 //! > fixed
 fn main() {
     let mut value: u16 = 100;
-    while value >= 0 {
+    while !(value < 0) {
         value -= 10;
     }
 }

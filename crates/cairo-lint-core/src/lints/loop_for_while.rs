@@ -1,6 +1,6 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::ast::{Condition, Expr, ExprLoop, Statement};
+use cairo_lang_syntax::node::ast::{Expr, ExprLoop, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
@@ -12,20 +12,18 @@ pub fn check_loop_for_while(db: &dyn SyntaxGroup, loop_expr: &ExprLoop, diagnost
     let mut has_break = false;
 
     for statement in body.statements(db).elements(db) {
-        if let Statement::Expr(expr_statement) = statement {
-            if let Expr::If(if_expr) = expr_statement.expr(db) {
-                let condition = if_expr.condition(db);
-                match condition {
-                    Condition::Let(_) | Condition::Expr(_) => {
-                        let if_block = if_expr.if_block(db);
-                        for inner_statement in if_block.statements(db).elements(db) {
-                            if let Statement::Break(_) = inner_statement {
-                                has_break = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+        if let Statement::Expr(expr_statement) = statement
+            && let Expr::If(if_expr) = expr_statement.expr(db)
+        {
+            let if_block = if_expr.if_block(db);
+            if if_block
+                .statements(db)
+                .elements(db)
+                .iter()
+                .any(|inner_statement| matches!(inner_statement, Statement::Break(_)))
+            {
+                has_break = true;
+                break;
             }
         }
     }
