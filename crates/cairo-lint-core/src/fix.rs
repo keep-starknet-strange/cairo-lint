@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{ExprIf, Condition, Expr, ExprBinary, ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{Condition, Expr, ExprBinary, ExprIf, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
@@ -125,7 +125,6 @@ impl Fixer {
         )
     }
 
-
     /// Fixes a plugin diagnostic by delegating to the appropriate Fixer method.
     ///
     /// # Arguments
@@ -240,12 +239,12 @@ impl Fixer {
         let fixed_condition = match condition {
             Condition::Let(condition_let) => {
                 format!(
-                    " {} == {} ", 
+                    " {} == {} ",
                     condition_let.expr(db).as_syntax_node().get_text_without_trivia(db),
                     condition_let.patterns(db).as_syntax_node().get_text_without_trivia(db),
                 )
-            },
-            _ => panic!("Incorrect diagnostic")
+            }
+            _ => panic!("Incorrect diagnostic"),
         };
 
         let if_block = format!(
@@ -253,8 +252,8 @@ impl Fixer {
             expr.if_block(db).lbrace(db).as_syntax_node().get_text(db),
             expr.if_block(db).statements(db).as_syntax_node().get_text(db),
             expr.if_block(db).rbrace(db).as_syntax_node().get_text(db)
-            );
-       
+        );
+
         format!(
             "{}{}{}{}",
             node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
