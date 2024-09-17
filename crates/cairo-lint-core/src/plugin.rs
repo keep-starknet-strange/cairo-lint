@@ -27,7 +27,6 @@ pub enum CairoLintKind {
     DoubleComparison,
     DoubleParens,
     EquatableIfLet,
-    Unknown,
     BreakUnit,
     BoolComparison,
     CollapsibleIfElse,
@@ -140,7 +139,6 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
-                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     _ => continue,
                 }
             }
