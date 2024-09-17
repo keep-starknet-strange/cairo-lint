@@ -3,13 +3,13 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{ExprIf, ElseClause, Expr as AstExpr, ExprBinary};
+use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::{
-    bool_comparison, breaks, collapsible_if_else, double_comparison, double_parens, duplicate_underscore_args, loops,
-    single_match, equatable_if_let
+    bool_comparison, breaks, collapsible_if_else, double_comparison, double_parens, duplicate_underscore_args,
+    equatable_if_let, loops, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {

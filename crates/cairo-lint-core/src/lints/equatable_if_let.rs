@@ -1,4 +1,3 @@
-
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{Condition, ConditionLet, Expr, ExprIf, OptionPatternEnumInnerPattern, Pattern};
