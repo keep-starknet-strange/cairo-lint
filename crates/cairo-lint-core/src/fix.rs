@@ -34,8 +34,6 @@ fn indent_snippet(input: &str, initial_indentation: usize) -> String {
     let mut lines = input.split('\n').peekable();
     while let Some(line) = lines.next() {
         let trim = line.trim();
-        println!("{trim}");
-
         // Decrease indentation level if line starts with a closing brace
         if trim.starts_with('}') && indentation_level > 0 {
             indentation_level -= 1;

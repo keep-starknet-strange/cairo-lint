@@ -98,6 +98,7 @@ test_file!(
     loops,
     loop_match_pop_front,
     "simple loop match pop front",
+    "simple loop match pop front with let",
     "simple loop match pop front impl path",
     "simple loop match pop front multiple dots",
     "loop match pop front with comment in some",
