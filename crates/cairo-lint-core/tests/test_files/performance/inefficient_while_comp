@@ -1,0 +1,142 @@
+//! > while loop exit condition less than
+
+//! > cairo_code
+fn main() {
+    let mut a = 1_u32;
+    while a < 10 {
+        a += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+ --> lib.cairo:4:11
+  |
+4 |     while a < 10 {
+  |           ------
+  |
+
+//! > fixed
+fn main() {
+    let mut a = 1_u32;
+    while a < 10 {
+        a += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > while loop exit condition less than or equal
+
+//! > cairo_code
+fn main() {
+    let mut a = 1_u32;
+    while a <= 10 {
+        a += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+ --> lib.cairo:4:11
+  |
+4 |     while a <= 10 {
+  |           -------
+  |
+
+//! > fixed
+fn main() {
+    let mut a = 1_u32;
+    while a <= 10 {
+        a += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > while loop exit condition greater than
+
+//! > cairo_code
+fn main() {
+    let mut a = 10_u32;
+    while a > 0 {
+        a -= 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+ --> lib.cairo:4:11
+  |
+4 |     while a > 0 {
+  |           -----
+  |
+
+//! > fixed
+fn main() {
+    let mut a = 10_u32;
+    while a > 0 {
+        a -= 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > while loop exit condition greater than or equal
+
+//! > cairo_code
+fn main() {
+    let mut a = 10_i32;
+    while a >= 0 {
+        a -= 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+ --> lib.cairo:4:11
+  |
+4 |     while a >= 0 {
+  |           ------
+  |
+
+//! > fixed
+fn main() {
+    let mut a = 10_i32;
+    while a >= 0 {
+        a -= 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > while loop exit condition nested
+
+//! > cairo_code
+fn main() {
+    let mut a = 0_u32;
+    let mut b = 0_u32;
+    while a < 10 && b < 5 {
+        a += 1;
+        if a % 2 == 0 {
+            b += 1
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+ --> lib.cairo:6:11
+  |
+6 |     while a < 10 && b < 5 {
+  |           ------
+  |
+warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+ --> lib.cairo:6:21
+  |
+6 |     while a < 10 && b < 5 {
+  |                     -----
+  |
+
+//! > fixed
+Contains nested diagnostics can't fix it

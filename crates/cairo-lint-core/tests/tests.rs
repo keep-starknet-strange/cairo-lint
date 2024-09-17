@@ -261,3 +261,13 @@ test_file!(
     "test manual match result",
     "test manual match result with unwrapped error"
 );
+
+test_file!(
+    performance,
+    inefficient_while_comp,
+    "while loop exit condition less than",
+    "while loop exit condition less than or equal",
+    "while loop exit condition greater than",
+    "while loop exit condition greater than or equal",
+    "while loop exit condition nested"
+);

@@ -11,7 +11,7 @@ use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    eq_op, erasing_op, loop_for_while, loops, panic, single_match,
+    eq_op, erasing_op, loop_for_while, loops, panic, performance, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -206,6 +206,9 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
             }
             Expr::FunctionCall(expr_func) => panic::check_panic_usage(db, expr_func, diagnostics),
+            Expr::While(expr_while) => {
+                performance::check_inefficient_while_comp(db, expr_while, diagnostics, &function_body.arenas)
+            }
             _ => (),
         };
     }
