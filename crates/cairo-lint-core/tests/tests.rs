@@ -109,6 +109,17 @@ test_file!(
 test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
 
 test_file!(
+    equatable_if_let,
+    equatable_if_let,
+    "simple equality cases ok",
+    "complex equality destructuring if let",
+    "Simple Value Pattern Matching",
+    "Enum Unit Variant Pattern Matching",
+    "Complex Equality Destructuring",
+    "Matching With Simple Structs field"
+);
+
+test_file!(
     bool_comparison,
     bool_comparison,
     "Comparison with true",

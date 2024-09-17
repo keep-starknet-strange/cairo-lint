@@ -4,7 +4,8 @@ use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
-    BlockOrIf, ElseClause, Expr, ExprBinary, ExprLoop, ExprMatch, OptionPatternEnumInnerPattern, Pattern, Statement,
+    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionPatternEnumInnerPattern,
+    Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
@@ -184,6 +185,7 @@ impl Fixer {
             CairoLintKind::DoubleComparison => {
                 self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
+            CairoLintKind::EquatableIfLet => self.fix_equatable_if_let(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BoolComparison => self.fix_bool_comparison(
                 db,
@@ -198,7 +200,6 @@ impl Fixer {
             }
             _ => return None,
         };
-
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
 
@@ -349,5 +350,36 @@ impl Fixer {
         }
 
         node.get_text(db).to_string()
+    }
+
+    pub fn fix_equatable_if_let(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr = ExprIf::from_syntax_node(db, node.clone());
+        let condition = expr.condition(db);
+
+        let fixed_condition = match condition {
+            Condition::Let(condition_let) => {
+                format!(
+                    " {} == {} ",
+                    condition_let.expr(db).as_syntax_node().get_text_without_trivia(db),
+                    condition_let.patterns(db).as_syntax_node().get_text_without_trivia(db),
+                )
+            }
+            _ => panic!("Incorrect diagnostic"),
+        };
+
+        let if_block = format!(
+            "{}{}{}",
+            expr.if_block(db).lbrace(db).as_syntax_node().get_text(db),
+            expr.if_block(db).statements(db).as_syntax_node().get_text(db),
+            expr.if_block(db).rbrace(db).as_syntax_node().get_text(db)
+        );
+
+        format!(
+            "{}{}{}{}",
+            node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
+            expr.if_kw(db).as_syntax_node().get_text_without_trivia(db),
+            fixed_condition,
+            if_block,
+        )
     }
 }

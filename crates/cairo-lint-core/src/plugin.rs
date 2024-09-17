@@ -3,13 +3,13 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary};
+use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::{
-    bool_comparison, breaks, collapsible_if_else, double_comparison, double_parens, duplicate_underscore_args, loops,
-    single_match,
+    bool_comparison, breaks, collapsible_if_else, double_comparison, double_parens, duplicate_underscore_args,
+    equatable_if_let, loops, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -26,6 +26,7 @@ pub enum CairoLintKind {
     MatchForEquality,
     DoubleComparison,
     DoubleParens,
+    EquatableIfLet,
     BreakUnit,
     BoolComparison,
     CollapsibleIfElse,
@@ -43,6 +44,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         double_comparison::REDUNDANT_COMPARISON => CairoLintKind::DoubleComparison,
         double_comparison::CONTRADICTORY_COMPARISON => CairoLintKind::DoubleComparison,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
+        equatable_if_let::EQUATABLE_IF_LET => CairoLintKind::EquatableIfLet,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
@@ -119,6 +121,12 @@ impl AnalyzerPlugin for CairoLint {
                         &AstExpr::from_syntax_node(db.upcast(), node),
                         &mut diags,
                     ),
+                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
+                    SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
+                        db.upcast(),
+                        &ExprIf::from_syntax_node(db.upcast(), node),
+                        &mut diags,
+                    ),
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
@@ -131,7 +139,6 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
-                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     _ => continue,
                 }
             }
