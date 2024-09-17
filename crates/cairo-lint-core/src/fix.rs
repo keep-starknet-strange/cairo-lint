@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{Expr, ExprBinary, ExprMatch, Pattern, ElseClause, BlockOrIf, Statement};
+use cairo_lang_syntax::node::ast::{BlockOrIf, ElseClause, Expr, ExprBinary, ExprMatch, Pattern, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
@@ -158,7 +158,7 @@ impl Fixer {
             ),
             CairoLintKind::CollapsibleIfElse => self.fix_collapsible_if_else(
                 db,
-                &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
+                &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
             _ => return None,
         };
@@ -212,8 +212,8 @@ impl Fixer {
 
     /// Transforms nested `if-else` statements into a more compact `if-else if` format.
     ///
-    /// Simplifies an expression by converting nested `if-else` structures into a single `if-else if`
-    /// statement while preserving the original formatting and indentation.
+    /// Simplifies an expression by converting nested `if-else` structures into a single `if-else
+    /// if` statement while preserving the original formatting and indentation.
     ///
     /// # Arguments
     ///
@@ -233,7 +233,10 @@ impl Fixer {
                     let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
 
                     // Preserve original indentation
-                    let original_indent = else_clause.as_syntax_node().get_text(db).chars()
+                    let original_indent = else_clause
+                        .as_syntax_node()
+                        .get_text(db)
+                        .chars()
                         .take_while(|c| c.is_whitespace())
                         .collect::<String>();
 
@@ -245,7 +248,7 @@ impl Fixer {
         // If we can't transform it, return the original text
         else_clause.as_syntax_node().get_text(db)
     }
-    
+
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
 

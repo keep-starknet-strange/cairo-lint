@@ -1,6 +1,6 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::ast::{Expr, ElseClause, BlockOrIf, ExprBlock, Statement};
+use cairo_lang_syntax::node::ast::{BlockOrIf, ElseClause, Expr, ExprBlock, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
@@ -12,17 +12,16 @@ pub fn is_first_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bo
         .elements(db)
         .first()
         .and_then(|first_statement| {
-            if let Statement::Expr(statement_expr) = first_statement {
-                Some(statement_expr.expr(db))
-            } else {
-                None
-            }
+            if let Statement::Expr(statement_expr) = first_statement { Some(statement_expr.expr(db)) } else { None }
         })
         .map_or(false, |expr| matches!(expr, Expr::If(_)))
 }
 
-pub fn check_collapsible_if_else(db: &dyn SyntaxGroup, else_clause: &ElseClause, diagnostics: &mut Vec<PluginDiagnostic>) {
-
+pub fn check_collapsible_if_else(
+    db: &dyn SyntaxGroup,
+    else_clause: &ElseClause,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
     // Extract the expression from the ElseClause
     let else_expr = else_clause.else_block_or_if(db);
 
