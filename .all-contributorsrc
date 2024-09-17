@@ -79,6 +79,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "BernalHQ",
+      "name": "Bernal Hidalgo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17929742?v=4",
+      "profile": "https://github.com/BernalHQ",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
