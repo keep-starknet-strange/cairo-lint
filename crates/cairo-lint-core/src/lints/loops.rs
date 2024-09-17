@@ -40,7 +40,8 @@ pub fn check_loop_match_pop_front(
         });
         return;
     }
-    if let Statement::Expr(stmt_expr) = &arenas.statements[expr_block.statements[0]]
+    if !expr_block.statements.is_empty()
+        && let Statement::Expr(stmt_expr) = &arenas.statements[expr_block.statements[0]]
         && let Expr::Match(expr_match) = &arenas.exprs[stmt_expr.expr]
     {
         if !check_single_match(db, expr_match, arenas) {
