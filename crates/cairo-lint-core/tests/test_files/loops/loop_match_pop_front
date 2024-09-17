@@ -1,3 +1,114 @@
+//! > loop match pop front with comment in none
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+                // This is a comment
+                break;
+            },
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+                // This is a comment
+                break;
+            },
+        }
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop match pop front with comment in some
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => {
+                // This is a comment
+                println!("{val}")
+            },
+            Option::None => { 
+                break;
+            },
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+  --> lib.cairo:4:5
+   |
+ 4 |       loop {
+   |  _____-
+ 5 | |         match a.pop_front() {
+...  |
+13 | |         }
+14 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    for val in a {
+        // This is a comment
+        println!("{val}")
+
+    };
+}
+
+//! > ==========================================================================
+
+//! > loop match pop front with sutff in none
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+                println!("Finished looping");
+                break;
+            },
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+                println!("Finished looping");
+                break;
+            },
+        }
+    }
+}
+
+//! > ==========================================================================
+
 //! > simple loop match pop front
 
 //! > cairo_code
@@ -27,10 +138,93 @@ warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating ov
 //! > fixed
 fn main() {
     let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    for val in a {
+println!("{val}")
+    };
+}
+
+//! > ==========================================================================
+
+//! > simple loop match pop front impl path
+
+//! > cairo_code
+use core::array::SpanImpl;
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
     loop {
-        match a.pop_front() {
+        match SpanImpl::pop_front(ref a) {
             Option::Some(val) => println!("{val}"),
             Option::None => { break; },
         }
     }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+  --> lib.cairo:6:5
+   |
+ 6 |       loop {
+   |  _____-
+ 7 | |         match SpanImpl::pop_front(ref a) {
+...  |
+10 | |         }
+11 | |     }
+   | |_____-
+   |
+
+//! > fixed
+use core::array::SpanImpl;
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    for val in a {
+println!("{val}")
+    };
+}
+
+//! > ==========================================================================
+
+//! > simple loop match pop front multiple dots
+
+//! > cairo_code
+struct A {
+    b: B
+}
+struct B {
+    c: Span<u32>
+}
+fn main() {
+    let mut a = A { b: B {c: array![1, 2, 3, 4, 5].span()} };
+    loop {
+        match a.b.c.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { break; },
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+  --> lib.cairo:16:5
+   |
+16 |       loop {
+   |  _____-
+17 | |         match a.b.c.pop_front() {
+...  |
+20 | |         }
+21 | |     }
+   | |_____-
+   |
+
+//! > fixed
+struct A {
+    b: B
+}
+struct B {
+    c: Span<u32>
+}
+fn main() {
+    let mut a = A { b: B {c: array![1, 2, 3, 4, 5].span()} };
+    for val in a.b.c {
+println!("{val}")
+    };
 }

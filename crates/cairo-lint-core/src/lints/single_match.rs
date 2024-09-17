@@ -1,6 +1,5 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::corelib::unit_ty;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, ExprMatch, Pattern};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthesized, Statement};
@@ -53,7 +52,7 @@ pub fn check_single_match(
     let mut is_complete = false;
     let mut is_destructuring = false;
 
-    if arms.len() == 2 && match_expr.ty == unit_ty(db) {
+    if arms.len() == 2 && match_expr.ty.is_unit(db) {
         let first_arm = &arms[0];
         let second_arm = &arms[1];
         let mut enum_len = None;

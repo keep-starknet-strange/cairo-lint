@@ -94,7 +94,16 @@ test_file!(
     "redundant greater than or equal and less than or equal"
 );
 
-test_file!(loops, loop_match_pop_front, "simple loop match pop front");
+test_file!(
+    loops,
+    loop_match_pop_front,
+    "simple loop match pop front",
+    "simple loop match pop front impl path",
+    "simple loop match pop front multiple dots",
+    "loop match pop front with comment in some",
+    "loop match pop front with comment in none",
+    "loop match pop front with sutff in none"
+);
 
 test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
 
