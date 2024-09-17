@@ -18,10 +18,14 @@ pub fn check_loop_match_pop_front(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
+    if !loop_expr.ty.is_unit(db) {
+        return;
+    }
     let Expr::Block(expr_block) = &arenas.exprs[loop_expr.body] else {
         return;
     };
-    if let Some(tail) = &expr_block.tail
+    if expr_block.statements.is_empty()
+        && let Some(tail) = &expr_block.tail
         && let Expr::Match(expr_match) = &arenas.exprs[*tail]
         && let Expr::FunctionCall(func_call) = &arenas.exprs[expr_match.matched_expr]
         && func_call.function.name(db) == SPAN_MATCH_POP_FRONT
@@ -36,23 +40,22 @@ pub fn check_loop_match_pop_front(
         });
         return;
     }
-    for statement in &expr_block.statements {
-        if let Statement::Expr(stmt_expr) = &arenas.statements[*statement]
-            && let Expr::Match(expr_match) = &arenas.exprs[stmt_expr.expr]
-        {
-            if !check_single_match(db, expr_match, arenas) {
-                continue;
-            }
-            let Expr::FunctionCall(func_call) = &arenas.exprs[expr_match.matched_expr] else {
-                continue;
-            };
-            if func_call.function.name(db) == SPAN_MATCH_POP_FRONT {
-                diagnostics.push(PluginDiagnostic {
-                    stable_ptr: loop_expr.stable_ptr.into(),
-                    message: LOOP_MATCH_POP_FRONT.to_owned(),
-                    severity: Severity::Warning,
-                })
-            }
+    if !expr_block.statements.is_empty()
+        && let Statement::Expr(stmt_expr) = &arenas.statements[expr_block.statements[0]]
+        && let Expr::Match(expr_match) = &arenas.exprs[stmt_expr.expr]
+    {
+        if !check_single_match(db, expr_match, arenas) {
+            return;
+        }
+        let Expr::FunctionCall(func_call) = &arenas.exprs[expr_match.matched_expr] else {
+            return;
+        };
+        if func_call.function.name(db) == SPAN_MATCH_POP_FRONT {
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: loop_expr.stable_ptr.into(),
+                message: LOOP_MATCH_POP_FRONT.to_owned(),
+                severity: Severity::Warning,
+            })
         }
     }
 }
@@ -132,7 +135,10 @@ fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: 
     {
         let break_node = break_stmt.stable_ptr.lookup(db.upcast()).as_syntax_node();
         // Checks that the trimmed text == the text without trivia which would mean that there is no comment
-        if break_node.get_text(db.upcast()).trim() == break_node.get_text_without_trivia(db.upcast()) {
+        let break_text = break_node.get_text(db.upcast()).trim().to_string();
+        if break_text == break_node.get_text_without_trivia(db.upcast())
+            && (break_text == "break;" || break_text == "break ();")
+        {
             return true;
         }
     }
