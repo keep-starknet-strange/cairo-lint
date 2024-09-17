@@ -3,12 +3,13 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
+use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+    bool_comparison, breaks, collapsible_if_else, double_comparison, double_parens, duplicate_underscore_args, loops,
+    single_match,
 };
 use crate::plugin::duplicate_underscore_args::check_duplicate_underscore_args;
 
@@ -29,6 +30,7 @@ pub enum CairoLintKind {
     Unknown,
     BreakUnit,
     BoolComparison,
+    CollapsibleIfElse,
     DuplicateUnderscoreArgs,
 }
 
@@ -42,6 +44,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         double_comparison::CONTRADICTORY_COMPARISON => CairoLintKind::DoubleComparison,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
+        collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         _ => CairoLintKind::Unknown,
     }
@@ -100,6 +103,13 @@ impl AnalyzerPlugin for CairoLint {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
+                    }
+                    SyntaxKind::ElseClause => {
+                        collapsible_if_else::check_collapsible_if_else(
+                            db.upcast(),
+                            &ElseClause::from_syntax_node(db.upcast(), node),
+                            &mut diags,
+                        );
                     }
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     _ => continue,
