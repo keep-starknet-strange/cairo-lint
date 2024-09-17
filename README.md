@@ -34,6 +34,9 @@ problems.
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/stevencartavia"><img src="https://avatars.githubusercontent.com/u/112043913?v=4?s=100" width="100px;" alt="Steven"/><br /><sub><b>Steven</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=stevencartavia" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=stevencartavia" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lindsaymoralesb"><img src="https://avatars.githubusercontent.com/u/87027508?v=4?s=100" width="100px;" alt="Lindsay Morales"/><br /><sub><b>Lindsay Morales</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=lindsaymoralesb" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=lindsaymoralesb" title="Tests">⚠️</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/BernalHQ"><img src="https://avatars.githubusercontent.com/u/17929742?v=4?s=100" width="100px;" alt="Bernal Hidalgo"/><br /><sub><b>Bernal Hidalgo</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=BernalHQ" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=BernalHQ" title="Tests">⚠️</a></td>
+    </tr>
   </tbody>
 </table>
 
