@@ -3,7 +3,9 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::ast::{Condition, Expr, ExprBinary, ExprIf, ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{
+    Condition, BlockOrIf, ElseClause, Expr, ExprBinary, ExprLoop, ExprIf, ExprMatch, OptionPatternEnumInnerPattern, Pattern, Statement,
+};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
@@ -23,6 +25,35 @@ pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
 pub struct Fix {
     pub span: TextSpan,
     pub suggestion: String,
+}
+
+fn indent_snippet(input: &str, initial_indentation: usize) -> String {
+    let mut indented_code = String::new();
+    let mut indentation_level = initial_indentation;
+    let indent = "    "; // 4 spaces for each level of indentation
+    let mut lines = input.split('\n').peekable();
+    while let Some(line) = lines.next() {
+        let trim = line.trim();
+        // Decrease indentation level if line starts with a closing brace
+        if trim.starts_with('}') && indentation_level > 0 {
+            indentation_level -= 1;
+        }
+
+        // Add current indentation level to the line
+        if !trim.is_empty() {
+            indented_code.push_str(&indent.repeat(indentation_level));
+        }
+        indented_code.push_str(trim);
+        if lines.peek().is_some() {
+            indented_code.push('\n');
+        }
+        // Increase indentation level if line ends with an opening brace
+        if trim.ends_with('{') {
+            indentation_level += 1;
+        }
+    }
+
+    indented_code
 }
 
 /// Attempts to fix a semantic diagnostic.
@@ -115,13 +146,15 @@ impl Fixer {
         let mut pattern_span = pattern.span(db);
         pattern_span.end = pattern.span_start_without_trivia(db);
         let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
-        let trivia = pattern.clone().get_text_of_span(db, pattern_span).trim().to_string();
-        let trivia = if trivia.is_empty() { trivia } else { format!("{indent}{trivia}\n") };
-        format!(
-            "{trivia}{indent}if let {} = {} {{ {} }}",
-            pattern.get_text_without_trivia(db),
-            match_expr.expr(db).as_syntax_node().get_text_without_trivia(db),
-            first_expr.expression(db).as_syntax_node().get_text_without_trivia(db),
+        let trivia = pattern.clone().get_text_of_span(db, pattern_span);
+        indent_snippet(
+            &format!(
+                "{trivia}{indent}if let {} = {} {{\n{}\n}}",
+                pattern.get_text_without_trivia(db),
+                match_expr.expr(db).as_syntax_node().get_text_without_trivia(db),
+                first_expr.expression(db).as_syntax_node().get_text_without_trivia(db),
+            ),
+            indent.len() / 4,
         )
     }
 
@@ -157,6 +190,13 @@ impl Fixer {
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
+            CairoLintKind::CollapsibleIfElse => self.fix_collapsible_if_else(
+                db,
+                &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            ),
+            CairoLintKind::LoopMatchPopFront => {
+                self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -172,6 +212,47 @@ impl Fixer {
 
         let result = generate_fixed_text_for_comparison(db, lhs.as_str(), rhs.as_str(), node.clone());
         result
+    }
+    pub fn fix_loop_match_pop_front(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_loop = ExprLoop::from_syntax_node(db, node.clone());
+        let body = expr_loop.body(db);
+        let Statement::Expr(expr) = &body.statements(db).elements(db)[0] else {
+            panic!("Wrong statement type. This is probably a bug in the lint detection. Please report it")
+        };
+        let Expr::Match(expr_match) = expr.expr(db) else {
+            panic!("Wrong expression type. This is probably a bug in the lint detection. Please report it")
+        };
+        let val = expr_match.expr(db);
+        let span_name = match val {
+            Expr::FunctionCall(func_call) => func_call.arguments(db).arguments(db).elements(db)[0]
+                .arg_clause(db)
+                .as_syntax_node()
+                .get_text_without_trivia(db),
+            Expr::Binary(dot_call) => dot_call.lhs(db).as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Wrong expressiin type. This is probably a bug in the lint detection. Please report it"),
+        };
+        let mut elt_name = "".to_owned();
+        let mut some_arm = "".to_owned();
+        let arms = expr_match.arms(db).elements(db);
+
+        let mut loop_span = node.span(db);
+        loop_span.end = node.span_start_without_trivia(db);
+        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+        let trivia = node.clone().get_text_of_span(db, loop_span);
+        let trivia = if trivia.is_empty() { trivia } else { format!("{indent}{trivia}\n") };
+        for arm in arms {
+            if let Pattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0]
+                && let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(var) = enum_pattern.pattern(db)
+            {
+                elt_name = var.pattern(db).as_syntax_node().get_text_without_trivia(db);
+                some_arm = if let Expr::Block(block_expr) = arm.expression(db) {
+                    block_expr.statements(db).as_syntax_node().get_text(db)
+                } else {
+                    arm.expression(db).as_syntax_node().get_text(db)
+                }
+            }
+        }
+        indent_snippet(&format!("{trivia}for {elt_name} in {span_name} {{\n{some_arm}\n}};\n"), indent.len() / 4)
     }
 
     /// Removes unnecessary double parentheses from a syntax node.
@@ -199,11 +280,49 @@ impl Fixer {
             expr = inner_expr.expr(db);
         }
 
-        format!(
-            "{}{}",
-            node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
-            expr.as_syntax_node().get_text_without_trivia(db),
+        indent_snippet(
+            &expr.as_syntax_node().get_text_without_trivia(db),
+            node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>().len() / 4,
         )
+    }
+
+    /// Transforms nested `if-else` statements into a more compact `if-else if` format.
+    ///
+    /// Simplifies an expression by converting nested `if-else` structures into a single `if-else
+    /// if` statement while preserving the original formatting and indentation.
+    ///
+    /// # Arguments
+    ///
+    /// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+    /// * `node` - The `SyntaxNode` containing the expression.
+    ///
+    /// # Returns
+    ///
+    /// A `String` with the refactored `if-else` structure.
+    pub fn fix_collapsible_if_else(&self, db: &dyn SyntaxGroup, else_clause: &ElseClause) -> String {
+        if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db) {
+            if let Some(Statement::Expr(statement_expr)) = block_expr.statements(db).elements(db).first() {
+                if let Expr::If(if_expr) = statement_expr.expr(db) {
+                    // Construct the new "else if" expression
+                    let condition = if_expr.condition(db).as_syntax_node().get_text(db);
+                    let if_body = if_expr.if_block(db).as_syntax_node().get_text(db);
+                    let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
+
+                    // Preserve original indentation
+                    let original_indent = else_clause
+                        .as_syntax_node()
+                        .get_text(db)
+                        .chars()
+                        .take_while(|c| c.is_whitespace())
+                        .collect::<String>();
+
+                    return format!("{}else if {} {} {}", original_indent, condition, if_body, else_body);
+                }
+            }
+        }
+
+        // If we can't transform it, return the original text
+        else_clause.as_syntax_node().get_text(db)
     }
 
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {

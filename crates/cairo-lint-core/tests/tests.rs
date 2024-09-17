@@ -94,7 +94,17 @@ test_file!(
     "redundant greater than or equal and less than or equal"
 );
 
-test_file!(loops, loop_match_pop_front, "simple loop match pop front");
+test_file!(
+    loops,
+    loop_match_pop_front,
+    "simple loop match pop front",
+    "simple loop match pop front with let",
+    "simple loop match pop front impl path",
+    "simple loop match pop front multiple dots",
+    "loop match pop front with comment in some",
+    "loop match pop front with comment in none",
+    "loop match pop front with sutff in none"
+);
 
 test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
 
@@ -131,4 +141,14 @@ test_file!(
     "duplicate underscore longer args2",
     "duplicate underscore longer args3",
     "duplicate underscore longer args4"
+);
+
+test_file!(
+    collapsible_if_else,
+    collapsible_if_else,
+    "Simple else if with new line",
+    "Simple else if without new line",
+    "Multiple else if",
+    "Else if with multiple statements",
+    "Else if inside loop"
 );
