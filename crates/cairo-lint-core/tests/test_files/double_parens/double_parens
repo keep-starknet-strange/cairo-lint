@@ -24,21 +24,15 @@ fn main() {
 
 //! > cairo_code
 fn main() {
-    let x = ((10 * 2));
+    let _x = ((10 * 2));
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
- --> lib.cairo:2:13
+ --> lib.cairo:2:14
   |
-2 |     let x = ((10 * 2));
-  |             ----------
-  |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:2:9
-  |
-2 |     let x = ((10 * 2));
-  |         -
+2 |     let _x = ((10 * 2));
+  |              ----------
   |
 
 //! > fixed
