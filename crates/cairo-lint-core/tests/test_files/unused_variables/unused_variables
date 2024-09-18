@@ -30,6 +30,7 @@ fn main() {
         let c = 1_u32;
     }
     if true {
+      let _avoid_collapsible = 1_u32;
         if false {
             let d = 3_u32;
         } else {
@@ -97,6 +98,7 @@ fn main() {
         let c = 1_u32;
     }
     if true {
+      let _avoid_collapsible = 1_u32;
         if false {
             let d = 3_u32;
         } else {
