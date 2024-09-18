@@ -74,7 +74,6 @@ fn indent_snippet(input: &str, initial_indentation: usize) -> String {
 /// is available for the given diagnostic.
 pub fn fix_semantic_diagnostic(db: &RootDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
     match diag.kind {
-        SemanticDiagnosticKind::UnusedVariable => Fixer.fix_unused_variable(db, diag),
         SemanticDiagnosticKind::PluginDiagnostic(ref plugin_diag) => Fixer.fix_plugin_diagnostic(db, diag, plugin_diag),
         SemanticDiagnosticKind::UnusedImport(_) => {
             debug!("Unused imports should be handled in preemptively");
@@ -90,23 +89,6 @@ pub fn fix_semantic_diagnostic(db: &RootDatabase, diag: &SemanticDiagnostic) -> 
 #[derive(Default)]
 pub struct Fixer;
 impl Fixer {
-    /// Fixes an unused variable by prefixing it with an underscore.
-    ///
-    /// # Arguments
-    ///
-    /// * `db` - A reference to the RootDatabase
-    /// * `diag` - A reference to the SemanticDiagnostic for the unused variable
-    ///
-    /// # Returns
-    ///
-    /// An `Option<(SyntaxNode, String)>` containing the node to be replaced and the
-    /// suggested replacement (the variable name prefixed with an underscore).
-    pub fn fix_unused_variable(&self, db: &RootDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
-        let node = diag.stable_location.syntax_node(db.upcast());
-        let suggestion = format!("_{}", node.get_text(db.upcast()));
-        Some((node, suggestion))
-    }
-
     /// Fixes a destructuring match by converting it to an if-let expression.
     ///
     /// This method handles matches with two arms, where one arm is a wildcard (_)

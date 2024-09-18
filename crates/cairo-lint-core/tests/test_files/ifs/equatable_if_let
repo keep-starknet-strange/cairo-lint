@@ -1,10 +1,10 @@
-//! > simple equality cases ok
+//! > Complex Equality Destructuring
 
 //! > cairo_code
 fn main() {
     let x = Option::Some(1_felt252);
-    if x == Option::Some(1_felt252) {
-        println!("Value");
+    if let Option::Some(val) = x {
+        println!("{val}");
     }
 }
 
@@ -13,61 +13,9 @@ fn main() {
 //! > fixed
 fn main() {
     let x = Option::Some(1_felt252);
-    if x == Option::Some(1_felt252) {
-        println!("Value");
+    if let Option::Some(val) = x {
+        println!("{val}");
     }
-}
-
-//! > ==========================================================================
-
-//! > complex equality destructuring if let
-
-//! > cairo_code
-fn main() {
-    let x = Option::Some(1_felt252);
-    let y = Option::Some(1_felt252);
-    if let (Option::Some(a), Option::Some(b)) = (x, y) {
-        if a == b {
-            println!("{a}");
-        }
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let x = Option::Some(1_felt252);
-    let y = Option::Some(1_felt252);
-    if let (Option::Some(a), Option::Some(b)) = (x, y) {
-        if a == b {
-            println!("{a}");
-        }
-    }
-}
-
-//! > ==========================================================================
-
-//! > Simple Value Pattern Matching
-
-//! > cairo_code
-fn main() {
-    let a = 2;
-    if let 2 = a {}
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:4:5
-  |
-4 |     if let 2 = a {}
-  |     ---------------
-  |
-
-//! > fixed
-fn main() {
-    let a = 2;
-    if a == 2 {}
 }
 
 //! > ==========================================================================
@@ -92,6 +40,7 @@ warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider 
 14 |     if let Enum::UnitVariant = e {}
    |     -------------------------------
    |
+
 //! > fixed
 enum Enum {
     UnitVariant
@@ -101,29 +50,6 @@ fn main() {
     let e = Enum::UnitVariant;
 
     if e == Enum::UnitVariant {}
-}
-
-//! > ==========================================================================
-
-//! > Complex Equality Destructuring
-
-//! > cairo_code
-fn main() {
-    let x = Option::Some(1_felt252);
-    if let Option::Some(val) = x {
-        println!("{val}");
-    }
-}
-
-//! > diagnostics
-
-
-//! > fixed
-fn main() {
-    let x = Option::Some(1_felt252);
-    if let Option::Some(val) = x {
-        println!("{val}");
-    }
 }
 
 //! > ==========================================================================
@@ -163,3 +89,76 @@ fn main() {
     }
 }
 
+//! > ==========================================================================
+
+//! > Simple Value Pattern Matching
+
+//! > cairo_code
+fn main() {
+    let a = 2;
+    if let 2 = a {}
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
+ --> lib.cairo:4:5
+  |
+4 |     if let 2 = a {}
+  |     ---------------
+  |
+
+//! > fixed
+fn main() {
+    let a = 2;
+    if a == 2 {}
+}
+
+//! > ==========================================================================
+
+//! > complex equality destructuring if let
+
+//! > cairo_code
+fn main() {
+    let x = Option::Some(1_felt252);
+    let y = Option::Some(1_felt252);
+    if let (Option::Some(a), Option::Some(b)) = (x, y) {
+        if a == b {
+            println!("{a}");
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = Option::Some(1_felt252);
+    let y = Option::Some(1_felt252);
+    if let (Option::Some(a), Option::Some(b)) = (x, y) {
+        if a == b {
+            println!("{a}");
+        }
+    }
+}
+
+//! > ==========================================================================
+
+//! > simple equality cases ok
+
+//! > cairo_code
+fn main() {
+    let x = Option::Some(1_felt252);
+    if x == Option::Some(1_felt252) {
+        println!("Value");
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = Option::Some(1_felt252);
+    if x == Option::Some(1_felt252) {
+        println!("Value");
+    }
+}
