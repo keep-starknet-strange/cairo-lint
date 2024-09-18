@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use annotate_snippets::Renderer;
 use anyhow::{anyhow, Result};
 use cairo_lang_compiler::db::RootDatabase;
-use cairo_lang_compiler::project::{update_crate_root, update_crate_roots_from_project_config};
+use cairo_lang_compiler::project::update_crate_roots_from_project_config;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_diagnostics::{DiagnosticEntry, Maybe};
 use cairo_lang_filesystem::db::{init_dev_corelib, FilesGroup, CORELIB_CRATE_NAME};
@@ -128,13 +128,10 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 package_path,
                 edition,
                 &package.version,
+                &metadata.packages,
             )?;
             update_crate_roots_from_project_config(&mut db, &config);
-            if let Some(corelib) = &config.corelib {
-                update_crate_root(&mut db, &config, CORELIB_CRATE_NAME.into(), corelib.clone());
-            }
-            let crate_id =
-                Upcast::<dyn FilesGroup>::upcast(&db).intern_crate(CrateLongId::Real(SmolStr::new(&package.name)));
+            let crate_id = db.intern_crate(CrateLongId::Real(SmolStr::new(&compilation_unit.target.name)));
             // Get all the diagnostics
             let mut diags = Vec::new();
 
