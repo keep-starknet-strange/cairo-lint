@@ -47,7 +47,8 @@ test_file!(
     "destructuring comprehensive match",
     "reversed destructuring comprehensive match",
     "simple destructuring match with unit and comment in scope",
-    "simple destructuring match with comment in scope"
+    "simple destructuring match with comment in scope",
+    "comprehensive match"
 );
 
 test_file!(

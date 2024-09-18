@@ -61,7 +61,7 @@ pub fn check_single_match(
                 Pattern::Otherwise(_) => return,
                 Pattern::EnumVariant(enum_pat) => {
                     enum_len = Some(db.enum_variants(enum_pat.variant.concrete_enum_id.enum_id(db)).unwrap().len());
-                    is_destructuring = true;
+                    is_destructuring = enum_pat.inner_pattern.is_some();
                 }
                 Pattern::Struct(_) => {
                     is_destructuring = true;

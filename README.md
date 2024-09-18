@@ -18,6 +18,26 @@ A collection of lints to catch common mistakes and improve your [Cairo](https://
 cairo-lint can either be used as a library or as a standalone binary. It can either just detect or fix the detected
 problems.
 
+To use it with scarb simply install it like so:
+
+```sh
+cargo install scarb-cairo-lint --git https://github.com/keep-starknet-strange/cairo-lint
+```
+
+and then either run:
+
+```sh
+# Checks for bad patterns
+scarb cairo-lint
+```
+
+```sh
+# Checks and fixes what it can
+scarb cairo-lint --fix
+```
+
+Note: You can also include test files with the `--test` flag
+
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->

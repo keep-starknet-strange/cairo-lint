@@ -185,10 +185,13 @@ impl Fixer {
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
 
+    /// Rewrites `break ();` as `break;` given the node text contains it.
     pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         node.get_text(db).replace("break ();", "break;").to_string()
     }
 
+    /// Rewrites a bool comparison to a simple bool. Ex: `some_bool == false` would be rewritten to
+    /// `!some_bool`
     pub fn fix_bool_comparison(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
         let lhs = node.lhs(db).as_syntax_node().get_text(db);
         let rhs = node.rhs(db).as_syntax_node().get_text(db);
@@ -196,6 +199,23 @@ impl Fixer {
         let result = generate_fixed_text_for_comparison(db, lhs.as_str(), rhs.as_str(), node.clone());
         result
     }
+
+    /// Rewrites this:
+    ///
+    /// ```ignore
+    /// loop {
+    ///     match some_span.pop_front() {
+    ///         Option::Some(val) => do_smth(val),
+    ///         Option::None => break;
+    ///     }
+    /// }
+    /// ```
+    /// to this:
+    /// ```ignore
+    /// for val in span {
+    ///     do_smth(val);
+    /// };
+    /// ```
     pub fn fix_loop_match_pop_front(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr_loop = ExprLoop::from_syntax_node(db, node.clone());
         let body = expr_loop.body(db);
@@ -308,6 +328,7 @@ impl Fixer {
         else_clause.as_syntax_node().get_text(db)
     }
 
+    /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
 
@@ -334,6 +355,7 @@ impl Fixer {
         node.get_text(db).to_string()
     }
 
+    /// Rewrites a useless `if let` to a simple `if`
     pub fn fix_equatable_if_let(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = ExprIf::from_syntax_node(db, node.clone());
         let condition = expr.condition(db);
@@ -341,7 +363,7 @@ impl Fixer {
         let fixed_condition = match condition {
             Condition::Let(condition_let) => {
                 format!(
-                    " {} == {} ",
+                    "{} == {} ",
                     condition_let.expr(db).as_syntax_node().get_text_without_trivia(db),
                     condition_let.patterns(db).as_syntax_node().get_text_without_trivia(db),
                 )
@@ -349,19 +371,11 @@ impl Fixer {
             _ => panic!("Incorrect diagnostic"),
         };
 
-        let if_block = format!(
-            "{}{}{}",
-            expr.if_block(db).lbrace(db).as_syntax_node().get_text(db),
-            expr.if_block(db).statements(db).as_syntax_node().get_text(db),
-            expr.if_block(db).rbrace(db).as_syntax_node().get_text(db)
-        );
-
         format!(
-            "{}{}{}{}",
-            node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>(),
-            expr.if_kw(db).as_syntax_node().get_text_without_trivia(db),
+            "{}{}{}",
+            expr.if_kw(db).as_syntax_node().get_text(db),
             fixed_condition,
-            if_block,
+            expr.if_block(db).as_syntax_node().get_text(db),
         )
     }
 }
