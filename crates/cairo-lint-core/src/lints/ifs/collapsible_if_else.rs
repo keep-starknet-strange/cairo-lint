@@ -6,15 +6,18 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
 
-pub fn is_first_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bool {
-    block_expr
-        .statements(db)
-        .elements(db)
-        .first()
-        .and_then(|first_statement| {
-            if let Statement::Expr(statement_expr) = first_statement { Some(statement_expr.expr(db)) } else { None }
-        })
-        .map_or(false, |expr| matches!(expr, Expr::If(_)))
+pub fn is_only_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bool {
+    let statements = block_expr.statements(db).elements(db);
+    if statements.len() != 1 {
+        return false;
+    }
+    if let Statement::Expr(statement_expr) = &statements[0]
+        && matches!(statement_expr.expr(db), Expr::If(_))
+    {
+        true
+    } else {
+        false
+    }
 }
 
 pub fn check_collapsible_if_else(
@@ -27,7 +30,7 @@ pub fn check_collapsible_if_else(
 
     // Check if the expression is a block (not else if)
     if let BlockOrIf::Block(block_expr) = else_expr {
-        let is_if = is_first_statement_if(db, &block_expr);
+        let is_if = is_only_statement_if(db, &block_expr);
 
         if is_if {
             diagnostics.push(PluginDiagnostic {

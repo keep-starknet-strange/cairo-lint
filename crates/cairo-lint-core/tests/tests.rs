@@ -109,7 +109,7 @@ test_file!(
 test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
 
 test_file!(
-    equatable_if_let,
+    ifs,
     equatable_if_let,
     "simple equality cases ok",
     "complex equality destructuring if let",
@@ -144,7 +144,7 @@ test_file!(
 );
 
 test_file!(
-    collapsible_if_else,
+    ifs,
     collapsible_if_else,
     "Simple else if with new line",
     "Simple else if without new line",
