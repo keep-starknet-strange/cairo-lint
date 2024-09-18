@@ -119,7 +119,7 @@ impl AnalyzerPlugin for CairoLint {
                 match node.kind(syntax_db) {
                     SyntaxKind::ExprParenthesized => double_parens::check_double_parens(
                         db.upcast(),
-                        &AstExpr::from_syntax_node(db.upcast(), node),
+                        &AstExpr::from_syntax_node(db.upcast(), node.clone()),
                         &mut diags,
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),

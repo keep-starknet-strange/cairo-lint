@@ -20,6 +20,65 @@ fn main() {
 
 //! > ==========================================================================
 
+<<<<<<< HEAD:crates/cairo-lint-core/tests/test_files/ifs/equatable_if_let
+=======
+//! > complex equality destructuring if let
+
+//! > cairo_code
+fn main() {
+    let x = Option::Some(1_felt252);
+    let y = Option::Some(1_felt252);
+    if let (Option::Some(a), Option::Some(b)) = (x, y) {
+        let _avoid_collapsible = 1_u32; 
+        if a == b {
+            println!("{a}");
+        }
+    }
+}
+
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = Option::Some(1_felt252);
+    let y = Option::Some(1_felt252);
+    if let (Option::Some(a), Option::Some(b)) = (x, y) {
+        let _avoid_collapsible = 1_u32; 
+        if a == b {
+            println!("{a}");
+        }
+    }
+}
+
+
+//! > ==========================================================================
+
+//! > Simple Value Pattern Matching
+
+//! > cairo_code
+fn main() {
+    let a = 2;
+    if let 2 = a {}
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
+ --> lib.cairo:4:5
+  |
+4 |     if let 2 = a {}
+  |     ---------------
+  |
+
+//! > fixed
+fn main() {
+    let a = 2;
+    if a == 2 {}
+}
+
+//! > ==========================================================================
+
+>>>>>>> d9cde79 (feat: fix changes):crates/cairo-lint-core/tests/test_files/equatable_if_let/equatable_if_let
 //! > Enum Unit Variant Pattern Matching
 
 //! > cairo_code

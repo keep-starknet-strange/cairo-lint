@@ -69,6 +69,7 @@ warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which
    | |___-
    |
 
+//! > fixed
 fn main() {
   let x = 3_u32;
   let y = 4_u32;
@@ -121,53 +122,7 @@ fn main() {
 
 //! > ==========================================================================
 
-//! > collapsible if with simple numerical conditions
-
-//! > cairo_code
-fn main() {
-  let a = 10;
-  let b = 20;
-  let c = 5;
-
-  if a > b {
-      if c < b {
-          println!("Simple numerical conditions");
-      }
-  }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:10:3
-   |
-10 |     if a > b {
-   |  ___-
-11 | |       if c < b {
-12 | |           println!("Simple numerical conditions");
-13 | |       }
-14 | |   }
-   | |___-
-   |
-error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
-  --> lib.cairo:12:10
-   |
-12 |       if c < b {
-   |          ^^^^^
-   |
-
-//! > fixed
-fn main() {
-  let a = 10;
-  let b = 20;
-  let c = 5;
-
-  a > b && c < b{
-          println!("Simple numerical conditions");
-      }}
-
-//! > ==========================================================================
-
-//! > collapsible_if_with_function_calls
+//! > collapsible if with function calls
 
 //! > cairo_code
 fn is_valid(_a: bool) -> bool { true } 
@@ -222,16 +177,22 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
---> lib.cairo:8:5
- |
-8  |     if a > b {
- |  ___-
-9  | |       if c < b {
-10 | |           println!("Simple numerical conditions");
-11 | |       }
-12 | |   }
- | |___-
- |
+  --> lib.cairo:10:3
+   |
+10 |     if a > b {
+   |  ___-
+11 | |       if c < b {
+12 | |           println!("Simple numerical conditions");
+13 | |       }
+14 | |   }
+   | |___-
+   |
+error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
+  --> lib.cairo:12:10
+   |
+12 |       if c < b {
+   |          ^^^^^
+   |
 
 //! > fixed
 fn main() {
@@ -239,7 +200,6 @@ fn main() {
   let b = 20;
   let c = 5;
 
-  if (a > b) && (c < b) { 
-      println!("Simple numerical conditions");
-  }
-}
+  a > b && c < b{
+          println!("Simple numerical conditions");
+      }}
