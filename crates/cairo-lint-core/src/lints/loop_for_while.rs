@@ -9,7 +9,6 @@ pub const LOOP_FOR_WHILE: &str = "you seem to be trying to use `loop`. Consider 
 
 pub fn check_loop_for_while(db: &dyn SyntaxGroup, loop_expr: &ExprLoop, diagnostics: &mut Vec<PluginDiagnostic>) {
     let body = loop_expr.body(db);
-    let mut has_break = false;
 
     for statement in body.statements(db).elements(db) {
         if let Statement::Expr(expr_statement) = statement
@@ -17,35 +16,19 @@ pub fn check_loop_for_while(db: &dyn SyntaxGroup, loop_expr: &ExprLoop, diagnost
         {
             let if_block = if_expr.if_block(db);
 
-            let has_unnecessary_parens_break = if_block.statements(db).elements(db).iter().any(|inner_statement| {
-                if let Statement::Break(_) = inner_statement {
-                    inner_statement.as_syntax_node().get_text_without_trivia(db).contains("break ()")
-                } else {
-                    false
-                }
-            });
-
-            if has_unnecessary_parens_break {
-                continue;
-            }
-
             if if_block
                 .statements(db)
                 .elements(db)
                 .iter()
                 .any(|inner_statement| matches!(inner_statement, Statement::Break(_)))
             {
-                has_break = true;
-                break;
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: loop_expr.stable_ptr().untyped(),
+                    message: LOOP_FOR_WHILE.to_string(),
+                    severity: Severity::Warning,
+                });
+                return;
             }
         }
-    }
-
-    if has_break {
-        diagnostics.push(PluginDiagnostic {
-            stable_ptr: loop_expr.stable_ptr().untyped(),
-            message: LOOP_FOR_WHILE.to_string(),
-            severity: Severity::Warning,
-        });
     }
 }

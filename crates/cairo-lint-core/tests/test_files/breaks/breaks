@@ -3,7 +3,7 @@
 //! > cairo_code
 fn main() {
   let mut a = 1_u32;
-  loop {
+  for elt in array![].span() {
       if a == 10 {
           break ();
       }
@@ -18,11 +18,23 @@ warning: Plugin diagnostic: unnecessary double parentheses found after break. Co
 8 |           break ();
   |           ---------
   |
+error: Can only break with a value inside a `loop`.
+ --> lib.cairo:8:11
+  |
+8 |           break ();
+  |           ^^^^^^^^^
+  |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:4:7
+  |
+4 |   for elt in array![].span() {
+  |       ---
+  |
 
 //! > fixed
 fn main() {
   let mut a = 1_u32;
-  loop {
+  for elt in array![].span() {
       if a == 10 {
           break;
       }
@@ -37,7 +49,7 @@ fn main() {
 //! > cairo_code
 fn main() {
   let mut a = 1_u32;
-  loop {
+  for elt in array![].span() {
       if a == 10 {
           // this is a break
           break ();
@@ -54,11 +66,23 @@ warning: Plugin diagnostic: unnecessary double parentheses found after break. Co
 10 |           break ();
    |           ---------
    |
+error: Can only break with a value inside a `loop`.
+  --> lib.cairo:10:11
+   |
+10 |           break ();
+   |           ^^^^^^^^^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:4:7
+  |
+4 |   for elt in array![].span() {
+  |       ---
+  |
 
 //! > fixed
 fn main() {
   let mut a = 1_u32;
-  loop {
+  for elt in array![].span() {
       if a == 10 {
           // this is a break
           break;
@@ -74,22 +98,34 @@ fn main() {
 
 //! > cairo_code
 fn main() {
- loop {
-     break ();
- }
+  for elt in array![].span() {
+      break ();
+  }
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
- --> lib.cairo:4:6
+ --> lib.cairo:4:7
   |
-4 |      break ();
-  |      ---------
+4 |       break ();
+  |       ---------
+  |
+error: Can only break with a value inside a `loop`.
+ --> lib.cairo:4:7
+  |
+4 |       break ();
+  |       ^^^^^^^^^
+  |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:2:7
+  |
+2 |   for elt in array![].span() {
+  |       ---
   |
 
 //! > fixed
 fn main() {
- loop {
-     break;
- }
+  for elt in array![].span() {
+      break;
+  }
 }
