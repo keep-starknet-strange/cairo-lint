@@ -1,0 +1,13 @@
+//! > Test name
+
+//! > cairo_code
+fn main() {
+  panic!("This should trigger a lint warning.");
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  panic!("This should trigger a lint warning.");
+}

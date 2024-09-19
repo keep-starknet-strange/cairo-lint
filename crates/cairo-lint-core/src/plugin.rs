@@ -9,7 +9,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+    panic, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -33,6 +33,7 @@ pub enum CairoLintKind {
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
     Unknown,
+    Panic,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -49,7 +50,8 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
-        _ => CairoLintKind::Unknown,
+        panic::PANIC_IN_CODE => CairoLintKind::Panic,
+        _ => CairoLintKind::Unknown,       
     }
 }
 
@@ -101,8 +103,8 @@ impl AnalyzerPlugin for CairoLint {
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
-                        double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
-                    }
+                        double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);                       
+                    },
                     SyntaxKind::ElseClause => {
                         collapsible_if_else::check_collapsible_if_else(
                             db.upcast(),

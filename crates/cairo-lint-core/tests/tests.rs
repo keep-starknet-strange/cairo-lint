@@ -153,3 +153,5 @@ test_file!(
     "Else if with multiple statements",
     "Else if inside loop"
 );
+
+test_file!(panic, panic, "Test name");
