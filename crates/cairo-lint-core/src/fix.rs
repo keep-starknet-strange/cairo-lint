@@ -495,6 +495,24 @@ impl Fixer {
         format!("{option_var_name}.ok_or({none_arm_err})") 
     }
 
+   
+
+    /// Transforms bitwise parity check into a more efficient DivRem::div_rem(n, 2).
+    ///
+    ///
+    /// # Arguments
+    ///
+    /// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+    /// * `node` - The `SyntaxNode` containing the expression.
+    ///
+    /// # Returns
+    ///
+    /// A `String` with the `DivRem::div_rem(n, 2)` refactored expression.
+    ///
+    /// # Example
+    ///
+    /// Input: `let a = 200 & 1`
+    /// Output: `let a = DivRem::div_rem(200, 2);`
     pub fn fix_bitwise_for_parity_check(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
         let lhs = node.lhs(db).as_syntax_node().get_text(db);
 
