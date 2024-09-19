@@ -16,6 +16,19 @@ pub fn check_loop_for_while(db: &dyn SyntaxGroup, loop_expr: &ExprLoop, diagnost
             && let Expr::If(if_expr) = expr_statement.expr(db)
         {
             let if_block = if_expr.if_block(db);
+
+            let has_unnecessary_parens_break = if_block.statements(db).elements(db).iter().any(|inner_statement| {
+                if let Statement::Break(_) = inner_statement {
+                    inner_statement.as_syntax_node().get_text_without_trivia(db).contains("break ()")
+                } else {
+                    false
+                }
+            });
+
+            if has_unnecessary_parens_break {
+                continue;
+            }
+
             if if_block
                 .statements(db)
                 .elements(db)

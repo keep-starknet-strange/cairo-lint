@@ -2,43 +2,32 @@
 
 //! > cairo_code
 fn main() {
-    let mut a = 1_u32;
-    loop {
-        if a == 10 {
-            break ();
-        }
-        a += 1;
-    }
+  let mut a = 1_u32;
+  loop {
+      if a == 10 {
+          break ();
+      }
+      a += 1;
+  }
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
- --> lib.cairo:4:5
-  |
-4 |       loop {
-  |  _____-
-5 | |         if a == 10 {
-... |
-8 | |         a += 1;
-9 | |     }
-  | |_____-
-  |
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
- --> lib.cairo:8:13
+ --> lib.cairo:8:11
   |
-8 |             break ();
-  |             ---------
+8 |           break ();
+  |           ---------
   |
 
 //! > fixed
 fn main() {
-    let mut a = 1_u32;
-    loop {
-        if a == 10 {
-            break;
-        }
-        a += 1;
-    }
+  let mut a = 1_u32;
+  loop {
+      if a == 10 {
+          break;
+      }
+      a += 1;
+  }
 }
 
 //! > ==========================================================================
@@ -47,47 +36,36 @@ fn main() {
 
 //! > cairo_code
 fn main() {
-    let mut a = 1_u32;
-    loop {
-        if a == 10 {
-            // this is a break
-            break ();
-            // this was a break
-        }
-        a += 1;
-    }
+  let mut a = 1_u32;
+  loop {
+      if a == 10 {
+          // this is a break
+          break ();
+          // this was a break
+      }
+      a += 1;
+  }
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-  --> lib.cairo:4:5
-   |
- 4 |       loop {
-   |  _____-
- 5 | |         if a == 10 {
-...  |
-10 | |         a += 1;
-11 | |     }
-   | |_____-
-   |
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
-  --> lib.cairo:10:13
+  --> lib.cairo:10:11
    |
-10 |             break ();
-   |             ---------
+10 |           break ();
+   |           ---------
    |
 
 //! > fixed
 fn main() {
-    let mut a = 1_u32;
-    loop {
-        if a == 10 {
-            // this is a break
-            break;
-            // this was a break
-        }
-        a += 1;
-    }
+  let mut a = 1_u32;
+  loop {
+      if a == 10 {
+          // this is a break
+          break;
+          // this was a break
+      }
+      a += 1;
+  }
 }
 
 //! > ==========================================================================
@@ -96,22 +74,22 @@ fn main() {
 
 //! > cairo_code
 fn main() {
-   loop {
-       break ();
-   }
+ loop {
+     break ();
+ }
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
- --> lib.cairo:4:8
+ --> lib.cairo:4:6
   |
-4 |        break ();
-  |        ---------
+4 |      break ();
+  |      ---------
   |
 
 //! > fixed
 fn main() {
-   loop {
-       break;
-   }
+ loop {
+     break;
+ }
 }

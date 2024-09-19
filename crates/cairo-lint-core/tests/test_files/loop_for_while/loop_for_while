@@ -27,10 +27,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 //! > fixed
 fn main() {
     let mut x: u16 = 5;
-    loop {
-        if x * 2 >= 20 {
-            break;
-        }
+    while x * 2 < 20 {
         x += 1;
     }
 }
@@ -66,10 +63,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 //! > fixed
 fn main() {
     let mut counter: u16 = 0;
-    loop {
-        if counter > 5 {
-            break;
-        }
+    while !(counter > 5) {
         counter += 1;
     }
 }
@@ -108,10 +102,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 fn main() {
     let mut a: u16 = 0;
     let mut b: u16 = 0;
-    loop {
-        if a > 10 && b < 5 {
-            break;
-        }
+    while !(a > 10) || !(b < 5) {
         a += 1;
         b += 1;
     }
@@ -148,10 +139,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 //! > fixed
 fn main() {
     let mut value: u16 = 100;
-    loop {
-        if value < 0 {
-            break;
-        }
+    while !(value < 0) {
         value -= 10;
     }
 }
@@ -187,10 +175,7 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 //! > fixed
 fn main() {
     let mut x: u16 = 0;
-    loop {
-        if x == 10 {
-            break;
-        }
+    while !(x == 10) {
         x += 1;
     }
 }
