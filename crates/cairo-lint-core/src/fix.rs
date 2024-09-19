@@ -4,7 +4,8 @@ use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
-    BlockOrIf, ElseClause, Expr, ExprBinary, ExprLoop, ExprMatch, OptionPatternEnumInnerPattern, Pattern, Statement,
+    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionPatternEnumInnerPattern,
+    Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
@@ -74,7 +75,6 @@ fn indent_snippet(input: &str, initial_indentation: usize) -> String {
 /// is available for the given diagnostic.
 pub fn fix_semantic_diagnostic(db: &RootDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
     match diag.kind {
-        SemanticDiagnosticKind::UnusedVariable => Fixer.fix_unused_variable(db, diag),
         SemanticDiagnosticKind::PluginDiagnostic(ref plugin_diag) => Fixer.fix_plugin_diagnostic(db, diag, plugin_diag),
         SemanticDiagnosticKind::UnusedImport(_) => {
             debug!("Unused imports should be handled in preemptively");
@@ -90,23 +90,6 @@ pub fn fix_semantic_diagnostic(db: &RootDatabase, diag: &SemanticDiagnostic) -> 
 #[derive(Default)]
 pub struct Fixer;
 impl Fixer {
-    /// Fixes an unused variable by prefixing it with an underscore.
-    ///
-    /// # Arguments
-    ///
-    /// * `db` - A reference to the RootDatabase
-    /// * `diag` - A reference to the SemanticDiagnostic for the unused variable
-    ///
-    /// # Returns
-    ///
-    /// An `Option<(SyntaxNode, String)>` containing the node to be replaced and the
-    /// suggested replacement (the variable name prefixed with an underscore).
-    pub fn fix_unused_variable(&self, db: &RootDatabase, diag: &SemanticDiagnostic) -> Option<(SyntaxNode, String)> {
-        let node = diag.stable_location.syntax_node(db.upcast());
-        let suggestion = format!("_{}", node.get_text(db.upcast()));
-        Some((node, suggestion))
-    }
-
     /// Fixes a destructuring match by converting it to an if-let expression.
     ///
     /// This method handles matches with two arms, where one arm is a wildcard (_)
@@ -185,6 +168,7 @@ impl Fixer {
             CairoLintKind::DoubleComparison => {
                 self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
+            CairoLintKind::EquatableIfLet => self.fix_equatable_if_let(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BoolComparison => self.fix_bool_comparison(
                 db,
@@ -200,14 +184,16 @@ impl Fixer {
             }
             _ => return None,
         };
-
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
 
+    /// Rewrites `break ();` as `break;` given the node text contains it.
     pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         node.get_text(db).replace("break ();", "break;").to_string()
     }
 
+    /// Rewrites a bool comparison to a simple bool. Ex: `some_bool == false` would be rewritten to
+    /// `!some_bool`
     pub fn fix_bool_comparison(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
         let lhs = node.lhs(db).as_syntax_node().get_text(db);
         let rhs = node.rhs(db).as_syntax_node().get_text(db);
@@ -219,6 +205,24 @@ impl Fixer {
         let result = generate_fixed_text_for_erasing_operation();
         result
     }
+  
+    /// Rewrites this:
+    ///
+    /// ```ignore
+    /// loop {
+    ///     match some_span.pop_front() {
+    ///         Option::Some(val) => do_smth(val),
+    ///         Option::None => break;
+    ///     }
+    /// }
+    /// ```
+    /// to this:
+    /// ```ignore
+    /// for val in span {
+    ///     do_smth(val);
+    /// };
+    /// ```
+
     pub fn fix_loop_match_pop_front(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr_loop = ExprLoop::from_syntax_node(db, node.clone());
         let body = expr_loop.body(db);
@@ -331,6 +335,7 @@ impl Fixer {
         else_clause.as_syntax_node().get_text(db)
     }
 
+    /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
 
@@ -355,5 +360,29 @@ impl Fixer {
         }
 
         node.get_text(db).to_string()
+    }
+
+    /// Rewrites a useless `if let` to a simple `if`
+    pub fn fix_equatable_if_let(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr = ExprIf::from_syntax_node(db, node.clone());
+        let condition = expr.condition(db);
+
+        let fixed_condition = match condition {
+            Condition::Let(condition_let) => {
+                format!(
+                    "{} == {} ",
+                    condition_let.expr(db).as_syntax_node().get_text_without_trivia(db),
+                    condition_let.patterns(db).as_syntax_node().get_text_without_trivia(db),
+                )
+            }
+            _ => panic!("Incorrect diagnostic"),
+        };
+
+        format!(
+            "{}{}{}",
+            expr.if_kw(db).as_syntax_node().get_text(db),
+            fixed_condition,
+            expr.if_block(db).as_syntax_node().get_text(db),
+        )
     }
 }

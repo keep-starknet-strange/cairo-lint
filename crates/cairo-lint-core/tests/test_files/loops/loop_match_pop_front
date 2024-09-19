@@ -147,36 +147,6 @@ fn main() {
 
 //! > ==========================================================================
 
-//! > simple loop match pop front with let
-
-//! > cairo_code
-fn main() {
-    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
-    loop {
-        let _b = a;
-        match a.pop_front() {
-            Option::Some(val) => println!("{val}"),
-            Option::None => { break; },
-        }
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
-    loop {
-        let _b = a;
-        match a.pop_front() {
-            Option::Some(val) => println!("{val}"),
-            Option::None => { break; },
-        }
-    }
-}
-
-//! > ==========================================================================
-
 //! > simple loop match pop front impl path
 
 //! > cairo_code
@@ -261,4 +231,34 @@ fn main() {
     for val in a.b.c {
         println!("{val}")
     };
+}
+
+//! > ==========================================================================
+
+//! > simple loop match pop front with let
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        let _b = a;
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { break; },
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    loop {
+        let _b = a;
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { break; },
+        }
+    }
 }

@@ -108,8 +108,8 @@ macro_rules! test_file {
                     new_tests.should_fix = true;
                     new_tests.tests.insert(test_name.to_string(), new_test);
                 }
-                assert_eq!(formatted_diags, test.attributes["diagnostics"]);
-                assert_eq!(file, test.attributes["fixed"]);
+                assert_eq!(&formatted_diags, test.attributes.get("diagnostics").expect("Couldn't get expected diagnostics"));
+                assert_eq!(&file, test.attributes.get("fixed").expect("Couldn't get expected fix"));
             }
         }
     };

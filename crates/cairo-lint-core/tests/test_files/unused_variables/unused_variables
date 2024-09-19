@@ -15,7 +15,7 @@ warning: Unused variable. Consider ignoring by prefixing with `_`.
 
 //! > fixed
 fn main() {
-    let _a: Option<felt252> = Option::Some(1);
+    let a: Option<felt252> = Option::Some(1);
 }
 
 //! > ==========================================================================
@@ -92,21 +92,21 @@ warning: Unused variable. Consider ignoring by prefixing with `_`.
 //! > fixed
 fn main() {
     let used: Option<felt252> = Option::Some(1);
-    let _b = 1;
+    let b = 1;
     {
-        let _c = 1_u32;
+        let c = 1_u32;
     }
     if true {
         if false {
-            let _d = 3_u32;
+            let d = 3_u32;
         } else {
-            let _e = false;
+            let e = false;
         }
-        let _f: Array<u32> = array![];
+        let f: Array<u32> = array![];
     } else {
-        let _g: Option<u32> = Option::None;
+        let g: Option<u32> = Option::None;
         match used {
-            Option::Some(_not_used) => 1_u32,
+            Option::Some(not_used) => 1_u32,
             Option::None => 2_u32,
         };
     }
@@ -138,6 +138,6 @@ warning: Unused variable. Consider ignoring by prefixing with `_`.
 
 //! > fixed
 fn main() {
-    let _a: Option<felt252> = Option::Some(1);
-    let _b = 1;
+    let a: Option<felt252> = Option::Some(1);
+    let b = 1;
 }

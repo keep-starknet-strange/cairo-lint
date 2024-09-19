@@ -47,7 +47,8 @@ test_file!(
     "destructuring comprehensive match",
     "reversed destructuring comprehensive match",
     "simple destructuring match with unit and comment in scope",
-    "simple destructuring match with comment in scope"
+    "simple destructuring match with comment in scope",
+    "comprehensive match"
 );
 
 test_file!(
@@ -109,6 +110,17 @@ test_file!(
 test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
 
 test_file!(
+    ifs,
+    equatable_if_let,
+    "simple equality cases ok",
+    "complex equality destructuring if let",
+    "Simple Value Pattern Matching",
+    "Enum Unit Variant Pattern Matching",
+    "Complex Equality Destructuring",
+    "Matching With Simple Structs field"
+);
+
+test_file!(
     bool_comparison,
     bool_comparison,
     "Comparison with true",
@@ -139,7 +151,7 @@ test_file!(
 );
 
 test_file!(
-    collapsible_if_else,
+    ifs,
     collapsible_if_else,
     "Simple else if with new line",
     "Simple else if without new line",

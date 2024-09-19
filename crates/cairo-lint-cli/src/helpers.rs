@@ -6,7 +6,7 @@ use cairo_lang_filesystem::cfg::{Cfg as CompilerCfg, CfgSet};
 use cairo_lang_filesystem::db::{CrateSettings, Edition, ExperimentalFeaturesConfig};
 use cairo_lang_filesystem::ids::Directory;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
-use scarb_metadata::{Cfg as ScarbCfg, CompilationUnitMetadata, PackageId};
+use scarb_metadata::{Cfg as ScarbCfg, CompilationUnitMetadata, PackageId, PackageMetadata};
 use semver::Version;
 use smol_str::{SmolStr, ToSmolStr};
 
@@ -59,6 +59,7 @@ pub fn build_project_config(
     package_path: PathBuf,
     edition: Edition,
     version: &Version,
+    packages: &[PackageMetadata],
 ) -> Result<ProjectConfig> {
     let crate_roots = compilation_unit
         .components
@@ -71,10 +72,15 @@ pub fn build_project_config(
         .iter()
         .map(|component| {
             let cfg_set = component.cfg.as_ref().map(|cfgs| to_cairo_cfg(cfgs));
+            let package_ed = if let Some(pack) = packages.iter().find(|package| package.id == component.package) {
+                pack.edition.as_ref().map_or_else(|| edition, |ed| to_cairo_edition(ed).unwrap())
+            } else {
+                edition
+            };
             (
                 component.name.to_smolstr(),
                 CrateSettings {
-                    edition,
+                    edition: package_ed,
                     cfg_set,
                     experimental_features: ExperimentalFeaturesConfig { negative_impls: false, coupons: false },
                     version: Some(version.clone()),
