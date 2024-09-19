@@ -488,7 +488,13 @@ impl Fixer {
             _ => panic!("Expected an Option enum pattern"),
         };
 
-        format!("{option_var_name}.ok_or({none_arm_err})")
+        format!("{option_var_name}.ok_or({none_arm_err})") 
+    }
+
+    pub fn fix_bitwise_for_parity_check(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
+        let lhs = node.lhs(db).as_syntax_node().get_text(db);
+
+        format!("DivRem::div_rem({}, 2)", lhs)
     }
 
     /// Rewrites a manual implementation of is_some
