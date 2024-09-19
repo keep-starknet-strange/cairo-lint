@@ -184,6 +184,10 @@ impl Fixer {
             }
             CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::BitwiseForParityCheck => self.fix_bitwise_for_parity_check(
+                db,
+                ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            ),
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
@@ -494,7 +498,8 @@ impl Fixer {
     pub fn fix_bitwise_for_parity_check(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
         let lhs = node.lhs(db).as_syntax_node().get_text(db);
 
-        format!("DivRem::div_rem({}, 2)", lhs)
+        format!("DivRem::div_rem({}, 2)", lhs.trim())
+        
     }
 
     /// Rewrites a manual implementation of is_some

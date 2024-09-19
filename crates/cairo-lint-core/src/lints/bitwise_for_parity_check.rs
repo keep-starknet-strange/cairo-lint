@@ -11,7 +11,7 @@ pub fn check_bitwise_for_parity(db: &dyn SyntaxGroup, node: &ExprBinary, diagnos
     let rhs = node.rhs(db).as_syntax_node().get_text_without_trivia(db);
     let op = node.op(db);
 
-    if matches!(op, BinaryOperator::And(_)) && rhs.eq(&"1".to_string()) {
+    if matches!(op, BinaryOperator::And(_)) && rhs.trim().eq(&"1".to_string()) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: node.as_syntax_node().stable_ptr(),
             message: BITWISE_FOR_PARITY.to_string(),

@@ -33,6 +33,7 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    BitwiseForParityCheck,
     LoopForWhile,
     Unknown,
     Panic,
@@ -59,6 +60,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
+        bitwise_for_parity_check::BITWISE_FOR_PARITY => CairoLintKind::BitwiseForParityCheck,
         manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
         _ => CairoLintKind::Unknown,
     }
