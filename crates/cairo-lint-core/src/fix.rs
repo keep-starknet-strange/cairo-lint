@@ -469,6 +469,4 @@ impl Fixer {
             format!("!({})", condition)
         }
     }
-
-
 }

@@ -12,6 +12,17 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:4:5
+  |
+4 |       loop {
+  |  _____-
+5 | |         if a == 10 {
+... |
+8 | |         a += 1;
+9 | |     }
+  | |_____-
+  |
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
  --> lib.cairo:8:13
   |
@@ -48,6 +59,17 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:4:5
+   |
+ 4 |       loop {
+   |  _____-
+ 5 | |         if a == 10 {
+...  |
+10 | |         a += 1;
+11 | |     }
+   | |_____-
+   |
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
   --> lib.cairo:10:13
    |
