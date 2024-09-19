@@ -5,7 +5,7 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
 pub const BITWISE_FOR_PARITY: &str =
-    "you seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.";
+    "You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.";
 
 pub fn check_bitwise_for_parity(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
     let rhs = node.rhs(db).as_syntax_node().get_text_without_trivia(db);

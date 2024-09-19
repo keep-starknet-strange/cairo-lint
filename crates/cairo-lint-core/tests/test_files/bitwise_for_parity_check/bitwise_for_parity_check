@@ -6,7 +6,7 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: you seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
  --> lib.cairo:2:13
   |
 2 |     let a = 200 & 1;
@@ -27,5 +27,5 @@ error: Trait has no implementation in context: core::traits::BitAnd::<core::felt
 
 //! > fixed
 fn main() {
-    let _a = DivRem::div_rem(200, 2);
+    let a = DivRem::div_rem(200, 2);
 }
