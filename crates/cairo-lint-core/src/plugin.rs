@@ -3,13 +3,13 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf};
+use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf, ExprLoop};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match, loop_for_while
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -32,6 +32,7 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    LoopForWhile,
     Unknown,
 }
 
@@ -49,6 +50,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -136,6 +138,13 @@ impl AnalyzerPlugin for CairoLint {
                         collapsible_if_else::check_collapsible_if_else(
                             db.upcast(),
                             &ElseClause::from_syntax_node(db.upcast(), node),
+                            &mut diags,
+                        );
+                    }
+                    SyntaxKind::ExprLoop => {
+                        loop_for_while::check_loop_for_while(
+                            db.upcast(),
+                            &ExprLoop::from_syntax_node(db.upcast(), node),
                             &mut diags,
                         );
                     }

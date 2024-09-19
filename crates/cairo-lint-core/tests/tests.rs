@@ -153,3 +153,13 @@ test_file!(
     "Else if with multiple statements",
     "Else if inside loop"
 );
+
+test_file!(
+    loop_for_while,
+    loop_for_while,
+    "simple loop with break",
+    "loop with comparison condition",
+    "loop with negative condition",
+    "loop with arithmetic condition",
+    "loop with multiple conditions"
+);

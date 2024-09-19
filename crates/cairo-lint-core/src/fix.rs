@@ -378,4 +378,97 @@ impl Fixer {
             expr.if_block(db).as_syntax_node().get_text(db),
         )
     }
+
+    /// Converts a `loop` with a conditionally-breaking `if` statement into a `while` loop.
+    ///
+    /// This function transforms loops that have a conditional `if` statement
+    /// followed by a `break` into a `while` loop, which can simplify the logic
+    /// and improve readability.
+    ///
+    /// # Arguments
+    ///
+    /// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+    /// * `node` - The `SyntaxNode` representing the loop expression.
+    ///
+    /// # Returns
+    ///
+    /// A `String` containing the transformed loop as a `while` loop, preserving
+    /// the original formatting and indentation.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut x = 0;
+    /// loop {
+    ///     if x > 5 {
+    ///         break;
+    ///     }
+    ///     x += 1;
+    /// }
+    /// ```
+    ///
+    /// Would be converted to:
+    ///
+    /// ```
+    /// let mut x = 0;
+    /// while x <= 5 {
+    ///     x += 1;
+    /// }
+    /// ```
+    pub fn fix_loop_break(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let loop_expr = ExprLoop::from_syntax_node(db, node.clone());
+        let mut condition_text = String::new();
+        let mut loop_body = String::new();
+
+        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+
+        if let Some(Statement::Expr(expr_statement)) = loop_expr.body(db).statements(db).elements(db).first() {
+            if let Expr::If(if_expr) = expr_statement.expr(db) {
+                let condition = if_expr.condition(db);
+                condition_text = condition.as_syntax_node().get_text_without_trivia(db).to_string();
+
+                condition_text = Self::invert_condition(&condition_text);
+
+                for statement in loop_expr.body(db).statements(db).elements(db).iter().skip(1) {
+                    loop_body.push_str(&format!(
+                        "{}    {}\n",
+                        indent,
+                        statement.as_syntax_node().get_text_without_trivia(db)
+                    ));
+                }
+            }
+        }
+
+        format!("{}while {} {{\n{}{}}}\n", indent, condition_text, loop_body, indent)
+    }
+
+    fn invert_condition(condition: &str) -> String {
+        if condition.contains("&&") {
+            condition
+                .split("&&")
+                .map(|part| Self::invert_simple_condition(part.trim()))
+                .collect::<Vec<_>>()
+                .join(" || ")
+        } else if condition.contains("||") {
+            condition
+                .split("||")
+                .map(|part| Self::invert_simple_condition(part.trim()))
+                .collect::<Vec<_>>()
+                .join(" && ")
+        } else {
+            Self::invert_simple_condition(condition)
+        }
+    }
+
+    fn invert_simple_condition(condition: &str) -> String {
+        if condition.contains(">=") {
+            condition.replace(">=", "<")
+        } else if condition.contains("<=") {
+            condition.replace("<=", ">")
+        } else {
+            format!("!({})", condition)
+        }
+    }
+
+
 }
