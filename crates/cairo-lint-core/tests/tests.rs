@@ -110,3 +110,14 @@ test_file!(
     "Negated comparison with false",
     "Negated comparison with false on LHS"
 );
+
+test_file!(
+    useless_conversion,
+    useless_conversion,
+    "useless conversion from felt to felt with try_into",
+    "useless conversion from felt252 to felt252",
+    "valid conversion from felt to felt252",
+    "useless conversion in complex expression",
+    "valid try_into conversion",
+    "nested useless conversions"
+);

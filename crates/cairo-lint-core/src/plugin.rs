@@ -3,11 +3,13 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
+use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary, ExprFunctionCall};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::{bool_comparison, breaks, double_comparison, double_parens, loops, single_match};
+use crate::lints::{
+    bool_comparison, breaks, double_comparison, double_parens, loops, single_match, useless_conversion,
+};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -22,6 +24,7 @@ pub enum CairoLintKind {
     DestructMatch,
     MatchForEquality,
     DoubleComparison,
+    UselessConversion,
     DoubleParens,
     Unknown,
     BreakUnit,
@@ -36,6 +39,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         double_comparison::SIMPLIFIABLE_COMPARISON => CairoLintKind::DoubleComparison,
         double_comparison::REDUNDANT_COMPARISON => CairoLintKind::DoubleComparison,
         double_comparison::CONTRADICTORY_COMPARISON => CairoLintKind::DoubleComparison,
+        useless_conversion::USELESS_CONVERSION => CairoLintKind::UselessConversion,
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
         _ => CairoLintKind::Unknown,
@@ -93,6 +97,13 @@ impl AnalyzerPlugin for CairoLint {
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
                     }
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
+                    SyntaxKind::ExprFunctionCall => {
+                        useless_conversion::check_useless_conversion(
+                            db.upcast(),
+                            &ExprFunctionCall::from_syntax_node(db.upcast(), node),
+                            &mut diags,
+                        );
+                    }
                     _ => continue,
                 }
             }

@@ -1,0 +1,168 @@
+//! > nested useless conversions
+
+//! > cairo_code
+fn main() -> felt {
+    let x: felt = 20.into().into();
+    x
+}
+
+//! > diagnostics
+error: Type not found.
+--> lib.cairo:0:14
+ |
+0 | fn main() -> felt {
+ |              ^^^^
+ |
+error: Type not found.
+ --> lib.cairo:2:12
+  |
+2 |     let x: felt = 20.into().into();
+  |            ^^^^
+  |
+
+//! > fixed
+Contains nested diagnostics can't fix it
+
+//! > ==========================================================================
+
+//! > useless conversion from felt to felt with try_into
+
+//! > cairo_code
+fn main() -> felt {
+    let x: felt = 10.try_into().unwrap();
+    x
+}
+
+//! > diagnostics
+error: Type not found.
+--> lib.cairo:0:14
+ |
+0 | fn main() -> felt {
+ |              ^^^^
+ |
+error: Type not found.
+ --> lib.cairo:2:12
+  |
+2 |     let x: felt = 10.try_into().unwrap();
+  |            ^^^^
+  |
+
+//! > fixed
+fn main() -> felt {
+    let x: felt = 10.try_into().unwrap();
+    x
+}
+
+//! > ==========================================================================
+
+//! > useless conversion from felt252 to felt252
+
+//! > cairo_code
+fn main() -> felt252 {
+    let x: felt252 = 100.into();
+    x
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> felt252 {
+    let x: felt252 = 100.into();
+    x
+}
+
+//! > ==========================================================================
+
+//! > useless conversion in complex expression
+
+//! > cairo_code
+fn main() -> felt {
+    let x: felt = 42;
+    let y: felt = (x + 10).into();
+    y
+}
+
+//! > diagnostics
+error: Type not found.
+--> lib.cairo:0:14
+ |
+0 | fn main() -> felt {
+ |              ^^^^
+ |
+error: Type not found.
+ --> lib.cairo:2:12
+  |
+2 |     let x: felt = 42;
+  |            ^^^^
+  |
+error: Type not found.
+ --> lib.cairo:4:12
+  |
+4 |     let y: felt = (x + 10).into();
+  |            ^^^^
+  |
+
+//! > fixed
+fn main() -> felt {
+    let x: felt = 42;
+    let y: felt = (x + 10).into();
+    y
+}
+
+//! > ==========================================================================
+
+//! > valid conversion from felt to felt252
+
+//! > cairo_code
+fn main() -> felt252 {
+    let x: felt = 5;
+    let y: felt252 = x.into();
+    y
+}
+
+//! > diagnostics
+error: Type not found.
+ --> lib.cairo:2:12
+  |
+2 |     let x: felt = 5;
+  |            ^^^^
+  |
+
+//! > fixed
+fn main() -> felt252 {
+    let x: felt = 5;
+    let y: felt252 = x.into();
+    y
+}
+
+//! > ==========================================================================
+
+//! > valid try_into conversion
+
+//! > cairo_code
+fn main() -> Option<felt252> {
+    let x: felt = 5;
+    let y: Result<felt252, _> = x.try_into();
+    y.ok()
+}
+
+//! > diagnostics
+error: Type not found.
+ --> lib.cairo:2:12
+  |
+2 |     let x: felt = 5;
+  |            ^^^^
+  |
+error: Unexpected argument type. Expected: "core::result::Result::<core::felt252, ?1>", found: "core::option::Option::<?3>".
+ --> lib.cairo:4:33
+  |
+4 |     let y: Result<felt252, _> = x.try_into();
+  |                                 ^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() -> Option<felt252> {
+    let x: felt = 5;
+    let y: Result<felt252, _> = x.try_into();
+    y.ok()
+}
