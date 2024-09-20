@@ -2,14 +2,38 @@
 
 //! > cairo_code
 fn main() {
-  panic!("This should trigger a lint warning.");
-  println!("TEST HERE");
+  panic!("Hello");
+  panic!();
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: Using `panic!` is discouraged.
+--> lib.cairo[panic_macro]:0:1
+ |
+0 | core::panics::panic(array![core::byte_array::BYTE_ARRAY_MAGIC, 0, 0x48656c6c6f, 5]))core::panic(array![core::byte_array::BYTE_ARRAY_M...
+ | -----------------------------------------------------------------------------------
+ |
+warning: Plugin diagnostic: Using `panic!` is discouraged.
+--> lib.cairo[panic_macro]:0:1
+ |
+0 | core::panics::panic(array![core::byte_array::BYTE_ARRAY_MAGIC, 0, 0x48656c6c6f, 5]))core::panic(array![core::byte_array::BYTE_ARRAY_M...
+ | -----------------------------------------------------------------------------------
+ |
+warning: Plugin diagnostic: Using `panic!` is discouraged.
+--> lib.cairo[panic_macro]:0:1
+ |
+0 | core::panics::panic(array![core::byte_array::BYTE_ARRAY_MAGIC, 0, 0, 0]);
+ | ------------------------------------------------------------------------
+ |
+warning: Plugin diagnostic: Using `panic!` is discouraged.
+--> lib.cairo[panic_macro]:0:1
+ |
+0 | core::panics::panic(array![core::byte_array::BYTE_ARRAY_MAGIC, 0, 0, 0]);
+ | ------------------------------------------------------------------------
+ |
 
 //! > fixed
 fn main() {
-  panic!("This should trigger a lint warning.");
-  println!("TEST HERE");
+  panic!("Hello");
+  panic!();
 }

@@ -135,6 +135,9 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
             }
+            Expr::FunctionCall(expr_func) => {
+                panic::check_panic_usage(db, expr_func, diagnostics)
+            }
             _ => (),
         };
     }
