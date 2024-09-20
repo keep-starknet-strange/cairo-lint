@@ -1,17 +1,17 @@
-//Check if the if and else blocks are the same.
-//This is a common mistake where the else block is the same as the if block.
-//This is likely a copy & paste error.
+// Check if the if and else blocks are the same.
+// This is a common mistake where the else block is the same as the if block.
+// This is likely a copy & paste error.
 //
-//Lints:
+// Lints:
 // - if_else_same
 //
-//Quick-fixes:
+// Quick-fixes:
 // - if_else_same_quickfix
 
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{BlockOrIf, ElseClause, ExprBlock, ExprIf};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::{TypedSyntaxNode, SyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 
 pub const IF_ELSE_SAME: &str = "if and else blocks are the same. This is likely a copy & paste error.";
 
