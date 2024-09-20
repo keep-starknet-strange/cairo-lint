@@ -2,39 +2,38 @@
 
 //! > cairo_code
 fn main() {
-  let x = true;
-  let y = true;
-  let z = false;
+    let x = true;
+    let y = true;
+    let z = false;
 
-  if x || z {
-      if y && z {
-          println!("Hello");
-      }
-  }
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
+    }
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:10:3
+  --> lib.cairo:10:5
    |
-10 |     if x || z {
-   |  ___-
-11 | |       if y && z {
-12 | |           println!("Hello");
-13 | |       }
-14 | |   }
-   | |___-
+10 |       if x || z {
+   |  _____-
+11 | |         if y && z {
+12 | |             println!("Hello");
+13 | |         }
+14 | |     }
+   | |_____-
    |
 
 //! > fixed
 fn main() {
-  let x = true;
-  let y = true;
-  let z = false;
-
-  x || z && y && z{
-          println!("Hello");
-      }}
+    let x = true;
+    let y = true;
+    let z = false;
+    if (x || z) && (y && z) {
+        println!("Hello");
+    }}
 
 //! > ==========================================================================
 
@@ -42,45 +41,44 @@ fn main() {
 
 //! > cairo_code
 fn main() {
-  let x = 3_u32;
-  let y = 4_u32;
-  let z = 5_u32;
-  let a = 5_u32;
-  let b = 2_u32;
-  let c = 10_u32;
+    let x = 3_u32;
+    let y = 4_u32;
+    let z = 5_u32;
+    let a = 5_u32;
+    let b = 2_u32;
+    let c = 10_u32;
 
-  if x + y > a {
-      if z * b < c {
-          println!("Complex conditions");
-      }
-  }
+    if x + y > a {
+        if z * b < c {
+            println!("Complex conditions");
+        }
+    }
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:16:3
+  --> lib.cairo:16:5
    |
-16 |     if x + y > a {
-   |  ___-
-17 | |       if z * b < c {
-18 | |           println!("Complex conditions");
-19 | |       }
-20 | |   }
-   | |___-
+16 |       if x + y > a {
+   |  _____-
+17 | |         if z * b < c {
+18 | |             println!("Complex conditions");
+19 | |         }
+20 | |     }
+   | |_____-
    |
 
 //! > fixed
 fn main() {
-  let x = 3_u32;
-  let y = 4_u32;
-  let z = 5_u32;
-  let a = 5_u32;
-  let b = 2_u32;
-  let c = 10_u32;
-
-  x + y > a && z * b < c{
-          println!("Complex conditions");
-      }}
+    let x = 3_u32;
+    let y = 4_u32;
+    let z = 5_u32;
+    let a = 5_u32;
+    let b = 2_u32;
+    let c = 10_u32;
+    if x + y > a && z * b < c {
+        println!("Complex conditions");
+    }}
 
 //! > ==========================================================================
 
@@ -88,37 +86,36 @@ fn main() {
 
 //! > cairo_code
 fn main() {
-  let x = true;
-  let z = true;
+    let x = true;
+    let z = true;
 
-  if x {
-      if z {
-          println!("No fix here");
-      }
-  }
+    if x {
+        if z {
+            println!("No fix here");
+        }
+    }
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:8:3
+  --> lib.cairo:8:5
    |
- 8 |     if x {
-   |  ___-
- 9 | |       if z {
-10 | |           println!("No fix here");
-11 | |       }
-12 | |   }
-   | |___-
+ 8 |       if x {
+   |  _____-
+ 9 | |         if z {
+10 | |             println!("No fix here");
+11 | |         }
+12 | |     }
+   | |_____-
    |
 
 //! > fixed
 fn main() {
-  let x = true;
-  let z = true;
-
-  x && z{
-          println!("No fix here");
-      }}
+    let x = true;
+    let z = true;
+    if x && z {
+        println!("No fix here");
+    }}
 
 //! > ==========================================================================
 
@@ -129,24 +126,24 @@ fn is_valid(_a: bool) -> bool { true }
 fn is_ready(_b: bool) -> bool { true } 
 
 fn main() {
-  if is_valid(true) {
-      if is_ready(true) {
-          println!("Function calls in conditions");
-      }
-  }
+    if is_valid(true) {
+        if is_ready(true) {
+            println!("Function calls in conditions");
+        }
+    }
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:8:3
+  --> lib.cairo:8:5
    |
- 8 |     if is_valid(true) {
-   |  ___-
- 9 | |       if is_ready(true) {
-10 | |           println!("Function calls in conditions");
-11 | |       }
-12 | |   }
-   | |___-
+ 8 |       if is_valid(true) {
+   |  _____-
+ 9 | |         if is_ready(true) {
+10 | |             println!("Function calls in conditions");
+11 | |         }
+12 | |     }
+   | |_____-
    |
 
 //! > fixed
@@ -154,9 +151,9 @@ fn is_valid(_a: bool) -> bool { true }
 fn is_ready(_b: bool) -> bool { true } 
 
 fn main() {
-  is_valid(true) && is_ready(true){
-          println!("Function calls in conditions");
-      }}
+    if is_valid(true) && is_ready(true) {
+        println!("Function calls in conditions");
+    }}
 
 //! > ==========================================================================
 
@@ -164,42 +161,41 @@ fn main() {
 
 //! > cairo_code
 fn main() {
-  let a = 10;
-  let b = 20;
-  let c = 5;
+    let a = 10;
+    let b = 20;
+    let c = 5;
 
-  if a > b {
-      if c < b {
-          println!("Simple numerical conditions");
-      }
-  }
+    if a > b {
+        if c < b {
+            println!("Simple numerical conditions");
+        }
+    }
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:10:3
+  --> lib.cairo:10:5
    |
-10 |     if a > b {
-   |  ___-
-11 | |       if c < b {
-12 | |           println!("Simple numerical conditions");
-13 | |       }
-14 | |   }
-   | |___-
+10 |       if a > b {
+   |  _____-
+11 | |         if c < b {
+12 | |             println!("Simple numerical conditions");
+13 | |         }
+14 | |     }
+   | |_____-
    |
 error: Trait has no implementation in context: core::traits::PartialOrd::<core::felt252>.
-  --> lib.cairo:12:10
+  --> lib.cairo:12:12
    |
-12 |       if c < b {
-   |          ^^^^^
+12 |         if c < b {
+   |            ^^^^^
    |
 
 //! > fixed
 fn main() {
-  let a = 10;
-  let b = 20;
-  let c = 5;
-
-  a > b && c < b{
-          println!("Simple numerical conditions");
-      }}
+    let a = 10;
+    let b = 20;
+    let c = 5;
+    if a > b && c < b {
+        println!("Simple numerical conditions");
+    }}
