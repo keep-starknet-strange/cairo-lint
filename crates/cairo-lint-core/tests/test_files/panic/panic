@@ -3,6 +3,7 @@
 //! > cairo_code
 fn main() {
   panic!("This should trigger a lint warning.");
+  println!("TEST HERE");
 }
 
 //! > diagnostics
@@ -10,4 +11,5 @@ fn main() {
 //! > fixed
 fn main() {
   panic!("This should trigger a lint warning.");
+  println!("TEST HERE");
 }
