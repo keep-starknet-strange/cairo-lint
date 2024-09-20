@@ -161,5 +161,7 @@ test_file!(
     "loop with comparison condition",
     "loop with negative condition",
     "loop with arithmetic condition",
-    "loop with multiple conditions"
+    "loop with multiple conditions",
+    "loop with arithmetic condition and else block",
+    "loop with nested condition inside if block"
 );

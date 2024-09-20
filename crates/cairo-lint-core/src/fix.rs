@@ -466,6 +466,14 @@ impl Fixer {
             condition.replace(">=", "<")
         } else if condition.contains("<=") {
             condition.replace("<=", ">")
+        } else if condition.contains(">") {
+            condition.replace(">", "<=")
+        } else if condition.contains("<") {
+            condition.replace("<", ">=")
+        } else if condition.contains("==") {
+            condition.replace("==", "!=")
+        } else if condition.contains("!=") {
+            condition.replace("!=", "==")
         } else {
             format!("!({})", condition)
         }
