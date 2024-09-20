@@ -2,30 +2,24 @@
 
 //! > cairo_code
 fn main() {
-    let a = 200 & 1;
+    let a = 200_u32 & 1;
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
  --> lib.cairo:2:13
   |
-2 |     let a = 200 & 1;
-  |             -------
+2 |     let a = 200_u32 & 1;
+  |             -----------
   |
 warning: Unused variable. Consider ignoring by prefixing with `_`.
  --> lib.cairo:2:9
   |
-2 |     let a = 200 & 1;
+2 |     let a = 200_u32 & 1;
   |         -
-  |
-error: Trait has no implementation in context: core::traits::BitAnd::<core::felt252>.
- --> lib.cairo:2:13
-  |
-2 |     let a = 200 & 1;
-  |             ^^^^^^^
   |
 
 //! > fixed
 fn main() {
-    let a = DivRem::div_rem(200, 2);
+    let a = 200_u32 & 1;
 }
