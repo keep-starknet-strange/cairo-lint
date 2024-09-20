@@ -14,7 +14,6 @@ use log::debug;
 
 use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
 use crate::lints::double_comparison;
-use crate::lints::erasing_op::generate_fixed_text_for_erasing_operation;
 use crate::lints::single_match::is_expr_unit;
 use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
@@ -174,7 +173,6 @@ impl Fixer {
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
-            CairoLintKind::ErasingOperation => self.fix_erasing_operation(),
             CairoLintKind::CollapsibleIfElse => self.fix_collapsible_if_else(
                 db,
                 &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
@@ -201,11 +199,7 @@ impl Fixer {
         let result = generate_fixed_text_for_comparison(db, lhs.as_str(), rhs.as_str(), node.clone());
         result
     }
-    pub fn fix_erasing_operation(&self) -> String {
-        let result = generate_fixed_text_for_erasing_operation();
-        result
-    }
-  
+
     /// Rewrites this:
     ///
     /// ```ignore
