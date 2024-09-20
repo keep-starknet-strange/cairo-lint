@@ -6,6 +6,8 @@ use cairo_lang_syntax::node::ids::SyntaxStablePtrId;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
+pub const IMPOSSIBLE_COMPARISON: &str =
+    "The condition contains contradictory comparisons, meaning no value can satisfy both conditions at once.";
 pub const REDUNDANT_COMPARISON: &str =
     "Redundant double comparison found. Consider simplifying to a single comparison.";
 pub const CONTRADICTORY_COMPARISON: &str = "This double comparison is contradictory and always false.";
@@ -35,6 +37,12 @@ pub fn check_double_comparison(
                     binary_expr.stable_ptr().untyped(),
                     Severity::Warning,
                 ));
+            } else if is_impossible_double_comparison(&lhs_op, &rhs_op, &middle_op) {
+                diagnostics.push(create_diagnostic(
+                    IMPOSSIBLE_COMPARISON,
+                    binary_expr.stable_ptr().untyped(),
+                    Severity::Error,
+                ));
             } else if is_contradictory_double_comparison(&lhs_op, &rhs_op, &middle_op) {
                 diagnostics.push(create_diagnostic(
                     CONTRADICTORY_COMPARISON,
@@ -61,6 +69,55 @@ pub fn extract_variable_from_expr(expr: &Expr, db: &dyn SyntaxGroup) -> Option<S
         return Some(format!("{} {}", lhs_text, rhs_text));
     }
     None
+}
+fn is_impossible_double_comparison(
+    lhs_op: &BinaryOperator,
+    rhs_op: &BinaryOperator,
+    middle_op: &BinaryOperator,
+) -> bool {
+    let lhs_value = extract_value_from_operator(lhs_op);
+    let rhs_value = extract_value_from_operator(rhs_op);
+
+    if let (Some(lhs_val), Some(rhs_val)) = (lhs_value, rhs_value) {
+        match middle_op {
+            BinaryOperator::AndAnd(_) => {
+                match (lhs_op, rhs_op) {
+                    (BinaryOperator::LE(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::LE(_)) => {
+                        lhs_val <= rhs_val
+                    }
+
+                    (BinaryOperator::LT(_), BinaryOperator::GE(_)) | (BinaryOperator::GE(_), BinaryOperator::LT(_)) => {
+                        lhs_val < rhs_val
+                    }
+                    (BinaryOperator::LT(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => {
+                        lhs_val >= rhs_val
+                    }
+
+                    (BinaryOperator::EqEq(_), BinaryOperator::LT(_))
+                    | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => lhs_val >= rhs_val,
+
+                    (BinaryOperator::EqEq(_), BinaryOperator::GT(_))
+                    | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => lhs_val <= rhs_val,
+
+                    _ => false,
+                }
+            }
+            _ => false,
+        }
+    } else {
+        false
+    }
+}
+
+fn extract_value_from_operator(op: &BinaryOperator) -> Option<i32> {
+    match op {
+        BinaryOperator::EqEq(_)
+        | BinaryOperator::LT(_)
+        | BinaryOperator::LE(_)
+        | BinaryOperator::GT(_)
+        | BinaryOperator::GE(_) => Some(0), // Replace with logic to get the actual value if needed
+        _ => None,
+    }
 }
 
 fn create_diagnostic(message: &str, stable_ptr: SyntaxStablePtrId, severity: Severity) -> PluginDiagnostic {

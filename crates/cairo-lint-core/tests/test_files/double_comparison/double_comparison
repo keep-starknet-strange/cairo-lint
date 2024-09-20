@@ -12,7 +12,7 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-error: Plugin diagnostic: This double comparison is contradictory and always false.
+error: Plugin diagnostic: The condition contains contradictory comparisons, meaning no value can satisfy both conditions at once.
  --> lib.cairo:6:8
   |
 6 |     if x == y && x < y {
@@ -46,7 +46,7 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-error: Plugin diagnostic: This double comparison is contradictory and always false.
+error: Plugin diagnostic: The condition contains contradictory comparisons, meaning no value can satisfy both conditions at once.
  --> lib.cairo:6:8
   |
 6 |     if x < y && x > y {
