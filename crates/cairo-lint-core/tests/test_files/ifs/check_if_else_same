@@ -1,0 +1,31 @@
+//! > Check if and else blocks are the same
+
+//! > cairo_code
+fn main() {
+    let x = 1;
+    if x == 1 {
+        println!("x is 1");
+    } else {
+        println!("x is not 1");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: if and else blocks are the same. This is likely a copy & paste error.
+ --> lib.cairo:4:5
+  |
+4 |       if x == 1 {
+  _____-
+5 |         println!("x is 1");
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let x = 1;
+    if x == 1 {
+        println!("x is 1");
+    } else {
+        println!("x is not 1");
+    }
+}   

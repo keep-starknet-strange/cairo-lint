@@ -153,3 +153,4 @@ test_file!(
     "Else if with multiple statements",
     "Else if inside loop"
 );
+test_file!(check_if_else_same, ifs, "Test name");
