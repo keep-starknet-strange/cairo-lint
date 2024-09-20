@@ -2,7 +2,7 @@ use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
-use cairo_lang_semantic::Expr;
+use cairo_lang_semantic::{Arenas, Expr, Statement, StatementId};
 use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
@@ -75,15 +75,7 @@ impl AnalyzerPlugin for CairoLint {
                         continue;
                     };
                     for (_expression_id, expression) in &function_body.arenas.exprs {
-                        match &expression {
-                            Expr::Match(expr_match) => {
-                                single_match::check_single_match(db, expr_match, &mut diags, &function_body.arenas)
-                            }
-                            Expr::Loop(expr_loop) => {
-                                loops::check_loop_match_pop_front(db, expr_loop, &mut diags, &function_body.arenas)
-                            }
-                            _ => (),
-                        };
+                        check_expression(db, expression, &function_body.arenas, &mut diags);
                     }
                     free_function_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
                 }
@@ -97,15 +89,7 @@ impl AnalyzerPlugin for CairoLint {
                             continue;
                         };
                         for (_expression_id, expression) in &function_body.arenas.exprs {
-                            match &expression {
-                                Expr::Match(expr_match) => {
-                                    single_match::check_single_match(db, expr_match, &mut diags, &function_body.arenas)
-                                }
-                                Expr::Loop(expr_loop) => {
-                                    loops::check_loop_match_pop_front(db, expr_loop, &mut diags, &function_body.arenas)
-                                }
-                                _ => (),
-                            };
+                            check_expression(db, expression, &function_body.arenas, &mut diags);
                         }
                     }
                     impl_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
@@ -144,5 +128,52 @@ impl AnalyzerPlugin for CairoLint {
             }
         }
         diags
+    }
+}
+pub fn check_expression(
+    db: &dyn SemanticGroup,
+    expression: &Expr,
+    arenas: &Arenas,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    match expression {
+        Expr::Match(expr_match) => {
+            single_match::check_single_match(db, expr_match, diagnostics, arenas);
+            for arm in &expr_match.arms {
+                check_expression(db, &arenas.exprs[arm.expression], arenas, diagnostics);
+            }
+        }
+        Expr::While(expr_while) => {
+            check_expression(db, &arenas.exprs[expr_while.body], arenas, diagnostics);
+        }
+        Expr::Loop(expr_loop) => {
+            loops::check_loop_match_pop_front(db, expr_loop, diagnostics, arenas);
+            check_expression(db, &arenas.exprs[expr_loop.body], arenas, diagnostics);
+        }
+        Expr::For(expr_for) => {
+            check_expression(db, &arenas.exprs[expr_for.body], arenas, diagnostics);
+        }
+        Expr::If(expr_if) => {
+            check_expression(db, &arenas.exprs[expr_if.if_block], arenas, diagnostics);
+            if let Some(else_block) = expr_if.else_block {
+                check_expression(db, &arenas.exprs[else_block], arenas, diagnostics);
+            }
+        }
+        Expr::Block(expr_block) => check_statements(db, &expr_block.statements, arenas, diagnostics),
+        _ => (),
+    };
+}
+pub fn check_statements(
+    db: &dyn SemanticGroup,
+    statements: &[StatementId],
+    arenas: &Arenas,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    for statement in statements {
+        match &arenas.statements[*statement] {
+            Statement::Expr(expr) => check_expression(db, &arenas.exprs[expr.expr], arenas, diagnostics),
+            Statement::Let(let_stmt) => check_expression(db, &arenas.exprs[let_stmt.expr], arenas, diagnostics),
+            _ => (),
+        }
     }
 }
