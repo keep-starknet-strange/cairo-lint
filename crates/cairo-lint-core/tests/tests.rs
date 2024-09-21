@@ -322,6 +322,11 @@ test_file!(
     "collapsible if with function calls",
     "collapsible if with simple numerical conditions",
     "collapsible if with else clause",
+<<<<<<< HEAD
     "collapsible if with independent statement",
     "collapsible if with else on outer if"
 );
+=======
+    "collapsible if with independent statement"
+);
+>>>>>>> 4b56c2c (feat: improve test)
