@@ -164,6 +164,7 @@ impl Fixer {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::DestructMatch => self.fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::CloneOnCopy => self.fix_clone_on_copy(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::DoubleComparison => {
                 self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
@@ -377,5 +378,8 @@ impl Fixer {
             fixed_condition,
             expr.if_block(db).as_syntax_node().get_text(db),
         )
+    }
+    pub fn fix_clone_on_copy(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String{
+
     }
 }

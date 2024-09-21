@@ -3,13 +3,13 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf};
+use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match, clone_on_copy,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -32,6 +32,7 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    CloneOnCopy,
     Unknown,
 }
 
@@ -49,6 +50,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        clone_on_copy::CLONE_ON_COPY => CairoLintKind::CloneOnCopy,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -96,6 +98,11 @@ impl AnalyzerPlugin for CairoLint {
                     SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
                         db.upcast(),
                         &ExprIf::from_syntax_node(db.upcast(), node),
+                        &mut diags,
+                    ),
+                    SyntaxKind::ExprMatch => clone_on_copy::check_clone_on_copy(
+                        db.upcast(),
+                        &Expr::from_syntax_node(db.upcast(), node),
                         &mut diags,
                     ),
                     SyntaxKind::ExprBinary => {
