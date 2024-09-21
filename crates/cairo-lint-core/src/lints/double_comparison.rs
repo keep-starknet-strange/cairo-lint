@@ -115,7 +115,7 @@ fn extract_value_from_operator(op: &BinaryOperator) -> Option<i32> {
         | BinaryOperator::LT(_)
         | BinaryOperator::LE(_)
         | BinaryOperator::GT(_)
-        | BinaryOperator::GE(_) => Some(0), // Replace with logic to get the actual value if needed
+        | BinaryOperator::GE(_) => Some(0), 
         _ => None,
     }
 }
