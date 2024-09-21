@@ -163,5 +163,6 @@ test_file!(
     "loop with arithmetic condition",
     "loop with multiple conditions",
     "loop with arithmetic condition and else block",
-    "loop with nested condition inside if block"
+    "loop with multiple condition inside if block",
+    "loop with arithmetic condition and second increment"
 );

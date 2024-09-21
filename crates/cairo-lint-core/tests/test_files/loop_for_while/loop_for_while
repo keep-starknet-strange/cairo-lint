@@ -65,6 +65,46 @@ warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replac
 fn main() {
     let mut x: u16 = 5;
     while x * 2 < 20 {
+        x += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with arithmetic condition and second increment
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 5;
+    loop {
+        if x * 2 >= 20 {
+            break;
+        } else {
+            x += 1;
+        }
+        x += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:4:5
+   |
+ 4 |       loop {
+   |  _____-
+ 5 | |         if x * 2 >= 20 {
+...  |
+10 | |         x += 1;
+11 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 5;
+    while x * 2 < 20 {
+        x += 1;
+        x += 1;
     }
 }
 
@@ -101,6 +141,40 @@ fn main() {
     let mut counter: u16 = 0;
     while counter <= 5 {
         counter += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with multiple condition inside if block
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 5;
+    loop {
+        if x * 2 >= 20 {
+            if x > 30 {
+                break;
+            }
+        } else {
+            x += 1;
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 5;
+    loop {
+        if x * 2 >= 20 {
+            if x > 30 {
+                break;
+            }
+        } else {
+            x += 1;
+        }
     }
 }
 
@@ -179,29 +253,6 @@ fn main() {
         value -= 10;
     }
 }
-
-//! > ==========================================================================
-
-//! > loop with nested condition inside if block
-
-//! > cairo_code
-fn main() {
-    let mut x: u16 = 5;
-    loop {
-        if x * 2 >= 20 {
-            if x > 30 {
-                break;
-            }
-        } else {
-            x += 1;
-        }
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-Contains nested diagnostics can't fix it
 
 //! > ==========================================================================
 

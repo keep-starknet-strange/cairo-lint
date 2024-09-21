@@ -4,8 +4,8 @@ use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
-    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionPatternEnumInnerPattern,
-    Pattern, Statement,
+    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
+    OptionPatternEnumInnerPattern, Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
@@ -329,7 +329,7 @@ impl Fixer {
         else_clause.as_syntax_node().get_text(db)
     }
 
-    /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
+    /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
 
@@ -427,17 +427,53 @@ impl Fixer {
             if let Expr::If(if_expr) = expr_statement.expr(db) {
                 let condition = if_expr.condition(db);
                 condition_text = condition.as_syntax_node().get_text_without_trivia(db).to_string();
-
                 condition_text = Self::invert_condition(&condition_text);
 
-                for statement in loop_expr.body(db).statements(db).elements(db).iter().skip(1) {
-                    loop_body.push_str(&format!(
-                        "{}    {}\n",
-                        indent,
-                        statement.as_syntax_node().get_text_without_trivia(db)
-                    ));
+                // Handle the if block
+                for statement in if_expr.if_block(db).statements(db).elements(db) {
+                    if !matches!(statement, Statement::Break(_)) {
+                        loop_body.push_str(&format!(
+                            "{}    {}\n",
+                            indent,
+                            statement.as_syntax_node().get_text_without_trivia(db)
+                        ));
+                    }
+                }
+
+                if let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) {
+                    match else_clause.else_block_or_if(db) {
+                        BlockOrIf::Block(block) => {
+                            for statement in block.statements(db).elements(db) {
+                                loop_body.push_str(&format!(
+                                    "{}    {}\n",
+                                    indent,
+                                    statement.as_syntax_node().get_text_without_trivia(db)
+                                ));
+                            }
+                        }
+                        BlockOrIf::If(else_if) => {
+                            loop_body.push_str(&format!(
+                                "{}else if {} {{\n",
+                                indent,
+                                else_if.condition(db).as_syntax_node().get_text_without_trivia(db)
+                            ));
+                            for statement in else_if.if_block(db).statements(db).elements(db) {
+                                loop_body.push_str(&format!(
+                                    "{}    {}\n",
+                                    indent,
+                                    statement.as_syntax_node().get_text_without_trivia(db)
+                                ));
+                            }
+                            loop_body.push_str(&format!("{}}}\n", indent));
+                        }
+                    }
                 }
             }
+        }
+
+        // Include statements outside the if-else block
+        for statement in loop_expr.body(db).statements(db).elements(db).iter().skip(1) {
+            loop_body.push_str(&format!("{}    {}\n", indent, statement.as_syntax_node().get_text_without_trivia(db)));
         }
 
         format!("{}while {} {{\n{}{}}}\n", indent, condition_text, loop_body, indent)
