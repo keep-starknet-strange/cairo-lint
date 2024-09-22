@@ -1,12 +1,13 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
+use cairo_lang_semantic::Expr;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
-use cairo_lang_semantic::Expr;
 use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
+use crate::lints::eq_op::check_eq_op;
 use crate::lints::ifs::*;
 use crate::lints::{
     bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
@@ -102,6 +103,7 @@ impl AnalyzerPlugin for CairoLint {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
+                        check_eq_op(db.upcast(), &expr_binary, &mut diags);
                     }
                     SyntaxKind::ElseClause => {
                         collapsible_if_else::check_collapsible_if_else(
