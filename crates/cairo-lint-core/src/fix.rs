@@ -4,7 +4,7 @@ use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
-    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
+    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprBlock, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
     OptionPatternEnumInnerPattern, Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -418,65 +418,61 @@ impl Fixer {
     /// ```
     pub fn fix_loop_break(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let loop_expr = ExprLoop::from_syntax_node(db, node.clone());
+        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
         let mut condition_text = String::new();
         let mut loop_body = String::new();
 
-        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
-
         if let Some(Statement::Expr(expr_statement)) = loop_expr.body(db).statements(db).elements(db).first() {
             if let Expr::If(if_expr) = expr_statement.expr(db) {
-                let condition = if_expr.condition(db);
-                condition_text = condition.as_syntax_node().get_text_without_trivia(db).to_string();
-                condition_text = Self::invert_condition(&condition_text);
+                condition_text =
+                    Self::invert_condition(&if_expr.condition(db).as_syntax_node().get_text_without_trivia(db));
 
-                // Handle the if block
-                for statement in if_expr.if_block(db).statements(db).elements(db) {
-                    if !matches!(statement, Statement::Break(_)) {
-                        loop_body.push_str(&format!(
-                            "{}    {}\n",
-                            indent,
-                            statement.as_syntax_node().get_text_without_trivia(db)
-                        ));
-                    }
-                }
+                loop_body.push_str(&self.process_block(db, if_expr.if_block(db), &indent));
 
                 if let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) {
-                    match else_clause.else_block_or_if(db) {
-                        BlockOrIf::Block(block) => {
-                            for statement in block.statements(db).elements(db) {
-                                loop_body.push_str(&format!(
-                                    "{}    {}\n",
-                                    indent,
-                                    statement.as_syntax_node().get_text_without_trivia(db)
-                                ));
-                            }
-                        }
-                        BlockOrIf::If(else_if) => {
-                            loop_body.push_str(&format!(
-                                "{}else if {} {{\n",
-                                indent,
-                                else_if.condition(db).as_syntax_node().get_text_without_trivia(db)
-                            ));
-                            for statement in else_if.if_block(db).statements(db).elements(db) {
-                                loop_body.push_str(&format!(
-                                    "{}    {}\n",
-                                    indent,
-                                    statement.as_syntax_node().get_text_without_trivia(db)
-                                ));
-                            }
-                            loop_body.push_str(&format!("{}}}\n", indent));
-                        }
-                    }
+                    loop_body.push_str(&self.process_else_clause(db, else_clause, &indent));
                 }
             }
         }
 
-        // Include statements outside the if-else block
         for statement in loop_expr.body(db).statements(db).elements(db).iter().skip(1) {
             loop_body.push_str(&format!("{}    {}\n", indent, statement.as_syntax_node().get_text_without_trivia(db)));
         }
 
         format!("{}while {} {{\n{}{}}}\n", indent, condition_text, loop_body, indent)
+    }
+
+    fn process_block(&self, db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> String {
+        let mut block_body = String::new();
+        for statement in block.statements(db).elements(db) {
+            if !matches!(statement, Statement::Break(_)) {
+                block_body.push_str(&format!(
+                    "{}    {}\n",
+                    indent,
+                    statement.as_syntax_node().get_text_without_trivia(db)
+                ));
+            }
+        }
+        block_body
+    }
+
+    fn process_else_clause(&self, db: &dyn SyntaxGroup, else_clause: ElseClause, indent: &str) -> String {
+        let mut else_body = String::new();
+        match else_clause.else_block_or_if(db) {
+            BlockOrIf::Block(block) => {
+                else_body.push_str(&self.process_block(db, block, indent));
+            }
+            BlockOrIf::If(else_if) => {
+                else_body.push_str(&format!(
+                    "{}else if {} {{\n",
+                    indent,
+                    else_if.condition(db).as_syntax_node().get_text_without_trivia(db)
+                ));
+                else_body.push_str(&self.process_block(db, else_if.if_block(db), indent));
+                else_body.push_str(&format!("{}}}\n", indent));
+            }
+        }
+        else_body
     }
 
     fn invert_condition(condition: &str) -> String {

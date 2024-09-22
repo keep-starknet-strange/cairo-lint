@@ -164,5 +164,7 @@ test_file!(
     "loop with multiple conditions",
     "loop with arithmetic condition and else block",
     "loop with multiple condition inside if block",
-    "loop with arithmetic condition and second increment"
+    "loop with arithmetic condition and second increment",
+    "loop with multiple increments and comparison",
+    "loop with condition depending on external variable"
 );

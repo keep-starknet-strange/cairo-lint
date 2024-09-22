@@ -146,6 +146,44 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > loop with condition depending on external variable
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 0;
+    let limit: u16 = 15;
+    loop {
+        if x >= limit {
+            break;
+        }
+        x += 2;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:6:5
+   |
+ 6 |       loop {
+   |  _____-
+ 7 | |         if x >= limit {
+...  |
+10 | |         x += 2;
+11 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 0;
+    let limit: u16 = 15;
+    while x < limit {
+        x += 2;
+    }
+}
+
+//! > ==========================================================================
+
 //! > loop with multiple condition inside if block
 
 //! > cairo_code
@@ -215,6 +253,46 @@ fn main() {
     while a <= 10 || b >= 5 {
         a += 1;
         b += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with multiple increments and comparison
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 0;
+    let mut y: u16 = 10;
+    loop {
+        if x > 5 || y == 0 {
+            break;
+        }
+        x += 2;
+        y -= 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:6:5
+   |
+ 6 |       loop {
+   |  _____-
+ 7 | |         if x > 5 || y == 0 {
+...  |
+11 | |         y -= 1;
+12 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 0;
+    let mut y: u16 = 10;
+    while x <= 5 && y != 0 {
+        x += 2;
+        y -= 1;
     }
 }
 
