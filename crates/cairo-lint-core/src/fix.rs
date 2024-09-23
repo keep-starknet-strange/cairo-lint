@@ -396,15 +396,15 @@ impl Fixer {
                 let panic_message = inline_macro.arguments(db).as_syntax_node().get_text_without_trivia(db);
                 let condition_text = condition.as_syntax_node().get_text_without_trivia(db);
                 let assert_condition = condition_text.trim_start_matches('!');
-    
+
                 let main_expression = if let Some(pos) = assert_condition.find(".is_empty()") {
                     &assert_condition[..pos]
                 } else {
                     assert_condition
                 };
-    
+
                 let indentation = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
-    
+
                 let assert_macro = format!(
                     "{}assert!({}, \"{}: {{:?}}\", {});\n",
                     indentation,
