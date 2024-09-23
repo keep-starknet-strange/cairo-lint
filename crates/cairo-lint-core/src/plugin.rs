@@ -9,7 +9,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match, bool_assert_comparison,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -29,6 +29,7 @@ pub enum CairoLintKind {
     EquatableIfLet,
     BreakUnit,
     BoolComparison,
+    BoolAssertComparison,
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
@@ -46,6 +47,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         equatable_if_let::EQUATABLE_IF_LET => CairoLintKind::EquatableIfLet,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
+        bool_assert_comparison::BOOL_ASSERT_COMPARISON => CairoLintKind::BoolAssertComparison,
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
