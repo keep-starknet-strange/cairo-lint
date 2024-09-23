@@ -153,3 +153,9 @@ test_file!(
     "Else if with multiple statements",
     "Else if inside loop"
 );
+
+test_file!(
+    unwrap_used,
+    unwrap_used,
+    "Test unwrap usage should trigger diagnostic"
+);

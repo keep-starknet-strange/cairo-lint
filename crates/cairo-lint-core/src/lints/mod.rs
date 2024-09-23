@@ -6,3 +6,4 @@ pub mod duplicate_underscore_args;
 pub mod ifs;
 pub mod loops;
 pub mod single_match;
+pub mod unwrap_used;
