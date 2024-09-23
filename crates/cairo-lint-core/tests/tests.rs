@@ -155,7 +155,7 @@ test_file!(
 );
 
 test_file!(
-    manual_ok_or,
+    manual,
     manual_ok_or,
     "test error str",
     "test error enum",
