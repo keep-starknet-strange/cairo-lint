@@ -9,7 +9,8 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+    assertions_on_constans, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
+    loops, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -32,6 +33,7 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    AssertBoolLiteral,
     Unknown,
 }
 
@@ -39,6 +41,8 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
     match message {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
         single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
+        assertions_on_constans::ASSERT_MSG => CairoLintKind::AssertBoolLiteral,
+        assertions_on_constans::ASSERT_MSG_FALSE => CairoLintKind::AssertBoolLiteral,
         double_parens::DOUBLE_PARENS => CairoLintKind::DoubleParens,
         double_comparison::SIMPLIFIABLE_COMPARISON => CairoLintKind::DoubleComparison,
         double_comparison::REDUNDANT_COMPARISON => CairoLintKind::DoubleComparison,
@@ -84,7 +88,7 @@ impl AnalyzerPlugin for CairoLint {
                 _ => continue,
             }
             .descendants(syntax_db);
-
+           
             for node in function_nodes {
                 match node.kind(syntax_db) {
                     SyntaxKind::ExprParenthesized => double_parens::check_double_parens(
@@ -93,6 +97,9 @@ impl AnalyzerPlugin for CairoLint {
                         &mut diags,
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
+                    SyntaxKind::ExprInlineMacro => {
+                        assertions_on_constans::check_assert(db.upcast(), node, &mut diags);
+                    },
                     SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
                         db.upcast(),
                         &ExprIf::from_syntax_node(db.upcast(), node),

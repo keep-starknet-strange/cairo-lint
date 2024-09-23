@@ -1,0 +1,41 @@
+//! > Assertions on constants false
+
+//! > cairo_code
+fn main() {
+    assert!(false);
+}
+
+//! > diagnostics
+error: Plugin diagnostic: assert!(false) can be replaced with panic!.
+ --> lib.cairo:2:5
+  |
+2 |     assert!(false);
+  |     ^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+panic!(assert!(false)); /* assert!(false) encountered and replaced with panic! */;
+}
+
+//! > ==========================================================================
+
+//! > Assertions on constants true
+
+//! > cairo_code
+fn main() {
+    assert!(true);
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: assert!(true) is redundant and can be removed.
+ --> lib.cairo:2:5
+  |
+2 |     assert!(true);
+  |     -------------
+  |
+
+//! > fixed
+fn main() {
+/* assert!(true) was removed as it is redundant */;
+}

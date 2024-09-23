@@ -1,3 +1,4 @@
+pub mod assertions_on_constans;
 pub mod bool_comparison;
 pub mod breaks;
 pub mod double_comparison;
