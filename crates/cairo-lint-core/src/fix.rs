@@ -391,7 +391,7 @@ impl Fixer {
         let block_expr = if_expr.if_block(db);
         let statements = block_expr.statements(db).elements(db);
 
-        if let Some(Statement::Expr(statement_expr)) = statements.get(0) {
+        if let Some(Statement::Expr(statement_expr)) = statements.first() {
             if let Expr::InlineMacro(inline_macro) = &statement_expr.expr(db) {
                 let panic_message = inline_macro.arguments(db).as_syntax_node().get_text_without_trivia(db);
                 let condition_text = condition.as_syntax_node().get_text_without_trivia(db);
