@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
+use crate::lints::manual::manual_assert;
 use crate::lints::{
     bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
 };
@@ -32,6 +33,7 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    ManualAssert,
     Unknown,
 }
 
@@ -49,6 +51,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        manual_assert::MANUAL_ASSERT => CairoLintKind::ManualAssert,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -93,11 +96,18 @@ impl AnalyzerPlugin for CairoLint {
                         &mut diags,
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
-                    SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
-                        db.upcast(),
-                        &ExprIf::from_syntax_node(db.upcast(), node),
-                        &mut diags,
-                    ),
+                    SyntaxKind::ExprIf => {
+                        equatable_if_let::check_equatable_if_let(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_assert::check_if_then_panic(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                    }
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);

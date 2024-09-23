@@ -180,6 +180,7 @@ impl Fixer {
             CairoLintKind::LoopMatchPopFront => {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
+            CairoLintKind::ManualAssert => self.fix_if_then_panic(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -377,5 +378,45 @@ impl Fixer {
             fixed_condition,
             expr.if_block(db).as_syntax_node().get_text(db),
         )
+    }
+
+    pub fn fix_if_then_panic(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let if_expr = ExprIf::from_syntax_node(db, node.clone());
+        let condition = if let Condition::Expr(expr) = if_expr.condition(db) {
+            expr
+        } else {
+            panic!("Unexpected condition type");
+        };
+
+        let block_expr = if_expr.if_block(db);
+        let statements = block_expr.statements(db).elements(db);
+
+        if let Some(Statement::Expr(statement_expr)) = statements.get(0) {
+            if let Expr::InlineMacro(inline_macro) = &statement_expr.expr(db) {
+                let panic_message = inline_macro.arguments(db).as_syntax_node().get_text_without_trivia(db);
+                let condition_text = condition.as_syntax_node().get_text_without_trivia(db);
+                let assert_condition = condition_text.trim_start_matches('!');
+    
+                let main_expression = if let Some(pos) = assert_condition.find(".is_empty()") {
+                    &assert_condition[..pos]
+                } else {
+                    assert_condition
+                };
+    
+                let indentation = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+    
+                let assert_macro = format!(
+                    "{}assert!({}, \"{}: {{:?}}\", {});\n",
+                    indentation,
+                    assert_condition,
+                    panic_message.trim_matches(&['(', ')'][..]).replace("\"", "").trim(),
+                    main_expression,
+                );
+
+                return assert_macro;
+            }
+        }
+
+        node.get_text(db).to_string()
     }
 }

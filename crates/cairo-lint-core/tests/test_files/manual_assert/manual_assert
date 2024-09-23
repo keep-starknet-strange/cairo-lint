@@ -1,0 +1,26 @@
+//! > check-if-then
+
+//! > cairo_code
+fn main() {
+    let sad_people: Array<u32> = array![];
+    if !sad_people.is_empty() {
+        panic!("there are sad people");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: `assert!` is simpler than `if`-then-`panic!`
+ --> lib.cairo:4:5
+  |
+4 |       if !sad_people.is_empty() {
+  |  _____-
+5 | |         panic!("there are sad people");
+6 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let sad_people: Array<u32> = array![];
+    assert!(sad_people.is_empty(), "there are sad people: {:?}", sad_people);
+}
