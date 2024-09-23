@@ -1,8 +1,8 @@
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
-use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
+use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
     OptionPatternEnumInnerPattern, Pattern, Statement,
@@ -15,7 +15,7 @@ use log::debug;
 use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
 use crate::lints::double_comparison;
 use crate::lints::single_match::is_expr_unit;
-use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
+use crate::plugin::{CairoLintKind, diagnostic_kind_from_message};
 
 mod import_fixes;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
@@ -184,6 +184,7 @@ impl Fixer {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -445,4 +446,69 @@ impl Fixer {
         format!("{}while {} {{\n{}{}}}\n", indent, condition_text, loop_body, indent)
     }
 
+    /// Rewrites a manual implementation of ok_or
+    pub fn fix_manual_ok_or(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_match = if let Expr::Match(expr_match) = Expr::from_syntax_node(db, node.clone()) {
+            expr_match
+        } else {
+            panic!("Expected a match expression");
+        };
+
+        let val = expr_match.expr(db);
+        let option_var_name = match val {
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Expected a variable or path in match expression"),
+        };
+
+        let arms = expr_match.arms(db).elements(db);
+        if arms.len() != 2 {
+            panic!("Expected exactly two arms in the match expression");
+        }
+
+        let first_arm = &arms[0];
+        let second_arm = &arms[1];
+
+        let first_pattern = &first_arm.patterns(db).elements(db)[0];
+        let second_pattern = &second_arm.patterns(db).elements(db)[0];
+
+        match first_pattern {
+            Pattern::Enum(enum_pattern) => {
+                let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
+                match enum_name.as_str() {
+                    "Option::Some" => {}
+                    _ => panic!("Expected Option::Some enum pattern"),
+                }
+            }
+            _ => panic!("Expected an Option enum pattern"),
+        }
+
+        let none_arm_err = match second_pattern {
+            Pattern::Enum(enum_pattern) => {
+                let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
+                match enum_name.as_str() {
+                    "Option::None" => match second_arm.expression(db) {
+                        Expr::FunctionCall(func_call) => {
+                            let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
+                            if func_name == "Result::Err" {
+                                if let Some(arg) = func_call.arguments(db).arguments(db).elements(db).first() {
+                                    arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                                } else {
+                                    panic!("Result::Err should have arg");
+                                }
+                            } else {
+                                panic!("Expected Result::Err");
+                            }
+                        }
+                        _ => {
+                            panic!("Expected Result::Err");
+                        }
+                    },
+                    _ => panic!("Expected Option::None enum pattern"),
+                }
+            }
+            _ => panic!("Expected an Option enum pattern"),
+        };
+
+        format!("{option_var_name}.ok_or({none_arm_err})")
+    }
 }

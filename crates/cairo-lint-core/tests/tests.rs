@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::{LazyLock, Mutex};
+use std::sync::{ LazyLock, Mutex };
 
 use annotate_snippets::Renderer;
 use cairo_lang_compiler::db::RootDatabase;
@@ -10,20 +10,27 @@ use cairo_lang_semantic::inline_macros::get_default_plugin_suite;
 use cairo_lang_semantic::test_utils::setup_test_crate_ex;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
-use cairo_lang_test_utils::parse_test_file::{dump_to_test_file, parse_test_file, Test};
-use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
+use cairo_lang_test_utils::parse_test_file::{ Test, dump_to_test_file, parse_test_file };
 use cairo_lang_utils::Upcast;
+use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
+use cairo_lint_core::fix::{
+    Fix,
+    ImportFix,
+    apply_import_fixes,
+    collect_unused_imports,
+    fix_semantic_diagnostic,
+};
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
-use cairo_lint_test_utils::{get_diags, test_file, Tests};
+use cairo_lint_test_utils::{ Tests, get_diags, test_file };
 use ctor::dtor;
 use itertools::Itertools;
 use paste::paste;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 
-const CRATE_CONFIG: &str = r#"
+const CRATE_CONFIG: &str =
+    r#"
 edition = "2024_07"
 
 [experimental_features]
@@ -31,7 +38,13 @@ negative_impls = true
 coupons = true
 "#;
 
-test_file!(unused_variables, unused_variables, "one unused variable", "two unused variable", "plenty unused variables");
+test_file!(
+    unused_variables,
+    unused_variables,
+    "one unused variable",
+    "two unused variable",
+    "plenty unused variables"
+);
 
 test_file!(
     single_match,
@@ -167,4 +180,13 @@ test_file!(
     "loop with arithmetic condition and second increment",
     "loop with multiple increments and comparison",
     "loop with condition depending on external variable"
+);
+
+test_file!(
+    manual,
+    manual_ok_or,
+    "test error str",
+    "test error enum",
+    "test with comment in None",
+    "test with comment in Some"
 );
