@@ -4,7 +4,7 @@ use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
-    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprBlock, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
+    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
     OptionPatternEnumInnerPattern, Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -19,6 +19,9 @@ use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
 mod import_fixes;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
+mod helper;
+use helper::{process_block, process_else_clause, invert_condition};
+
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
@@ -425,12 +428,12 @@ impl Fixer {
         if let Some(Statement::Expr(expr_statement)) = loop_expr.body(db).statements(db).elements(db).first() {
             if let Expr::If(if_expr) = expr_statement.expr(db) {
                 condition_text =
-                    Self::invert_condition(&if_expr.condition(db).as_syntax_node().get_text_without_trivia(db));
-
-                loop_body.push_str(&self.process_block(db, if_expr.if_block(db), &indent));
-
+                    invert_condition(&if_expr.condition(db).as_syntax_node().get_text_without_trivia(db));
+        
+                loop_body.push_str(&process_block(db, if_expr.if_block(db), &indent));
+        
                 if let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) {
-                    loop_body.push_str(&self.process_else_clause(db, else_clause, &indent));
+                    loop_body.push_str(&process_else_clause(db, else_clause, &indent));
                 }
             }
         }
@@ -442,72 +445,4 @@ impl Fixer {
         format!("{}while {} {{\n{}{}}}\n", indent, condition_text, loop_body, indent)
     }
 
-    fn process_block(&self, db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> String {
-        let mut block_body = String::new();
-        for statement in block.statements(db).elements(db) {
-            if !matches!(statement, Statement::Break(_)) {
-                block_body.push_str(&format!(
-                    "{}    {}\n",
-                    indent,
-                    statement.as_syntax_node().get_text_without_trivia(db)
-                ));
-            }
-        }
-        block_body
-    }
-
-    fn process_else_clause(&self, db: &dyn SyntaxGroup, else_clause: ElseClause, indent: &str) -> String {
-        let mut else_body = String::new();
-        match else_clause.else_block_or_if(db) {
-            BlockOrIf::Block(block) => {
-                else_body.push_str(&self.process_block(db, block, indent));
-            }
-            BlockOrIf::If(else_if) => {
-                else_body.push_str(&format!(
-                    "{}else if {} {{\n",
-                    indent,
-                    else_if.condition(db).as_syntax_node().get_text_without_trivia(db)
-                ));
-                else_body.push_str(&self.process_block(db, else_if.if_block(db), indent));
-                else_body.push_str(&format!("{}}}\n", indent));
-            }
-        }
-        else_body
-    }
-
-    fn invert_condition(condition: &str) -> String {
-        if condition.contains("&&") {
-            condition
-                .split("&&")
-                .map(|part| Self::invert_simple_condition(part.trim()))
-                .collect::<Vec<_>>()
-                .join(" || ")
-        } else if condition.contains("||") {
-            condition
-                .split("||")
-                .map(|part| Self::invert_simple_condition(part.trim()))
-                .collect::<Vec<_>>()
-                .join(" && ")
-        } else {
-            Self::invert_simple_condition(condition)
-        }
-    }
-
-    fn invert_simple_condition(condition: &str) -> String {
-        if condition.contains(">=") {
-            condition.replace(">=", "<")
-        } else if condition.contains("<=") {
-            condition.replace("<=", ">")
-        } else if condition.contains(">") {
-            condition.replace(">", "<=")
-        } else if condition.contains("<") {
-            condition.replace("<", ">=")
-        } else if condition.contains("==") {
-            condition.replace("==", "!=")
-        } else if condition.contains("!=") {
-            condition.replace("!=", "==")
-        } else {
-            format!("!({})", condition)
-        }
-    }
 }
