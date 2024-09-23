@@ -179,6 +179,9 @@ impl Fixer {
             ),
             CairoLintKind::LoopMatchPopFront => {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
+            },
+            CairoLintKind::ManualUnwrapOrDefault => {
+                self.fix_manual_unwrap_or_default(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             _ => return None,
         };
@@ -378,4 +381,44 @@ impl Fixer {
             expr.if_block(db).as_syntax_node().get_text(db),
         )
     }
+
+    /// Rewrites manual unwrap or default to use unwrap_or_default
+    pub fn fix_manual_unwrap_or_default(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        // Check if the node is a general expression
+        let expr = Expr::from_syntax_node(db, node.clone());
+    
+        match expr {
+            // Handle the case where the expression is a match expression
+            Expr::Match(expr_match) => {
+                // Extract the expression being matched on
+                let matched_expr = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
+                
+                // Return the simplified `.unwrap_or_default()` expression for match
+                let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+                return format!("{indent}{}.unwrap_or_default()", matched_expr);
+            }
+    
+            // Handle the case where the expression is an if-let expression
+            Expr::If(expr_if) => {
+                // Extract the condition from the if-let expression
+                let condition = expr_if.condition(db);
+                
+                match condition {
+                    Condition::Let(condition_let) => {
+                        // Extract the expression being matched on
+                        let matched_expr = condition_let.expr(db).as_syntax_node().get_text_without_trivia(db);
+                        
+                        // Return the simplified `.unwrap_or_default()` expression for if-let
+                        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+                        return format!("{indent}{}.unwrap_or_default()", matched_expr);
+                    }
+                    _ => panic!("Expected an `if let` expression."),
+                }
+            }
+    
+            // Handle unsupported expressions
+            _ => panic!("The expression cannot be simplified to `.unwrap_or_default()`."),
+        }
+    }
+
 }

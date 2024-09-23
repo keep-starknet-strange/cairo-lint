@@ -28,11 +28,7 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 fn main() {
   let a: Option<felt252> = Option::Some(1);
 
-  if let Option::Some(v) = a {
-    v
-   } else {
-     Default::default()
-  };
+  a.unwrap_or_default();
 }
 
 //! > ==========================================================================
@@ -65,11 +61,7 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 //! > fixed
 fn main() {
   let x: Option<ByteArray> = Option::Some("Hello");
-  if let Option::Some(v) = x {
-    v
-   } else {
-     ""
-  };
+  x.unwrap_or_default();
 }
 
 //! > ==========================================================================
@@ -102,11 +94,7 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 //! > fixed
 fn main() {
   let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
-  if let Option::Some(v) = x {
-    v
-   } else {
-     ArrayTrait::new()
-  };
+  x.unwrap_or_default();
 }
 
 //! > ==========================================================================
@@ -139,11 +127,7 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 //! > fixed
 fn main() {
   let x: Option<u128> = Option::Some(1038);
-  if let Option::Some(v) = x {
-    v
-   } else {
-    0
-  };
+  x.unwrap_or_default();
 }
 
 //! > ==========================================================================
@@ -176,10 +160,7 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 fn main() {
   let a: Option<felt252> = Option::Some(1);
 
-  match a {
-    Option::Some(v) => v,
-    Option::None => Default::default()
-  };
+  a.unwrap_or_default();
 }
 
 //! > ==========================================================================
@@ -210,10 +191,7 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 //! > fixed
 fn main() {
   let x: Option<ByteArray> = Option::Some("Hello");
-  match x {
-    Option::Some(v) => v,
-    Option::None => ""
-  };
+  x.unwrap_or_default();
 }
 
 //! > ==========================================================================
@@ -244,10 +222,7 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 //! > fixed
 fn main() {
   let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
-  match x {
-    Option::Some(v) => v,
-    Option::None => ArrayTrait::new()
-  };
+  x.unwrap_or_default();
 }
 
 //! > ==========================================================================
@@ -278,8 +253,5 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 //! > fixed
 fn main() {
   let x: Option<u128> = Option::Some(1038);
-  match x {
-    Option::Some(v) => v,
-    Option::None => 0
-  };
+  x.unwrap_or_default();
 }
