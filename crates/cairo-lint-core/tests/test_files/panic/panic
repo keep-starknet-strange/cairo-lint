@@ -1,39 +1,139 @@
-//! > Test name
+//! > Empty Panic
 
 //! > cairo_code
 fn main() {
-  panic!("Hello");
-  panic!();
+  panic!("");
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Using `panic!` is discouraged.
---> lib.cairo[panic_macro]:0:1
- |
-0 | core::panics::panic(array![core::byte_array::BYTE_ARRAY_MAGIC, 0, 0x48656c6c6f, 5]))core::panic(array![core::byte_array::BYTE_ARRAY_M...
- | -----------------------------------------------------------------------------------
- |
-warning: Plugin diagnostic: Using `panic!` is discouraged.
---> lib.cairo[panic_macro]:0:1
- |
-0 | core::panics::panic(array![core::byte_array::BYTE_ARRAY_MAGIC, 0, 0x48656c6c6f, 5]))core::panic(array![core::byte_array::BYTE_ARRAY_M...
- | -----------------------------------------------------------------------------------
- |
-warning: Plugin diagnostic: Using `panic!` is discouraged.
---> lib.cairo[panic_macro]:0:1
- |
-0 | core::panics::panic(array![core::byte_array::BYTE_ARRAY_MAGIC, 0, 0, 0]);
- | ------------------------------------------------------------------------
- |
-warning: Plugin diagnostic: Using `panic!` is discouraged.
---> lib.cairo[panic_macro]:0:1
- |
-0 | core::panics::panic(array![core::byte_array::BYTE_ARRAY_MAGIC, 0, 0, 0]);
- | ------------------------------------------------------------------------
- |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:2:3
+  |
+2 |   panic!("");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:2:3
+  |
+2 |   panic!("");
+  |   -----
+  |
 
 //! > fixed
 fn main() {
-  panic!("Hello");
-  panic!();
+  panic!("");
+}
+
+//! > ==========================================================================
+
+//! > Multiple Panic
+
+//! > cairo_code
+fn main() {
+  panic!("panic");
+  panic!("panic 2");
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:2:3
+  |
+2 |   panic!("panic");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:2:3
+  |
+2 |   panic!("panic");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:4:3
+  |
+4 |   panic!("panic 2");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:4:3
+  |
+4 |   panic!("panic 2");
+  |   -----
+  |
+
+//! > fixed
+fn main() {
+  panic!("panic");
+  panic!("panic 2");
+}
+
+//! > ==========================================================================
+
+//! > Multiple Panic and other macros
+
+//! > cairo_code
+fn main() {
+  panic!("panic");
+  panic!("panic 2");
+  println!("print");
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:2:3
+  |
+2 |   panic!("panic");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:2:3
+  |
+2 |   panic!("panic");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:4:3
+  |
+4 |   panic!("panic 2");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:4:3
+  |
+4 |   panic!("panic 2");
+  |   -----
+  |
+
+//! > fixed
+fn main() {
+  panic!("panic");
+  panic!("panic 2");
+  println!("print");
+}
+
+//! > ==========================================================================
+
+//! > Single Panic
+
+//! > cairo_code
+fn main() {
+  panic!("panic");
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:2:3
+  |
+2 |   panic!("panic");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:2:3
+  |
+2 |   panic!("panic");
+  |   -----
+  |
+
+//! > fixed
+fn main() {
+  panic!("panic");
 }

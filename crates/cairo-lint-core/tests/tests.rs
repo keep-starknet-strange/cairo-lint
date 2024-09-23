@@ -154,4 +154,9 @@ test_file!(
     "Else if inside loop"
 );
 
-test_file!(panic, panic, "Test name");
+test_file!(panic, panic,
+    "Single Panic",
+    "Multiple Panic",
+    "Multiple Panic and other macros",
+    "Empty Panic"
+);
