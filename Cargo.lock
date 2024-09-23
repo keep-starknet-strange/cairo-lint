@@ -656,6 +656,7 @@ dependencies = [
  "ctor",
  "itertools 0.13.0",
  "log",
+ "num-bigint",
  "paste",
  "pretty_assertions",
  "test-case",

@@ -3,6 +3,8 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Expr, Arenas};
 
+use num_bigint::BigInt;
+
 pub const MANUAL_UNWRAP_OR_DEFAULT: &str = "This can be done in one call with `.unwrap_or_default()`";
 
 /// Parses and extracts the branches of an `if` or `match` expression.
@@ -24,7 +26,6 @@ pub fn parse_and_extract(
                             None
                         }
                     });
-                    // println!("{:?}", else_expr);
                     return Some((some_expr, else_expr));
                 }
             }
@@ -46,17 +47,23 @@ pub fn parse_and_extract(
 /// Checks if the pattern is `Some(x) => x` and the other arm is `Default::default()`.
 fn is_manual_unwrap_or_default(
     db: &dyn SemanticGroup, 
-    some_block: &Expr, 
-    none_expr: &Expr
+    first_arm: &Expr, 
+    second_arm: &Expr
 ) -> bool {
     // Checks if the expression is a variable (`Expr::Var`).
-    let is_var =  matches!(some_block, Expr::Var(_));
-
+    let is_var =  matches!(first_arm, Expr::Var(_));
+    
     // Checks if the given expression is `::default()` or `default`.
-    let is_default =  match none_expr {
+    let is_default =  match second_arm {
         Expr::FunctionCall(call_expr) => {
             let func_name = &call_expr.function.name(db);
             func_name.as_str().ends_with("::new\"") || func_name.as_str().ends_with("::default\"")
+        },
+        Expr::StringLiteral(str_expr)=> {
+            str_expr.value.is_empty()
+        },
+        Expr::Literal(int_expr)=> {
+            int_expr.value.eq(&BigInt::default())
         },
         _ => false,
     };
@@ -71,8 +78,8 @@ pub fn check_manual_unwrap_or_default(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
-    if let Some((some_block, Some(none_expr))) = parse_and_extract(expr, arenas) {
-        if is_manual_unwrap_or_default(db, &some_block, &none_expr) {
+    if let Some((first_arm, Some(second_arm))) = parse_and_extract(expr, arenas) {
+        if is_manual_unwrap_or_default(db, &first_arm, &second_arm) {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: expr.stable_ptr().into(),
                 message: MANUAL_UNWRAP_OR_DEFAULT.to_string(),

@@ -17,6 +17,7 @@ cairo-lang-syntax.workspace = true
 cairo-lang-defs.workspace = true
 log.workspace = true
 annotate-snippets.workspace = true
+num-bigint.workspace = true
 
 [dev-dependencies]
 cairo-lang-test-utils.workspace = true
