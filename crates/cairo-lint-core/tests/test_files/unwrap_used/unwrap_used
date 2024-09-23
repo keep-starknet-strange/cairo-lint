@@ -1,0 +1,63 @@
+use cairo_lint_test_utils::assert_lint;
+use cairo_lint_core::lints::check_unwrap_used;
+use indoc::indoc;
+
+#[test]
+fn test_unwrap_usage_should_trigger_diagnostic() {
+    let content = indoc! {"
+        //! > Test unwrap usage
+
+        //! > test_runner_name
+        test_function_diagnostics
+
+        //! > function
+        fn test_unwrap() {
+            let x = Option::Some(5);
+            let y = x.unwrap();
+        }
+
+        //! > expected_diagnostics
+        warning: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+         --> lib.cairo:5:17
+        let y = x.unwrap();
+                ^*******
+
+        //! > ==========================================================================
+
+        //! > Test unwrap with comment
+
+        //! > test_runner_name
+        test_function_diagnostics
+
+        //! > function
+        fn test_unwrap_with_comment() {
+            let x = Option::Some(5);
+            // Using unwrap here
+            let y = x.unwrap();
+            // Done with unwrap
+        }
+
+        //! > expected_diagnostics
+        warning: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+         --> lib.cairo:7:17
+        let y = x.unwrap();
+                ^*******
+
+        //! > ==========================================================================
+
+        //! > Test no unwrap usage
+
+        //! > test_runner_name
+        test_function_diagnostics
+
+        //! > function
+        fn test_no_unwrap() {
+            let x = Option::Some(5);
+            let y = x?;
+        }
+
+        //! > expected_diagnostics
+    "};
+
+    assert_lint(content, check_unwrap_used, vec![]);
+}
