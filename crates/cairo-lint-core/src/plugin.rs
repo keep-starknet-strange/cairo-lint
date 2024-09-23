@@ -72,28 +72,6 @@ impl AnalyzerPlugin for CairoLint {
                 }
                 ModuleItemId::FreeFunction(free_function_id) => {
                     let func_id = FunctionWithBodyId::Free(*free_function_id);
-                    duplicate_underscore_args::check_duplicate_underscore_args(
-                        db.function_with_body_signature(func_id).unwrap().params,
-                        &mut diags,
-                    );
-                    let Ok(function_body) = db.function_body(func_id) else {
-                        continue;
-                    };
-                    for (_expression_id, expression) in &function_body.arenas.exprs {
-                        match &expression {
-                            Expr::If(_) => {
-                                manual_unwrap_or_default::check_manual_unwrap_or_default(db, &expression, &mut diags, &function_body.arenas)
-                            }
-                            Expr::Match(expr_match) => {
-                                single_match::check_single_match(db, expr_match, &mut diags, &function_body.arenas);
-                                manual_unwrap_or_default::check_manual_unwrap_or_default(db, &expression, &mut diags, &function_body.arenas)
-                            }
-                            Expr::Loop(expr_loop) => {
-                                loops::check_loop_match_pop_front(db, expr_loop, &mut diags, &function_body.arenas)
-                            }
-                            _ => (),
-                        };
-                    }
                     check_function(db, func_id, &mut diags);
                     free_function_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
                 }
@@ -103,24 +81,6 @@ impl AnalyzerPlugin for CairoLint {
                         continue;
                     };
                     for (_fn_name, fn_id) in functions.iter() {
-                        let Ok(function_body) = db.function_body(FunctionWithBodyId::Impl(*fn_id)) else {
-                            continue;
-                        };
-                        for (_expression_id, expression) in &function_body.arenas.exprs {
-                            match &expression {
-                                Expr::If(_) => {
-                                    manual_unwrap_or_default::check_manual_unwrap_or_default(db, &expression, &mut diags, &function_body.arenas)
-                                }
-                                Expr::Match(expr_match) => {
-                                    single_match::check_single_match(db, expr_match, &mut diags, &function_body.arenas);
-                                    manual_unwrap_or_default::check_manual_unwrap_or_default(db, &expression, &mut diags, &function_body.arenas)
-                                }
-                                Expr::Loop(expr_loop) => {
-                                    loops::check_loop_match_pop_front(db, expr_loop, &mut diags, &function_body.arenas)
-                                }
-                                _ => (),
-                            };
-                        }
                         let func_id = FunctionWithBodyId::Impl(*fn_id);
                         check_function(db, func_id, &mut diags);
                     }
@@ -179,8 +139,12 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
     };
     for (_expression_id, expression) in &function_body.arenas.exprs {
         match &expression {
+            Expr::If(_) => {
+                manual_unwrap_or_default::check_manual_unwrap_or_default(db, &expression, diagnostics, &function_body.arenas)
+            }
             Expr::Match(expr_match) => {
-                single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas)
+                single_match::check_single_match(db, expr_match,  diagnostics, &function_body.arenas);
+                manual_unwrap_or_default::check_manual_unwrap_or_default(db, &expression,  diagnostics, &function_body.arenas)
             }
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
