@@ -47,7 +47,10 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         breaks::BREAK_UNIT => CairoLintKind::BreakUnit,
         equatable_if_let::EQUATABLE_IF_LET => CairoLintKind::EquatableIfLet,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
-        bool_assert_comparison::BOOL_ASSERT_COMPARISON => CairoLintKind::BoolAssertComparison,
+        bool_assert_comparison::ASSERT_EQ_TRUE_MSG => CairoLintKind::BoolAssertComparison,
+        bool_assert_comparison::ASSERT_NE_FALSE_MSG => CairoLintKind::BoolAssertComparison,
+        bool_assert_comparison::ASSERT_NE_TRUE_MSG => CairoLintKind::BoolAssertComparison, 
+        bool_assert_comparison::ASSERT_EQ_FALSE_MSG => CairoLintKind::BoolAssertComparison,
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
@@ -94,6 +97,10 @@ impl AnalyzerPlugin for CairoLint {
                         &AstExpr::from_syntax_node(db.upcast(), node),
                         &mut diags,
                     ),
+                    SyntaxKind::ExprInlineMacro => bool_assert_comparison::check_assert(
+                        db.upcast(), 
+                        node, 
+                        &mut diags),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
                         db.upcast(),

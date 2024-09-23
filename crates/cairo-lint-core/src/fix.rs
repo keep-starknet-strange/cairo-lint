@@ -177,6 +177,10 @@ impl Fixer {
                 db,
                 &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
+            CairoLintKind::BoolAssertComparison => self.fix_assert_bool_literal(
+                db, 
+                plugin_diag.stable_ptr.lookup(db.upcast())
+            ),
             CairoLintKind::LoopMatchPopFront => {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
@@ -378,4 +382,48 @@ impl Fixer {
             expr.if_block(db).as_syntax_node().get_text(db),
         )
     }
+
+
+    /// Rewrites `assert_eq!(expr, true)` as `assert!(expr);`,
+    /// `assert_eq!(expr, false)` as `assert!(!expr);`,
+    /// and similarly for `assert_ne!`.
+    pub fn fix_assert_bool_literal(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let node_text = node.get_text(db).trim().to_string();
+
+        if node_text.starts_with("assert_eq!(") || node_text.starts_with("assert_ne!(") {
+            let is_assert_eq = node_text.starts_with("assert_eq!(");
+            let inner_expr = node_text
+                .trim_start_matches("assert_eq!(")
+                .trim_start_matches("assert_ne!(")
+                .trim_end_matches(')')
+                .trim_end_matches(';')
+                .trim();
+
+            let parts: Vec<&str> = inner_expr.split(',').map(|s| s.trim()).collect();
+
+            if parts.len() == 2 {
+                let left_expr = parts[0]; 
+                let right_expr = parts[1]; 
+
+                if let Ok(result) = right_expr.parse::<bool>() {
+                    if is_assert_eq {
+                        if result {
+                            return format!("assert!({});", left_expr);
+                        } else {
+                            return format!("assert!(!{});", left_expr);
+                        }
+                    } else {
+                        if result {
+                            return format!("assert!(!{});", left_expr);
+                        } else {
+                            return format!("assert!({});", left_expr);
+                        }
+                    }
+                }
+            }
+        }
+        node_text
+    }
+
+
 }

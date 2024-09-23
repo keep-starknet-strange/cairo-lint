@@ -154,4 +154,11 @@ test_file!(
     "Else if inside loop"
 );
 
-test_file!(bool_assert_comparison, bool_assert_comparison, "Test name");
+test_file!(
+    bool_assert_comparison, 
+    bool_assert_comparison, 
+    "assert_eq! with false",
+    "assert_eq! with true",
+    "assert_ne! with true",
+    "assert_ne! with false"
+);
