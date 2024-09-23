@@ -1,0 +1,72 @@
+//! > check for manual unwrap or default in if let
+
+//! > cairo_code
+fn main() {
+  let a: Option<felt252> = Option::Some(1);
+
+  if let Option::Some(v) = a {
+    v
+   } else {
+     Default::default()
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+  --> lib.cairo:6:3
+   |
+ 6 |     if let Option::Some(v) = a {
+   |  ___-
+ 7 | |     v
+ 8 | |    } else {
+ 9 | |      Default::default()
+10 | |   };
+   | |___-
+   |
+
+//! > fixed
+fn main() {
+  let a: Option<felt252> = Option::Some(1);
+
+  if let Option::Some(v) = a {
+    v
+   } else {
+     Default::default()
+  };
+}
+
+//! > ==========================================================================
+
+//! > check for manual unwrap or default in match
+
+//! > cairo_code
+fn main() {
+  let a: Option<felt252> = Option::Some(1);
+
+  match a {
+    Option::Some(v) => v,
+    Option::None => Default::default()
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+ --> lib.cairo:6:3
+  |
+6 |     match a {
+  |  ___-
+7 | |     Option::Some(v) => v,
+8 | |     Option::None => Default::default()
+9 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let a: Option<felt252> = Option::Some(1);
+
+  match a {
+    Option::Some(v) => v,
+    Option::None => Default::default()
+  };
+}

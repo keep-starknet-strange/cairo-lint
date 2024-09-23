@@ -153,3 +153,10 @@ test_file!(
     "Else if with multiple statements",
     "Else if inside loop"
 );
+
+test_file!(
+    manual_unwrap_or_default, 
+    manual_unwrap_or_default, 
+    "check for manual unwrap or default in match",
+    "check for manual unwrap or default in if let"
+);
