@@ -1,8 +1,8 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
+use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::ast::{Condition, ConditionLet, Expr, ExprIf, OptionPatternEnumInnerPattern, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::TypedSyntaxNode;
 
 pub const EQUATABLE_IF_LET: &str =
     "`if let` pattern used for equatable value. Consider using a simple comparison `==` instead";

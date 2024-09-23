@@ -4,13 +4,13 @@ use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_defs::ids::ModuleId;
 use cairo_lang_diagnostics::Diagnostics;
-use cairo_lang_filesystem::db::{init_dev_corelib, FilesGroup};
+use cairo_lang_filesystem::db::{FilesGroup, init_dev_corelib};
 use cairo_lang_filesystem::ids::{CrateId, FileLongId};
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::SemanticDiagnostic;
+use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_test_utils::parse_test_file::Test;
-use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_lang_utils::LookupIntern;
+use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 
 pub struct Tests {
     pub tests: OrderedHashMap<String, Test>,
