@@ -113,11 +113,13 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
-                    SyntaxKind::ExprMatch => manual_ok_or::check_manual_ok_or(
-                        db.upcast(),
-                        &ExprMatch::from_syntax_node(db.upcast(), node),
-                        &mut diags,
-                    ),
+                    SyntaxKind::ExprMatch => {
+                        manual_ok_or::check_manual_ok_or(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node),
+                            &mut diags,
+                        );
+                    }
                     _ => continue,
                 }
             }

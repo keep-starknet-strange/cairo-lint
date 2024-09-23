@@ -390,8 +390,7 @@ impl Fixer {
 
         let val = expr_match.expr(db);
         let option_var_name = match val {
-            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db), // Handle variable path
-            // (like `foo`)
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
             _ => panic!("Expected a variable or path in match expression"),
         };
 
@@ -421,19 +420,29 @@ impl Fixer {
             Pattern::Enum(enum_pattern) => {
                 let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
                 match enum_name.as_str() {
-                    "Option::None" => {
-                        if let Expr::Block(block_expr) = second_arm.expression(db) {
-                            block_expr.statements(db).as_syntax_node().get_text(db)
-                        } else {
-                            second_arm.expression(db).as_syntax_node().get_text(db)
+                    "Option::None" => match second_arm.expression(db) {
+                        Expr::FunctionCall(func_call) => {
+                            let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
+                            if func_name == "Result::Err" {
+                                if let Some(arg) = func_call.arguments(db).arguments(db).elements(db).first() {
+                                    arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                                } else {
+                                    panic!("Result::Err should have arg");
+                                }
+                            } else {
+                                panic!("Expected Result::Err");
+                            }
                         }
-                    }
-                    _ => panic!("Expected Option::Some enum pattern"),
+                        _ => {
+                            panic!("Expected Result::Err");
+                        }
+                    },
+                    _ => panic!("Expected Option::None enum pattern"),
                 }
             }
             _ => panic!("Expected an Option enum pattern"),
         };
 
-        format!("{option_var_name}.ok_or({none_arm_err});")
+        format!("{option_var_name}.ok_or({none_arm_err})")
     }
 }

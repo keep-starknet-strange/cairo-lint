@@ -154,4 +154,11 @@ test_file!(
     "Else if inside loop"
 );
 
-test_file!(manual_ok_or, manual_ok_or, "Test name");
+test_file!(
+    manual_ok_or,
+    manual_ok_or,
+    "test error str",
+    "test error enum",
+    "test with comment in None",
+    "test with comment in Some"
+);
