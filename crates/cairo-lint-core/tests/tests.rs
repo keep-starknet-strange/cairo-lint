@@ -225,6 +225,13 @@ test_file!(
     "test with comment in Some"
 );
 
-test_file!(bitwise_for_parity_check, bitwise_for_parity_check, "bitwise for parity check");
+test_file!(
+    bitwise_for_parity_check,
+    bitwise_for_parity_check,
+    "with single variable",
+    "with multiple variables",
+    "In a loop",
+    "with conditional logic"
+);
 
 test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
