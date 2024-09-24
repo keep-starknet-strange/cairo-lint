@@ -388,16 +388,9 @@ impl Fixer {
         // Check if the node is a general expression
         let expr = Expr::from_syntax_node(db, node.clone());
     
-        match expr {
+        let matched_expr = match expr {
             // Handle the case where the expression is a match expression
-            Expr::Match(expr_match) => {
-                // Extract the expression being matched on
-                let matched_expr = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
-                
-                // Return the simplified `.unwrap_or_default()` expression for match
-                let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
-                return format!("{indent}{}.unwrap_or_default()", matched_expr);
-            }
+            Expr::Match(expr_match) => expr_match.expr(db).as_syntax_node(),
     
             // Handle the case where the expression is an if-let expression
             Expr::If(expr_if) => {
@@ -406,20 +399,18 @@ impl Fixer {
                 
                 match condition {
                     Condition::Let(condition_let) => {
-                        // Extract the expression being matched on
-                        let matched_expr = condition_let.expr(db).as_syntax_node().get_text_without_trivia(db);
-                        
-                        // Return the simplified `.unwrap_or_default()` expression for if-let
-                        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
-                        return format!("{indent}{}.unwrap_or_default()", matched_expr);
+                        // Extract and return the syntax node for the matched expression
+                        condition_let.expr(db).as_syntax_node()
                     }
                     _ => panic!("Expected an `if let` expression."),
                 }
             }
-    
             // Handle unsupported expressions
             _ => panic!("The expression cannot be simplified to `.unwrap_or_default()`."),
-        }
+        };
+    
+        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+        return format!("{indent}{}.unwrap_or_default()", matched_expr.get_text_without_trivia(db));
     }
 
     /// Rewrites a manual implementation of ok_or

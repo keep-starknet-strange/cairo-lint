@@ -66,6 +66,39 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > manual unwrap or default for if let with fixed array
+
+//! > cairo_code
+fn main() {
+  let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+  if let Option::Some(v) = a {
+    v
+   } else {
+    [0; 5]
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+ --> lib.cairo:4:3
+  |
+4 |     if let Option::Some(v) = a {
+  |  ___-
+5 | |     v
+6 | |    } else {
+7 | |     [0; 5]
+8 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+  a.unwrap_or_default();
+}
+
+//! > ==========================================================================
+
 //! > manual unwrap or default for if let with new
 
 //! > cairo_code
@@ -95,6 +128,39 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 fn main() {
   let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
   x.unwrap_or_default();
+}
+
+//! > ==========================================================================
+
+//! > manual unwrap or default for if let with tuple
+
+//! > cairo_code
+fn main() {
+  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+  if let Option::Some(v) = a {
+    v
+   } else {
+      ("", 0, false)
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+ --> lib.cairo:4:3
+  |
+4 |     if let Option::Some(v) = a {
+  |  ___-
+5 | |     v
+6 | |    } else {
+7 | |       ("", 0, false)
+8 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+  a.unwrap_or_default();
 }
 
 //! > ==========================================================================
@@ -196,6 +262,37 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > manual unwrap or default for match with fixed array
+
+//! > cairo_code
+fn main() {
+  let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+  match x {
+    Option::Some(v) => v,
+    Option::None => [0; 5]
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+ --> lib.cairo:4:3
+  |
+4 |     match x {
+  |  ___-
+5 | |     Option::Some(v) => v,
+6 | |     Option::None => [0; 5]
+7 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+  x.unwrap_or_default();
+}
+
+//! > ==========================================================================
+
 //! > manual unwrap or default for match with new
 
 //! > cairo_code
@@ -222,6 +319,37 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 //! > fixed
 fn main() {
   let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
+  x.unwrap_or_default();
+}
+
+//! > ==========================================================================
+
+//! > manual unwrap or default for match with tuple
+
+//! > cairo_code
+fn main() {
+  let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
+  match x {
+    Option::Some(v) => v,
+    Option::None => ("", 0, false)
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+ --> lib.cairo:4:3
+  |
+4 |     match x {
+  |  ___-
+5 | |     Option::Some(v) => v,
+6 | |     Option::None => ("", 0, false)
+7 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
   x.unwrap_or_default();
 }
 

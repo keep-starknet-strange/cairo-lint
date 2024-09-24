@@ -178,8 +178,12 @@ test_file!(
     "manual unwrap or default for if let with empty string",
     "manual unwrap or default for if let with new",
     "manual unwrap or default for if let with zero integer",
+    "manual unwrap or default for if let with fixed array",
+    "manual unwrap or default for if let with tuple",
     "manual unwrap or default for match with zero integer",
     "manual unwrap or default for match with empty string",
     "manual unwrap or default for match with default",
-    "manual unwrap or default for match with new"
+    "manual unwrap or default for match with new",
+    "manual unwrap or default for match with fixed array",
+    "manual unwrap or default for match with tuple"
 );

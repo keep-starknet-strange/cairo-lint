@@ -11,7 +11,7 @@ use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
     bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loops,
-    single_match, manual_unwrap_or_default
+    single_match
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
