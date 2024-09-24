@@ -216,7 +216,6 @@ impl Fixer {
     ///     do_smth(val);
     /// };
     /// ```
-
     pub fn fix_loop_match_pop_front(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr_loop = ExprLoop::from_syntax_node(db, node.clone());
         let body = expr_loop.body(db);

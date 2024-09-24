@@ -2,40 +2,29 @@
 //! > cairo_code
 fn main() {
   let x = 1;
-  let y = 0 * x;
-  let z = x * 0;
+  let _y = 0 * x;
+  let _z = x * 0;
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:4:11
+ --> lib.cairo:4:12
   |
-4 |   let y = 0 * x;
-  |           -----
+4 |   let _y = 0 * x;
+  |            -----
   |
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:6:11
+ --> lib.cairo:6:12
   |
-6 |   let z = x * 0;
-  |           -----
+6 |   let _z = x * 0;
+  |            -----
   |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:4:7
-  |
-4 |   let y = 0 * x;
-  |       -
-  |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:6:7
-  |
-6 |   let z = x * 0;
-  |       -
-  |
+
 //! > fixed
 fn main() {
   let x = 1;
-  let y = 0 * x;
-  let z = x * 0;
+  let _y = 0 * x;
+  let _z = x * 0;
 }
 //! > ==========================================================================
 
@@ -44,26 +33,20 @@ fn main() {
 //! > cairo_code
 fn main() {
     let x = 1_u32;
-    let y = 0 / x;
+    let _y = 0 / x;
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:4:13
+ --> lib.cairo:4:14
   |
-4 |     let y = 0 / x;
-  |             -----
-  |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:4:9
-  |
-4 |     let y = 0 / x;
-  |         -
+4 |     let _y = 0 / x;
+  |              -----
   |
 //! > fixed
 fn main() {
     let x = 1_u32;
-    let y = 0 / x;
+    let _y = 0 / x;
 }
 
 //! > ==========================================================================
@@ -73,39 +56,82 @@ fn main() {
 //! > cairo_code
 fn main() {
     let x = 1_u32;
-    let y = x & 0;
-    let z = 0 & x;
+    let _y = x & 0;
+    let _z = 0 & x;
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:4:13
+ --> lib.cairo:4:14
   |
-4 |     let y = x & 0;
-  |             -----
+4 |     let _y = x & 0;
+  |              -----
   |
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:6:13
+ --> lib.cairo:6:14
   |
-6 |     let z = 0 & x;
-  |             -----
+6 |     let _z = 0 & x;
+  |              -----
   |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:4:9
-  |
-4 |     let y = x & 0;
-  |         -
-  |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:6:9
-  |
-6 |     let z = 0 & x;
-  |         -
-  |
-  
 //! > fixed
 fn main() {
     let x = 1_u32;
-    let y = x & 0;
-    let z = 0 & x;
+    let _y = x & 0;
+    let _z = 0 & x;
+}
+
+//! > ==========================================================================
+
+//! > Multiple operations
+
+//! > cairo_code
+fn main() {
+  let x = 1_u32;
+  let y = 5_u32;
+  let z = 10_u32;
+  let _f = ((x + y) * 0) & (z / 1);
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+ --> lib.cairo:8:13
+  |
+8 |   let _f = ((x + y) * 0) & (z / 1);
+  |             -----------
+  |
+
+//! > fixed
+fn main() {
+  let x = 1_u32;
+  let y = 5_u32;
+  let z = 10_u32;
+  let _f = ((x + y) * 0) & (z / 1);
+}
+
+//! > ==========================================================================
+
+//! > Multiple bitwise operations
+
+//! > cairo_code
+fn main() {
+  let x = 1_u32;
+  let y = 5_u32;
+  let z = 10_u32;
+  let _result1 = (x * y + z) & (z & 0) ^ (z - y);
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+ --> lib.cairo:8:33
+  |
+8 |   let _result1 = (x * y + z) & (z & 0) ^ (z - y);
+  |                                 -----
+  |
+
+//! > fixed
+fn main() {
+  let x = 1_u32;
+  let y = 5_u32;
+  let z = 10_u32;
+  let _result1 = (x * y + z) & (z & 0) ^ (z - y);
 }

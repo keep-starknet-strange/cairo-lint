@@ -137,7 +137,9 @@ test_file!(
     erasing_operations,
     "Multiplication by zero",
     "Division by zero",
-    "Bitwise AND with zero"
+    "Bitwise AND with zero",
+    "Multiple operations",
+    "Multiple bitwise operations"
 );
 test_file!(
     duplicate_underscore_args,
