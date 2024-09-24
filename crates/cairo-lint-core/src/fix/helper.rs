@@ -28,6 +28,22 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 /// # Returns
 /// 
 /// A string representing the formatted content of the block.
+///
+/// # Example
+///
+/// Input: A block of code with the following statements:
+/// ```cairo
+/// let x = 5;
+/// break;
+/// let y = 10;
+/// ```
+/// Output: The formatted block without the `break` statement:
+/// ```cairo
+/// let x = 5;
+/// let y = 10;
+/// ```
+///
+/// This function skips the `break` statement and preserves the remaining statements in the block.
 pub fn process_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> String {
     let mut block_body = String::new();
     for statement in block.statements(db).elements(db) {
@@ -53,6 +69,24 @@ pub fn process_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> St
 /// # Returns
 ///
 /// A string representing the formatted content of the else clause.
+///
+/// # Example
+///
+/// Input:
+/// ```cairo
+/// else if x > 5 {
+///     let y = 10;
+///     break;
+/// }
+/// ```
+/// Output:
+/// ```cairo
+/// else if x > 5 {
+///     let y = 10;
+/// }
+/// ```
+///
+/// This function formats the `else` or `else if` block and returns it as a string.
 pub fn process_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClause, indent: &str) -> String {
     let mut else_body = String::new();
     match else_clause.else_block_or_if(db) {
@@ -81,6 +115,13 @@ pub fn process_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClause, indent
 /// # Returns
 ///
 /// A string representing the inverted condition.
+///
+/// # Example
+/// 
+/// Input: `"x >= 5 && y < 10"`  
+/// Output: `"x < 5 || y >= 10"`  
+///
+/// This inverts both the logical operator (`&&` becomes `||`) and the comparison operators.
 pub fn invert_condition(condition: &str) -> String {
     if condition.contains("&&") {
         condition
@@ -108,6 +149,13 @@ pub fn invert_condition(condition: &str) -> String {
 /// # Returns
 ///
 /// A string representing the inverted condition.
+///
+/// # Example
+///
+/// Input: `"x >= 5"`  
+/// Output: `"x < 5"`  
+///
+/// This will invert the condition by reversing the comparison operator.
 pub fn invert_simple_condition(condition: &str) -> String {
     if condition.contains(">=") {
         condition.replace(">=", "<")
