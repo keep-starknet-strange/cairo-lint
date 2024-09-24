@@ -43,7 +43,7 @@ fn is_method_call(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
     match expr {
         Expr::Binary(e) => {
             let op = e.op(db);
-            matches!(op, BinaryOperator::Dot(_) | BinaryOperator::DotDot(_))
+            matches!(op, BinaryOperator::Dot(_))
         }
         _ => false,
     }
