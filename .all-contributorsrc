@@ -99,6 +99,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "BrunoAmbricca",
+      "name": "Bruno Ambricca",
+      "avatar_url": "https://avatars.githubusercontent.com/u/64877723?v=4",
+      "profile": "https://github.com/BrunoAmbricca",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
