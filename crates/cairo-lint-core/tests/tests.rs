@@ -154,4 +154,13 @@ test_file!(
     "Else if inside loop"
 );
 
-test_file!(manual_assert, manual_assert, "check-if-then");
+test_file!(
+    manual,
+    manual_ok_or,
+    "test error str",
+    "test error enum",
+    "test with comment in None",
+    "test with comment in Some"
+);
+
+test_file!(manual, manual_assert, "check-if-then", "check-if-then2");
