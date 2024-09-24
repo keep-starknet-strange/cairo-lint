@@ -170,3 +170,12 @@ test_file!(
     "test with comment in None",
     "test with comment in Some"
 );
+
+test_file!(
+    ifs,
+    ifs_same_cond,
+    "Same condition with else",
+    "Same condition with boolean",
+    "Same condition with felt252",
+    "Same condition with struct"
+);

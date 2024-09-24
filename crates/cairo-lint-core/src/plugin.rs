@@ -37,6 +37,7 @@ pub enum CairoLintKind {
     Unknown,
     ErasingOperation,
     ManualOkOr,
+    DuplicateIfCondition,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -55,6 +56,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
+        ifs_same_cond::DUPLICATE_IF_CONDITION => CairoLintKind::DuplicateIfCondition,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -99,11 +101,11 @@ impl AnalyzerPlugin for CairoLint {
                         &mut diags,
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
-                    SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
-                        db.upcast(),
-                        &ExprIf::from_syntax_node(db.upcast(), node),
-                        &mut diags,
-                    ),
+                    SyntaxKind::ExprIf => {
+                        let expr_if = ExprIf::from_syntax_node(db.upcast(), node);
+                        equatable_if_let::check_equatable_if_let(db.upcast(), &expr_if, &mut diags);
+                        ifs_same_cond::check_duplicate_if_condition(db.upcast(), &expr_if, &mut diags);
+                    }
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
