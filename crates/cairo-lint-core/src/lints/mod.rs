@@ -7,5 +7,5 @@ pub mod erasing_op;
 pub mod ifs;
 pub mod loops;
 pub mod manual;
-pub mod single_match;
 pub mod panic;
+pub mod single_match;

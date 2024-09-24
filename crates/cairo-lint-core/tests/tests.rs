@@ -162,7 +162,9 @@ test_file!(
     "Else if inside loop"
 );
 
-test_file!(panic, panic,
+test_file!(
+    panic,
+    panic,
     "Single Panic",
     "Multiple Panic",
     "Multiple Panic and other macros",
@@ -179,4 +181,3 @@ test_file!(
     "test with comment in None",
     "test with comment in Some"
 );
-

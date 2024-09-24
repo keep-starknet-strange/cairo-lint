@@ -10,7 +10,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
-    panic, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loops,
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loops, panic,
     single_match,
 };
 
@@ -38,7 +38,6 @@ pub enum CairoLintKind {
     Panic,
     ErasingOperation,
     ManualOkOr,
-
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -150,9 +149,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
             }
-            Expr::FunctionCall(expr_func) => {
-                panic::check_panic_usage(db, expr_func, diagnostics)
-            }
+            Expr::FunctionCall(expr_func) => panic::check_panic_usage(db, expr_func, diagnostics),
             _ => (),
         };
     }
