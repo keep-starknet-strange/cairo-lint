@@ -163,6 +163,17 @@ test_file!(
 );
 
 test_file!(
+    panic,
+    panic,
+    "Single Panic",
+    "Multiple Panic",
+    "Multiple Panic and other macros",
+    "Empty Panic",
+    "NO Panic",
+    "Panic inside function"
+);
+
+test_file!(
     loop_for_while,
     loop_for_while,
     "simple loop with break",

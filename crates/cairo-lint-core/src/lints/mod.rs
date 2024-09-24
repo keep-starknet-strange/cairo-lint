@@ -8,4 +8,5 @@ pub mod ifs;
 pub mod loop_for_while;
 pub mod loops;
 pub mod manual;
+pub mod panic;
 pub mod single_match;
