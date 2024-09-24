@@ -5,12 +5,12 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use annotate_snippets::Renderer;
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_compiler::project::update_crate_roots_from_project_config;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_diagnostics::{DiagnosticEntry, Maybe};
-use cairo_lang_filesystem::db::{CORELIB_CRATE_NAME, FilesGroup, init_dev_corelib};
+use cairo_lang_filesystem::db::{init_dev_corelib, FilesGroup, CORELIB_CRATE_NAME};
 use cairo_lang_filesystem::ids::{CrateLongId, FileId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
@@ -19,7 +19,7 @@ use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::{Upcast, UpcastMut};
 use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fix::{Fix, ImportFix, apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic};
+use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
 use clap::Parser;
 use helpers::*;
@@ -91,13 +91,11 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 })
                 .collect::<Vec<_>>()
         } else {
-            vec![
-                metadata
-                    .compilation_units
-                    .iter()
-                    .find(|compilation_unit| compilation_unit.package == package.id)
-                    .unwrap(),
-            ]
+            vec![metadata
+                .compilation_units
+                .iter()
+                .find(|compilation_unit| compilation_unit.package == package.id)
+                .unwrap()]
         };
         for compilation_unit in compilation_units {
             // Print that we're checking this package.

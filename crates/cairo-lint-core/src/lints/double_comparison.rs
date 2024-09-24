@@ -147,5 +147,9 @@ pub fn determine_simplified_operator(
 }
 
 pub fn extract_binary_operator_expr(expr: &Expr, db: &dyn SyntaxGroup) -> Option<BinaryOperator> {
-    if let Expr::Binary(binary_op) = expr { Some(binary_op.op(db)) } else { None }
+    if let Expr::Binary(binary_op) = expr {
+        Some(binary_op.op(db))
+    } else {
+        None
+    }
 }
