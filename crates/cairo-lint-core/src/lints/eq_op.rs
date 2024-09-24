@@ -1,8 +1,8 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::TypedSyntaxNode;
 
 const DIV_EQ_OP: &str = "Division with identical operands, this operation always results in one (except for zero) and \
                          may indicate a logic error";
@@ -33,12 +33,11 @@ pub fn check_eq_op(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Ve
 
 fn are_operands_equal(db: &dyn SyntaxGroup, lhs: &Expr, rhs: &Expr) -> bool {
     let lhs_text = lhs.as_syntax_node().get_text_without_trivia(db);
-    println!("lhs text: {}", lhs_text);
     let rhs_text = rhs.as_syntax_node().get_text_without_trivia(db);
     lhs_text == rhs_text
 }
 
-// check if the expression is a method call: something like `foo.bar()`
+/// check if the expression is a method call: something like `foo.bar()`
 fn is_method_call(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
     match expr {
         Expr::Binary(e) => {
