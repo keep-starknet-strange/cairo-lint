@@ -177,5 +177,9 @@ test_file!(
     "Same condition with else",
     "Same condition with boolean",
     "Same condition with felt252",
-    "Same condition with struct"
+    "Same condition with struct",
+    "Same condition with multiple if else",
+    "Similar conditions",
+    "Combined conditions with different if",
+    "if with functions"
 );
