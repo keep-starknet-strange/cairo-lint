@@ -27,7 +27,7 @@ pub fn check_panic_usage(
         );
 
         if let Some(text_position) = span.position_in_file(db.upcast(), file_id) {
-            if let Some(syntax_node) = db.file_syntax(file_id).ok() {
+            if let Ok(syntax_node) = db.file_syntax(file_id) {
 
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: syntax_node.lookup_position(db.upcast(), text_position.start).stable_ptr(),
