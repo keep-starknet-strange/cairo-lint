@@ -491,7 +491,7 @@ impl Fixer {
         format!("{option_var_name}.ok_or({none_arm_err})")
     }
 
-    /// Rewrites a manual implementation of ok_or
+    /// Rewrites a manual implementation of is_some
     pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr_match = if let Expr::Match(expr_match) = Expr::from_syntax_node(db, node.clone()) {
             expr_match

@@ -6,9 +6,6 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 
 pub const MANUAL_IS_SOME: &str = "Manual match for `is_some` detected. Consider using `is_some()` instead";
 
-pub const SOME_VARIANT: &str = "Some";
-pub const NONE_VARIANT: &str = "None";
-
 pub fn check_manual_is_some(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
     let arms = expr_match.arms(db).elements(db);
 
