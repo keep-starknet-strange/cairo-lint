@@ -2,7 +2,7 @@
 //!
 //! This module provides utility functions to assist in generating fixes for `if-else` conditions
 //! within loops, inverting logical conditions, and processing code blocks.
-//! 
+//!
 //! The main tasks of this module include:
 //!
 //! 1. Processing block and `else` clause content, including nested `if-else` constructs.
@@ -12,21 +12,20 @@
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
 
-
 use cairo_lang_syntax::node::ast::{BlockOrIf, ElseClause, ExprBlock, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
 /// Processes a block of code, formatting its content and ignoring any break statements.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `db` - The syntax group which provides access to the syntax tree.
 /// * `block` - The expression block (ExprBlock) to be processed.
 /// * `indent` - A string representing the indentation to be applied to the block's content.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A string representing the formatted content of the block.
 ///
 /// # Example
@@ -48,11 +47,7 @@ pub fn remove_break_from_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &
     let mut block_body = String::new();
     for statement in block.statements(db).elements(db) {
         if !matches!(statement, Statement::Break(_)) {
-            block_body.push_str(&format!(
-                "{}    {}\n",
-                indent,
-                statement.as_syntax_node().get_text_without_trivia(db)
-            ));
+            block_body.push_str(&format!("{}    {}\n", indent, statement.as_syntax_node().get_text_without_trivia(db)));
         }
     }
     block_body
@@ -117,24 +112,16 @@ pub fn remove_break_from_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClau
 /// A string representing the inverted condition.
 ///
 /// # Example
-/// 
+///
 /// Input: `"x >= 5 && y < 10"`  
 /// Output: `"x < 5 || y >= 10"`  
 ///
 /// This inverts both the logical operator (`&&` becomes `||`) and the comparison operators.
 pub fn invert_condition(condition: &str) -> String {
     if condition.contains("&&") {
-        condition
-            .split("&&")
-            .map(|part| invert_simple_condition(part.trim()))
-            .collect::<Vec<_>>()
-            .join(" || ")
+        condition.split("&&").map(|part| invert_simple_condition(part.trim())).collect::<Vec<_>>().join(" || ")
     } else if condition.contains("||") {
-        condition
-            .split("||")
-            .map(|part| invert_simple_condition(part.trim()))
-            .collect::<Vec<_>>()
-            .join(" && ")
+        condition.split("||").map(|part| invert_simple_condition(part.trim())).collect::<Vec<_>>().join(" && ")
     } else {
         invert_simple_condition(condition)
     }

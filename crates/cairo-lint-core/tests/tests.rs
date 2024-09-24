@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::{ LazyLock, Mutex };
+use std::sync::{LazyLock, Mutex};
 
 use annotate_snippets::Renderer;
 use cairo_lang_compiler::db::RootDatabase;
@@ -23,8 +23,7 @@ use paste::paste;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 
-const CRATE_CONFIG: &str =
-    r#"
+const CRATE_CONFIG: &str = r#"
 edition = "2024_07"
 
 [experimental_features]
@@ -32,13 +31,7 @@ negative_impls = true
 coupons = true
 "#;
 
-test_file!(
-    unused_variables,
-    unused_variables,
-    "one unused variable",
-    "two unused variable",
-    "plenty unused variables"
-);
+test_file!(unused_variables, unused_variables, "one unused variable", "two unused variable", "plenty unused variables");
 
 test_file!(
     single_match,
