@@ -3,13 +3,14 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Expr, Arenas};
 
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use num_bigint::BigInt;
 
 pub const MANUAL_UNWRAP_OR_DEFAULT: &str = "This can be done in one call with `.unwrap_or_default()`";
 
 pub const DEFAULT: &str = "\"Felt252Default::default\"";
 pub const ARRAY_NEW: &str = "\"ArrayImpl::new\"";
-
+pub const FALSE: &str = "#[default]\n    False";
 
 /// Parses and extracts the branches of an `if` or `match` expression.
 pub fn parse_and_extract(
@@ -85,11 +86,11 @@ fn is_expr_default(
             int_expr.value.eq(&BigInt::default())
         },
         Expr::EnumVariantCtor(enum_expr) => {
-            match enum_expr.variant.idx {
-                0 => true, // idx == 0 corresponds to `false`
-                1 => false,
-                _ => false,
-            }
+            let enum_text = enum_expr.variant.id
+                .stable_ptr(db.upcast())
+                .lookup(db.upcast())
+                .as_syntax_node().get_text_without_trivia(db.upcast());
+            enum_text == FALSE
         },
         Expr::FixedSizeArray(arr_expr) => {
             match &arr_expr.items {
