@@ -1,3 +1,4 @@
+pub mod manual_is_some;
 pub mod manual_ok_or;
 
 use cairo_lang_syntax::node::ast::{Expr, ExprMatch, Pattern};

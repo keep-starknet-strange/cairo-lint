@@ -184,6 +184,7 @@ impl Fixer {
             }
             CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -488,5 +489,22 @@ impl Fixer {
         };
 
         format!("{option_var_name}.ok_or({none_arm_err})")
+    }
+
+    /// Rewrites a manual implementation of ok_or
+    pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_match = if let Expr::Match(expr_match) = Expr::from_syntax_node(db, node.clone()) {
+            expr_match
+        } else {
+            panic!("Expected a match expression");
+        };
+
+        let val = expr_match.expr(db);
+        let option_var_name = match val {
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Expected a variable or path in match expression"),
+        };
+
+        format!("{option_var_name}.is_some()")
     }
 }
