@@ -185,6 +185,7 @@ impl Fixer {
             CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualExpect => self.fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -501,5 +502,63 @@ impl Fixer {
         };
 
         format!("{option_var_name}.is_some()")
+    }
+
+    /// Rewrites a manual implementation of expect
+    pub fn fix_manual_expect(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_match = if let Expr::Match(expr_match) = Expr::from_syntax_node(db, node.clone()) {
+            expr_match
+        } else {
+            panic!("Expected a match expression");
+        };
+
+        let val = expr_match.expr(db);
+        let option_var_name = match val {
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Expected a variable or path in match expression"),
+        };
+
+        let arms = expr_match.arms(db).elements(db);
+        if arms.len() != 2 {
+            panic!("Expected exactly two arms in the match expression");
+        }
+
+        let second_arm = &arms[1];
+        let second_pattern = &second_arm.patterns(db).elements(db)[0];
+
+        let none_arm_err = match second_pattern {
+            Pattern::Enum(enum_pattern) => {
+                let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
+                match enum_name.as_str() {
+                    "Option::None" => match second_arm.expression(db) {
+                        Expr::FunctionCall(func_call) => {
+                            let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
+                            if func_name == "core::panic_with_felt252" {
+                                if let Some(arg) = func_call.arguments(db).arguments(db).elements(db).first() {
+                                    arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                                } else {
+                                    panic!("core::panic_with_felt252 should have felt252 arg");
+                                }
+                            } else if func_name == "panic_with_felt252" {
+                                if let Some(arg) = func_call.arguments(db).arguments(db).elements(db).first() {
+                                    arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                                } else {
+                                    panic!("panic_with_felt252 should have felt252 arg");
+                                }
+                            } else {
+                                panic!("Expected panic_with_felt252");
+                            }
+                        }
+                        _ => {
+                            panic!("Expected panic_with_felt252");
+                        }
+                    },
+                    _ => panic!("Expected Option::None enum pattern"),
+                }
+            }
+            _ => panic!("Expected an Option enum pattern"),
+        };
+
+        format!("{option_var_name}.expect({none_arm_err})")
     }
 }
