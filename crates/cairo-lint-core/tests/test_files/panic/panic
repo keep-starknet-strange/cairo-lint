@@ -128,6 +128,44 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > Panic inside function
+
+//! > cairo_code
+pub fn print_name() {
+  println!("Hello Alan");
+  panic!("panic Alan");
+}
+
+fn main() {
+  print_name();
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:4:3
+  |
+4 |   panic!("panic Alan");
+  |   -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` macros in the code is discouraged.
+ --> lib.cairo:4:3
+  |
+4 |   panic!("panic Alan");
+  |   -----
+  |
+
+//! > fixed
+pub fn print_name() {
+  println!("Hello Alan");
+  panic!("panic Alan");
+}
+
+fn main() {
+  print_name();
+}
+
+//! > ==========================================================================
+
 //! > Single Panic
 
 //! > cairo_code
