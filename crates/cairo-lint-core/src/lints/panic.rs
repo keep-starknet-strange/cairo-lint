@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::TypedStablePtr;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_defs::diagnostic_utils::StableLocation;
 
-pub const PANIC_IN_CODE: &str = "Leaving `panic!` macros in the code is discouraged.";
+pub const PANIC_IN_CODE: &str = "Leaving `panic!` in the code is discouraged.";
 const PANIC: &str = "\"panic\"";
 
 pub fn check_panic_usage(
