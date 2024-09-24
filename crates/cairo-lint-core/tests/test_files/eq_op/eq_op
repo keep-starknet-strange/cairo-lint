@@ -136,7 +136,7 @@ fn foo(a: u256) -> bool {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Comparison with identical operands, this operation always results in true and may indicate a logic error
+warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
  --> lib.cairo:2:5
   |
 2 |     a != a
