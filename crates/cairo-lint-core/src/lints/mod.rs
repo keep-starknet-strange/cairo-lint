@@ -6,4 +6,5 @@ pub mod duplicate_underscore_args;
 pub mod eq_op;
 pub mod ifs;
 pub mod loops;
+pub mod manual;
 pub mod single_match;

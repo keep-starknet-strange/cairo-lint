@@ -167,3 +167,12 @@ test_file!(
     "simple divide op",
     "op with method call"
 );
+
+test_file!(
+    manual,
+    manual_ok_or,
+    "test error str",
+    "test error enum",
+    "test with comment in None",
+    "test with comment in Some"
+);
