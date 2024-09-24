@@ -132,7 +132,15 @@ test_file!(
     "Negated comparison with false",
     "Negated comparison with false on LHS"
 );
-
+test_file!(
+    erasing_operations,
+    erasing_operations,
+    "Multiplication by zero",
+    "Division by zero",
+    "Bitwise AND with zero",
+    "Multiple operations",
+    "Multiple bitwise operations"
+);
 test_file!(
     duplicate_underscore_args,
     duplicate_underscore_args,
@@ -162,3 +170,13 @@ test_file!(panic, panic,
     "NO Panic",
     "Panic inside function"
 );
+
+test_file!(
+    manual,
+    manual_ok_or,
+    "test error str",
+    "test error enum",
+    "test with comment in None",
+    "test with comment in Some"
+);
+
