@@ -158,5 +158,6 @@ test_file!(panic, panic,
     "Single Panic",
     "Multiple Panic",
     "Multiple Panic and other macros",
-    "Empty Panic"
+    "Empty Panic",
+    "NO Panic"
 );
