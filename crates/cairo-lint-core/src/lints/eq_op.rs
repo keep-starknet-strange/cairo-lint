@@ -8,6 +8,8 @@ const DIV_EQ_OP: &str = "Division with identical operands, this operation always
                          may indicate a logic error";
 const EQ_COMP_OP: &str =
     "Comparison with identical operands, this operation always results in true and may indicate a logic error";
+const NEQ_COMP_OP: &str =
+    "Comparison with identical operands, this operation always results in false and may indicate a logic error";
 const EQ_DIFF_OP: &str =
     "Subtraction with identical operands, this operation always results in zero and may indicate a logic error";
 const EQ_BITWISE_OP: &str = "Bitwise operation with identical operands, this operation always results in the same \
@@ -50,7 +52,8 @@ fn is_method_call(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
 
 fn get_diagnostic_message(op: &BinaryOperator) -> Option<&'static str> {
     match op {
-        BinaryOperator::EqEq(_) | BinaryOperator::Neq(_) => Some(EQ_COMP_OP),
+        BinaryOperator::EqEq(_) => Some(EQ_COMP_OP),
+        BinaryOperator::Neq(_) => Some(NEQ_COMP_OP),
         BinaryOperator::And(_) | BinaryOperator::Or(_) => Some(EQ_LOGICAL_OP),
         BinaryOperator::Xor(_) | BinaryOperator::Not(_) => Some(EQ_BITWISE_OP),
         BinaryOperator::Minus(_) => Some(EQ_DIFF_OP),
