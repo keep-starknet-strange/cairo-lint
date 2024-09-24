@@ -153,3 +153,10 @@ test_file!(
     "Else if with multiple statements",
     "Else if inside loop"
 );
+
+test_file!(
+    assertions_on_constants,
+    assertions_on_constants,
+    "Assertions on constants false",
+    "Assertions on constants true"
+);

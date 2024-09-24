@@ -9,7 +9,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,assertions_on_constants
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -33,6 +33,7 @@ pub enum CairoLintKind {
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
     Unknown,
+    AssertBoolLiteral,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -47,6 +48,8 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         equatable_if_let::EQUATABLE_IF_LET => CairoLintKind::EquatableIfLet,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
+        assertions_on_constants::ASSERT_MSG => CairoLintKind::AssertBoolLiteral,
+        assertions_on_constants::ASSERT_MSG_FALSE => CairoLintKind::AssertBoolLiteral,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         _ => CairoLintKind::Unknown,
@@ -93,6 +96,9 @@ impl AnalyzerPlugin for CairoLint {
                         &mut diags,
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
+                    SyntaxKind::ExprInlineMacro => {
+                        assertions_on_constants::check_assert(db.upcast(), node, &mut diags);
+                    },
                     SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
                         db.upcast(),
                         &ExprIf::from_syntax_node(db.upcast(), node),

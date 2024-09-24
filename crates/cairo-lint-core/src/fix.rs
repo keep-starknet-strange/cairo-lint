@@ -19,6 +19,7 @@ use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
 mod import_fixes;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
+use std::str::FromStr;
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
@@ -168,6 +169,7 @@ impl Fixer {
                 self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::EquatableIfLet => self.fix_equatable_if_let(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::AssertBoolLiteral => self.fix_assert_bool_literal(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BoolComparison => self.fix_bool_comparison(
                 db,
@@ -377,5 +379,28 @@ impl Fixer {
             fixed_condition,
             expr.if_block(db).as_syntax_node().get_text(db),
         )
+    }
+
+     /// Rewrites `assert!(true);` as a comment or a no-op,
+    /// and `assert!(false);` as `panic!("assert!(false) encountered and replaced.");`
+    pub fn fix_assert_bool_literal(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let node_text = node.get_text(db).trim().to_string();
+        
+        if node_text.starts_with("assert!(") {
+            let inner_expr = node_text
+                .trim_start_matches("assert!(")
+                .trim_end_matches(|c| c == ')' || c == ';')
+                .trim();
+    
+            if let Ok(result) = bool::from_str(inner_expr) {
+                if result {
+                    return "/* assert!(true) was removed as it is redundant */".to_string();
+                } else {
+                    return "panic!(assert!(false)); /* assert!(false) encountered and replaced with panic! */".to_string();
+                }
+            }
+        }
+        
+        node_text
     }
 }
