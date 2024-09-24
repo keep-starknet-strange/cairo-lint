@@ -10,19 +10,13 @@ use cairo_lang_semantic::inline_macros::get_default_plugin_suite;
 use cairo_lang_semantic::test_utils::setup_test_crate_ex;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
-use cairo_lang_test_utils::parse_test_file::{ Test, dump_to_test_file, parse_test_file };
-use cairo_lang_utils::Upcast;
+use cairo_lang_test_utils::parse_test_file::{dump_to_test_file, parse_test_file, Test};
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
+use cairo_lang_utils::Upcast;
 use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fix::{
-    Fix,
-    ImportFix,
-    apply_import_fixes,
-    collect_unused_imports,
-    fix_semantic_diagnostic,
-};
+use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
-use cairo_lint_test_utils::{ Tests, get_diags, test_file };
+use cairo_lint_test_utils::{get_diags, test_file, Tests};
 use ctor::dtor;
 use itertools::Itertools;
 use paste::paste;
@@ -145,7 +139,15 @@ test_file!(
     "Negated comparison with false",
     "Negated comparison with false on LHS"
 );
-
+test_file!(
+    erasing_operations,
+    erasing_operations,
+    "Multiplication by zero",
+    "Division by zero",
+    "Bitwise AND with zero",
+    "Multiple operations",
+    "Multiple bitwise operations"
+);
 test_file!(
     duplicate_underscore_args,
     duplicate_underscore_args,

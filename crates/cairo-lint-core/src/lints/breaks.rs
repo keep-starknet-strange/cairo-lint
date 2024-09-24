@@ -1,7 +1,7 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::SyntaxNode;
 
 pub const BREAK_UNIT: &str = "unnecessary double parentheses found after break. Consider removing them.";
 
