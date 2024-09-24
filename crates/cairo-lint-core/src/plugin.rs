@@ -1,8 +1,8 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_semantic::Expr;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
+use cairo_lang_semantic::Expr;
 use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
@@ -10,7 +10,8 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match, manual_unwrap_or_default
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loops,
+    single_match, manual_unwrap_or_default
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -35,6 +36,7 @@ pub enum CairoLintKind {
     LoopMatchPopFront,
     ManualUnwrapOrDefault,
     Unknown,
+    ErasingOperation,
     ManualOkOr,
 }
 
@@ -53,6 +55,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
+        erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
         _ => CairoLintKind::Unknown,
     }
@@ -107,6 +110,7 @@ impl AnalyzerPlugin for CairoLint {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
+                        erasing_op::check_erasing_operation(db.upcast(), expr_binary, &mut diags);
                     }
                     SyntaxKind::ElseClause => {
                         collapsible_if_else::check_collapsible_if_else(
