@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use cairo_lang_compiler::project::{AllCratesConfig, ProjectConfig, ProjectConfigContent};
 use cairo_lang_filesystem::cfg::{Cfg as CompilerCfg, CfgSet};
 use cairo_lang_filesystem::db::{CrateSettings, Edition, ExperimentalFeaturesConfig};
@@ -77,12 +77,15 @@ pub fn build_project_config(
             } else {
                 edition
             };
-            (component.name.to_smolstr(), CrateSettings {
-                edition: package_ed,
-                cfg_set,
-                experimental_features: ExperimentalFeaturesConfig { negative_impls: false, coupons: false },
-                version: Some(version.clone()),
-            })
+            (
+                component.name.to_smolstr(),
+                CrateSettings {
+                    edition: package_ed,
+                    cfg_set,
+                    experimental_features: ExperimentalFeaturesConfig { negative_impls: false, coupons: false },
+                    version: Some(version.clone()),
+                },
+            )
         })
         .collect();
     let crates_config = AllCratesConfig { override_map: crates_config, ..Default::default() };

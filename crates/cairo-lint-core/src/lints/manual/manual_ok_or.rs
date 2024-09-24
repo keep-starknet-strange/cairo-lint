@@ -1,8 +1,8 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::ast::{Expr, ExprMatch, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::TypedSyntaxNode;
 
 pub const MANUAL_OK_OR: &str = "Manual match for Option<T> detected. Consider using ok_or instead";
 
