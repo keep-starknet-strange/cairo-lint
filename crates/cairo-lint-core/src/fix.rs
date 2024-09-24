@@ -20,7 +20,7 @@ use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 mod import_fixes;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
 mod helper;
-use helper::{process_block, process_else_clause, invert_condition};
+use helper::{remove_break_from_block, remove_break_from_else_clause, invert_condition};
 
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
@@ -431,10 +431,10 @@ impl Fixer {
                 condition_text =
                     invert_condition(&if_expr.condition(db).as_syntax_node().get_text_without_trivia(db));
         
-                loop_body.push_str(&process_block(db, if_expr.if_block(db), &indent));
+                loop_body.push_str(&remove_break_from_block(db, if_expr.if_block(db), &indent));
         
                 if let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) {
-                    loop_body.push_str(&process_else_clause(db, else_clause, &indent));
+                    loop_body.push_str(&remove_break_from_else_clause(db, else_clause, &indent));
                 }
             }
         }

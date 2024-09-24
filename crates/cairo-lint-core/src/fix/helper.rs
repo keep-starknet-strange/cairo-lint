@@ -44,7 +44,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 /// ```
 ///
 /// This function skips the `break` statement and preserves the remaining statements in the block.
-pub fn process_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> String {
+pub fn remove_break_from_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> String {
     let mut block_body = String::new();
     for statement in block.statements(db).elements(db) {
         if !matches!(statement, Statement::Break(_)) {
@@ -87,11 +87,11 @@ pub fn process_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> St
 /// ```
 ///
 /// This function formats the `else` or `else if` block and returns it as a string.
-pub fn process_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClause, indent: &str) -> String {
+pub fn remove_break_from_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClause, indent: &str) -> String {
     let mut else_body = String::new();
     match else_clause.else_block_or_if(db) {
         BlockOrIf::Block(block) => {
-            else_body.push_str(&process_block(db, block, indent));
+            else_body.push_str(&remove_break_from_block(db, block, indent));
         }
         BlockOrIf::If(else_if) => {
             else_body.push_str(&format!(
@@ -99,7 +99,7 @@ pub fn process_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClause, indent
                 indent,
                 else_if.condition(db).as_syntax_node().get_text_without_trivia(db)
             ));
-            else_body.push_str(&process_block(db, else_if.if_block(db), indent));
+            else_body.push_str(&remove_break_from_block(db, else_if.if_block(db), indent));
             else_body.push_str(&format!("{}}}\n", indent));
         }
     }
