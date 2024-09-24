@@ -3,7 +3,6 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::ids::SyntaxStablePtrId;
 
 const DIV_EQ_OP: &str = "Division with identical operands, this operation always results in one (except for zero) and \
                          may indicate a logic error";
@@ -21,10 +20,13 @@ pub fn check_eq_op(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Ve
     let op = node.op(db);
     let rhs = node.rhs(db);
 
-    println!("is method call: {}", lhs.as_syntax_node().kind(db));
     if are_operands_equal(db, &lhs, &rhs) && !is_method_call(db, &lhs) && !is_method_call(db, &rhs) {
         if let Some(message) = get_diagnostic_message(&op) {
-            diagnostics.push(create_diagnostic(node, message));
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: node.as_syntax_node().stable_ptr(),
+                message: message.to_owned(),
+                severity: Severity::Warning,
+            });
         }
     }
 }
@@ -55,13 +57,5 @@ fn get_diagnostic_message(op: &BinaryOperator) -> Option<&'static str> {
         BinaryOperator::Minus(_) => Some(EQ_DIFF_OP),
         BinaryOperator::Div(_) => Some(DIV_EQ_OP),
         _ => None,
-    }
-}
-
-fn create_diagnostic(node: &ExprBinary, message: &str) -> PluginDiagnostic {
-    PluginDiagnostic {
-        stable_ptr: node.as_syntax_node().stable_ptr(),
-        message: message.to_owned(),
-        severity: Severity::Warning,
     }
 }
