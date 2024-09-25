@@ -268,6 +268,32 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > manual unwrap or default for if let without trigger
+
+//! > cairo_code
+fn main() {
+  let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+  if let Option::Some(v) = a {
+    v
+   } else {
+    [3; 5]
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+  if let Option::Some(v) = a {
+    v
+   } else {
+    [3; 5]
+  };
+}
+
+//! > ==========================================================================
+
 //! > manual unwrap or default for match with array!
 
 //! > cairo_code
@@ -490,6 +516,30 @@ warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_defaul
 fn main() {
   let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
   x.unwrap_or_default();
+}
+
+//! > ==========================================================================
+
+//! > manual unwrap or default for match with without trigger
+
+//! > cairo_code
+fn main() {
+  let x: Option<u128> = Option::Some(1038);
+  match x {
+    Option::Some(v) => v,
+    Option::None => 6778
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let x: Option<u128> = Option::Some(1038);
+  match x {
+    Option::Some(v) => v,
+    Option::None => 6778
+  };
 }
 
 //! > ==========================================================================

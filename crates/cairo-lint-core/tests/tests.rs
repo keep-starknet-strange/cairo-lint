@@ -217,5 +217,7 @@ test_file!(
     "manual unwrap or default for match with fixed array",
     "manual unwrap or default for match with tuple",
     "manual unwrap or default for match with array!",
-    "manual unwrap or default for match with comments"
+    "manual unwrap or default for match with comments",
+    "manual unwrap or default for if let without trigger",
+    "manual unwrap or default for match with without trigger"
 );
