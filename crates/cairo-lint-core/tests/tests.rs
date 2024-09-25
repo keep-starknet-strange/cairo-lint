@@ -93,7 +93,8 @@ test_file!(
     "contradictory less than and greater than",
     "contradictory equal and less than",
     "redundant greater than or equal and less than or equal",
-    "impossible comparison"
+    "impossible comparison",
+    "every impossible comparison"
 );
 
 test_file!(
