@@ -9,6 +9,18 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+ --> lib.cairo:6:9
+  |
+6 |         panic!("there are sad people");
+  |         -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+ --> lib.cairo:6:9
+  |
+6 |         panic!("there are sad people");
+  |         -----
+  |
 warning: Plugin diagnostic: `assert!` is simpler than `if`-then-`panic!`
  --> lib.cairo:4:5
   |
@@ -22,7 +34,7 @@ warning: Plugin diagnostic: `assert!` is simpler than `if`-then-`panic!`
 //! > fixed
 fn main() {
     let sad_people: Array<u32> = array![];
-    assert!(!sad_people.is_empty(), "there are sad people: {:?}", sad_people);
+    assert!(!sad_people.is_empty(), "there are sad people: {:?}", !sad_people);
 }
 
 //! > ==========================================================================
@@ -38,6 +50,18 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+ --> lib.cairo:6:9
+  |
+6 |         panic!("there are sad people");
+  |         -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+ --> lib.cairo:6:9
+  |
+6 |         panic!("there are sad people");
+  |         -----
+  |
 warning: Plugin diagnostic: `assert!` is simpler than `if`-then-`panic!`
  --> lib.cairo:4:5
   |

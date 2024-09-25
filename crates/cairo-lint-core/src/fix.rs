@@ -513,8 +513,6 @@ impl Fixer {
         if let Some(Statement::Expr(statement_expr)) = statements.first() {
             if let Expr::InlineMacro(inline_macro) = &statement_expr.expr(db) {
                 let panic_message = inline_macro.arguments(db).as_syntax_node().get_text_without_trivia(db);
-                let assert_condition = condition_text.trim_start_matches('!');
-                let main_expression = assert_condition.split('.').next().unwrap_or(assert_condition);
 
                 let indentation = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
 
@@ -523,7 +521,7 @@ impl Fixer {
                     indentation,
                     condition_text,
                     panic_message.trim_matches(&['(', ')'][..]).replace("\"", "").trim(),
-                    main_expression,
+                    condition_text.split('.').next().unwrap_or(&condition_text),
                 );
 
                 return assert_macro;
