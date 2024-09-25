@@ -14,7 +14,6 @@ use cairo_lang_filesystem::db::{init_dev_corelib, FilesGroup, CORELIB_CRATE_NAME
 use cairo_lang_filesystem::ids::{CrateLongId, FileId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
-use cairo_lang_semantic::inline_macros::get_default_plugin_suite;
 use cairo_lang_starknet::starknet_plugin_suite;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
@@ -92,25 +91,30 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 })
                 .collect::<Vec<_>>()
         } else {
-            vec![
-                metadata
-                    .compilation_units
-                    .iter()
-                    .find(|compilation_unit| compilation_unit.package == package.id)
-                    .unwrap(),
-            ]
+            vec![metadata
+                .compilation_units
+                .iter()
+                .find(|compilation_unit| compilation_unit.package == package.id)
+                .unwrap()]
         };
         for compilation_unit in compilation_units {
             // Print that we're checking this package.
             ui.print(Status::new("Checking", &compilation_unit.target.name));
             // Create our db
-            let mut db = RootDatabase::builder()
-                .with_plugin_suite(get_default_plugin_suite())
-                .with_plugin_suite(test_plugin_suite())
-                .with_plugin_suite(cairo_lint_plugin_suite())
-                .with_plugin_suite(starknet_plugin_suite())
-                .with_cfg(to_cairo_cfg(&compilation_unit.cfg))
-                .build()?;
+            let mut db = if args.test {
+                RootDatabase::builder()
+                    .with_plugin_suite(test_plugin_suite())
+                    .with_plugin_suite(cairo_lint_plugin_suite())
+                    .with_plugin_suite(starknet_plugin_suite())
+                    .with_cfg(to_cairo_cfg(&compilation_unit.cfg))
+                    .build()?
+            } else {
+                RootDatabase::builder()
+                    .with_plugin_suite(cairo_lint_plugin_suite())
+                    .with_plugin_suite(starknet_plugin_suite())
+                    .with_cfg(to_cairo_cfg(&compilation_unit.cfg))
+                    .build()?
+            };
             // Setup the corelib
             init_dev_corelib(db.upcast_mut(), corelib.clone());
             // Convert the package edition to a cairo edition. If not specified or not known it will return an
