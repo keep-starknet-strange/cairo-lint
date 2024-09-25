@@ -5,6 +5,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Expr, ExprBlock, ExprId, ExprLoop, ExprMatch, Pattern, PatternEnumVariant, Statement,
 };
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const LOOP_MATCH_POP_FRONT: &str =
@@ -18,6 +19,12 @@ pub fn check_loop_match_pop_front(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
+    if let Some(node) = loop_expr.stable_ptr.lookup(db.upcast()).as_syntax_node().parent()
+        && node.has_attr_with_arg(db.upcast(), "allow", "loop_match_pop_front")
+    {
+        return;
+    }
+
     if !loop_expr.ty.is_unit(db) {
         return;
     }

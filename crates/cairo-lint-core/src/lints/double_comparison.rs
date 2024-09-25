@@ -2,7 +2,9 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::ids::SyntaxStablePtrId;
+use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
@@ -15,6 +17,28 @@ pub fn check_double_comparison(
     binary_expr: &ExprBinary,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
+    let mut maybe_attr = binary_expr.as_syntax_node();
+
+    if let Some(node) = maybe_attr.parent()
+        && node.has_attr_with_arg(db, "allow", "double_comparison")
+    {
+        return;
+    }
+
+    let mut maybe_attr_kind = SyntaxKind::ExprBinary;
+
+    while let Some(node) = maybe_attr.parent()
+        && (maybe_attr_kind == SyntaxKind::ExprBinary || maybe_attr_kind == SyntaxKind::ConditionExpr)
+    {
+        maybe_attr_kind = node.kind(db);
+        maybe_attr = node;
+    }
+
+    if let Some(node) = maybe_attr.parent()
+        && node.has_attr_with_arg(db, "allow", "double_comparison")
+    {
+        return;
+    }
     let lhs_var = extract_variable_from_expr(&binary_expr.lhs(db), db);
     let rhs_var = extract_variable_from_expr(&binary_expr.rhs(db), db);
     let lhs_op = extract_binary_operator_expr(&binary_expr.lhs(db), db);

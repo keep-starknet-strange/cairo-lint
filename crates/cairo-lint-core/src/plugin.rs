@@ -1,6 +1,7 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::items::attribute::SemanticQueryAttrs;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
 use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf, ExprLoop, ExprMatch};
@@ -189,10 +190,12 @@ impl AnalyzerPlugin for CairoLint {
     }
 }
 fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnostics: &mut Vec<PluginDiagnostic>) {
-    duplicate_underscore_args::check_duplicate_underscore_args(
-        db.function_with_body_signature(func_id).unwrap().params,
-        diagnostics,
-    );
+    if let Ok(false) = func_id.has_attr_with_arg(db, "allow", "duplicate_underscore_args") {
+        duplicate_underscore_args::check_duplicate_underscore_args(
+            db.function_with_body_signature(func_id).unwrap().params,
+            diagnostics,
+        );
+    }
     let Ok(function_body) = db.function_body(func_id) else {
         return;
     };

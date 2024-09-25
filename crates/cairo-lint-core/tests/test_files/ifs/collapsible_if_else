@@ -184,6 +184,40 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > Simple else if with new line allowed
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    #[allow(collapsible_if_else)]
+    if x {
+        println!("x is true");
+    }
+    else {
+        if !x {
+            println!("x is false");
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = true;
+    #[allow(collapsible_if_else)]
+    if x {
+        println!("x is true");
+    }
+    else {
+        if !x {
+            println!("x is false");
+        }
+    }
+}
+
+//! > ==========================================================================
+
 //! > Simple else if without new line
 
 //! > cairo_code

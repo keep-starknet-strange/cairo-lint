@@ -26,6 +26,36 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > Comparison with false allowed
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    #[allow(bool_comparison)]
+    if x == false {
+        println!("x is false");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+ --> lib.cairo:6:8
+  |
+6 |     if x == false {
+  |        ----------
+  |
+
+//! > fixed
+fn main() {
+    let x = true;
+    #[allow(bool_comparison)]
+    if !x {
+        println!("x is false");
+    }
+}
+
+//! > ==========================================================================
+
 //! > Comparison with false on LHS
 
 //! > cairo_code

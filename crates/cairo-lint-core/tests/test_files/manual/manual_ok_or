@@ -29,6 +29,31 @@ fn main() {
 }
 
 //! > ==========================================================================
+//! > test error str allowed
+
+//! > cairo_code
+fn main() {
+    let foo: Option<i32> = Option::None;
+    #[allow(manual_ok_or)]
+    let _foo = match foo {
+        Option::Some(v) => Result::Ok(v),
+        Option::None => Result::Err('this is an err'),
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Option<i32> = Option::None;
+    #[allow(manual_ok_or)]
+    let _foo = match foo {
+        Option::Some(v) => Result::Ok(v),
+        Option::None => Result::Err('this is an err'),
+    };
+}
+
+//! > ==========================================================================
 
 //! > test error enum
 

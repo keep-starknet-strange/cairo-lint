@@ -48,6 +48,24 @@ fn main() {
     let x = 1_u32;
     let _y = 0 / x;
 }
+//! > ==========================================================================
+
+//! > Division by zero allowed
+
+//! > cairo_code
+fn main() {
+    let x = 1_u32;
+	#[allow(erasing_op)]
+    let _y = 0 / x;
+}
+
+//! > diagnostics
+//! > fixed
+fn main() {
+    let x = 1_u32;
+	#[allow(erasing_op)]
+    let _y = 0 / x;
+}
 
 //! > ==========================================================================
 

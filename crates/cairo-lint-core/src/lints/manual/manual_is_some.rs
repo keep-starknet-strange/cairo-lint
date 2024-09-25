@@ -2,6 +2,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{ExprIf, ExprMatch};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
@@ -9,6 +10,11 @@ use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 pub const MANUAL_IS_SOME: &str = "Manual match for `is_some` detected. Consider using `is_some()` instead";
 
 pub fn check_manual_is_some(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
+    if let Some(node) = expr_match.as_syntax_node().parent()
+        && node.has_attr_with_arg(db, "allow", "manual_is_some")
+    {
+        return;
+    }
     if check_manual(db, expr_match, ManualLint::ManualIsSome) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_match.as_syntax_node().stable_ptr(),

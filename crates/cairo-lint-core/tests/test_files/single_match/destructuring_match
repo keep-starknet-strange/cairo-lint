@@ -32,6 +32,32 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > comprehensive match allowed
+
+//! > cairo_code
+fn main() {
+    let variable = Option::Some(1_felt252);
+    #[allow(single_match)]
+    match variable {
+        Option::None => println!("None"),
+        Option::Some => (),
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let variable = Option::Some(1_felt252);
+    #[allow(single_match)]
+    match variable {
+        Option::None => println!("None"),
+        Option::Some => (),
+    };
+}
+
+//! > ==========================================================================
+
 //! > destructuring comprehensive match
 
 //! > cairo_code

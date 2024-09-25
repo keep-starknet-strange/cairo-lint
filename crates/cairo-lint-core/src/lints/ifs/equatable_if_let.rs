@@ -2,12 +2,18 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{Condition, ConditionLet, Expr, ExprIf, OptionPatternEnumInnerPattern, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
 pub const EQUATABLE_IF_LET: &str =
     "`if let` pattern used for equatable value. Consider using a simple comparison `==` instead";
 
 pub fn check_equatable_if_let(db: &dyn SyntaxGroup, expr: &ExprIf, diagnostics: &mut Vec<PluginDiagnostic>) {
+    if let Some(node) = expr.as_syntax_node().parent()
+        && node.has_attr_with_arg(db, "allow", "equatable_if_let")
+    {
+        return;
+    }
     let condition = expr.condition(db);
 
     if let Condition::Let(condition_let) = condition {

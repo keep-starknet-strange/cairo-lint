@@ -2,10 +2,14 @@ use annotate_snippets::{Level, Renderer, Snippet};
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_diagnostics::{DiagnosticEntry, Severity};
 use cairo_lang_filesystem::db::FilesGroup;
+use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_utils::Upcast;
 
 pub fn format_diagnostic<'a>(diagnostic: &'a SemanticDiagnostic, db: &'a RootDatabase, renderer: &Renderer) -> String {
+    if diagnostic.kind == SemanticDiagnosticKind::UnsupportedAllowAttrArguments {
+        return String::new();
+    }
     let location = diagnostic.location(db.upcast());
     let file_id = location.file_id;
     let span = location.span;

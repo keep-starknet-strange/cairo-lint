@@ -39,6 +39,23 @@ warning: Plugin diagnostic: unnecessary double parentheses found. Consider remov
 fn main() {
     let _x = 10 * 2;
 }
+//! > ==========================================================================
+
+//! > double parens in let statement allowed
+
+//! > cairo_code
+fn main() {
+    #[allow(double_parens)]
+    let _x = ((10 * 2));
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    #[allow(double_parens)]
+    let _x = ((10 * 2));
+}
 
 //! > ==========================================================================
 

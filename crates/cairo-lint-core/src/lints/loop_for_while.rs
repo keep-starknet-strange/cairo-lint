@@ -2,12 +2,18 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{Expr, ExprLoop, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const LOOP_FOR_WHILE: &str = "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
                                   loop for clarity and conciseness";
 
 pub fn check_loop_for_while(db: &dyn SyntaxGroup, loop_expr: &ExprLoop, diagnostics: &mut Vec<PluginDiagnostic>) {
+    if let Some(node) = loop_expr.as_syntax_node().parent()
+        && node.has_attr_with_arg(db, "allow", "loop_for_while")
+    {
+        return;
+    }
     let body = loop_expr.body(db);
 
     for statement in body.statements(db).elements(db) {

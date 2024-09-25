@@ -48,7 +48,8 @@ test_file!(
     "reversed destructuring comprehensive match",
     "simple destructuring match with unit and comment in scope",
     "simple destructuring match with comment in scope",
-    "comprehensive match"
+    "comprehensive match",
+    "comprehensive match allowed"
 );
 
 test_file!(
@@ -74,6 +75,7 @@ test_file!(
     "double parens with function call",
     "double parens with return",
     "double parens in let statement",
+    "double parens in let statement allowed",
     "double parens in struct field access",
     "double parens in match arm"
 );
@@ -81,7 +83,10 @@ test_file!(
 test_file!(
     double_comparison,
     double_comparison,
+    "simple double comparison allowed",
+    "simple let double comparison allowed",
     "double comparison equal or greater than",
+    "double comparison equal or greater than allowed",
     "double comparison equal or less than",
     "double comparison greater than or equal",
     "double comparison greater than or less than",
@@ -103,11 +108,19 @@ test_file!(
     "simple loop match pop front impl path",
     "simple loop match pop front multiple dots",
     "loop match pop front with comment in some",
+    "loop match pop front with comment in some allowed",
     "loop match pop front with comment in none",
     "loop match pop front with sutff in none"
 );
 
-test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
+test_file!(
+    breaks,
+    breaks,
+    "Simple break",
+    "Simple break allowed",
+    "Break inside of if",
+    "Break inside of if with comment"
+);
 
 test_file!(
     ifs,
@@ -117,7 +130,8 @@ test_file!(
     "Simple Value Pattern Matching",
     "Enum Unit Variant Pattern Matching",
     "Complex Equality Destructuring",
-    "Matching With Simple Structs field"
+    "Matching With Simple Structs field",
+    "Matching With Simple Structs field allowed"
 );
 
 test_file!(
@@ -126,6 +140,7 @@ test_file!(
     "Comparison with true",
     "Comparison with true on LHS",
     "Comparison with false",
+    "Comparison with false allowed",
     "Comparison with false on LHS",
     "Negated comparison with true",
     "Negated comparison with true on LHS",
@@ -138,6 +153,7 @@ test_file!(
     erasing_operations,
     "Multiplication by zero",
     "Division by zero",
+    "Division by zero allowed",
     "Bitwise AND with zero",
     "Multiple operations",
     "Multiple bitwise operations"
@@ -146,7 +162,7 @@ test_file!(
 test_file!(
     duplicate_underscore_args,
     duplicate_underscore_args,
-    "duplicate underscore args",
+    "duplicate underscore args allowed",
     "duplicate underscore args2",
     "duplicate underscore longer args",
     "duplicate underscore longer args2",
@@ -158,6 +174,7 @@ test_file!(
     ifs,
     collapsible_if_else,
     "Simple else if with new line",
+    "Simple else if with new line allowed",
     "Simple else if without new line",
     "Multiple else if",
     "Else if with multiple statements",
@@ -171,7 +188,9 @@ test_file!(
     "Multiple Panic",
     "Multiple Panic and other macros",
     "Empty Panic",
-    "NO Panic",
+    "Empty Panic allowed",
+    "Empty Panic function allowed",
+    "No Panic",
     "Panic inside function"
 );
 
@@ -182,6 +201,7 @@ test_file!(
     "loop with comparison condition",
     "loop with negative condition",
     "loop with arithmetic condition",
+    "loop with arithmetic condition allowed",
     "loop with multiple conditions",
     "loop with arithmetic condition and else block",
     "loop with multiple condition inside if block",
@@ -194,6 +214,7 @@ test_file!(
     manual,
     manual_ok_or,
     "test error str",
+    "test error str allowed",
     "test error enum",
     "test with comment in None",
     "test with comment in Some",

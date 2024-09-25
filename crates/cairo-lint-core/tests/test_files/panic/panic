@@ -25,6 +25,39 @@ fn main() {
 }
 
 //! > ==========================================================================
+//! > Empty Panic allowed
+
+//! > cairo_code
+fn main() {
+    #[allow(panic)]
+    panic!("");
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    #[allow(panic)]
+    panic!("");
+}
+//! > ==========================================================================
+//! > Empty Panic function allowed
+
+//! > cairo_code
+fn main() {
+    #[allow(panic)]
+    panic(array![]);
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    #[allow(panic)]
+    panic(array![]);
+}
+
+//! > ==========================================================================
 
 //! > Multiple Panic
 
@@ -112,7 +145,7 @@ fn main() {
 
 //! > ==========================================================================
 
-//! > NO Panic
+//! > No Panic
 
 //! > cairo_code
 fn main() {

@@ -57,6 +57,8 @@ fn main() {
 //! > Matching With Simple Structs field
 
 //! > cairo_code
+fn do_thing() {}
+
 fn main() {
     let x = Option::Some(2);
     if let Option::Some(2) = x {
@@ -66,25 +68,49 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:4:5
-  |
-4 |       if let Option::Some(2) = x {
-  |  _____-
-5 | |         do_thing();
-6 | |     }
-  | |_____-
-  |
-error: Function not found.
- --> lib.cairo:6:9
-  |
-6 |         do_thing();
-  |         ^^^^^^^^
-  |
+  --> lib.cairo:8:5
+   |
+ 8 |       if let Option::Some(2) = x {
+   |  _____-
+ 9 | |         do_thing();
+10 | |     }
+   | |_____-
+   |
 
 //! > fixed
+fn do_thing() {}
+
 fn main() {
     let x = Option::Some(2);
     if x == Option::Some(2) {
+        do_thing();
+    }
+}
+
+//! > ==========================================================================
+
+//! > Matching With Simple Structs field allowed
+
+//! > cairo_code
+fn do_thing() {}
+
+fn main() {
+    let x = Option::Some(2);
+    #[allow(equatable_if_let)]
+    if let Option::Some(2) = x {
+        do_thing();
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn do_thing() {}
+
+fn main() {
+    let x = Option::Some(2);
+    #[allow(equatable_if_let)]
+    if let Option::Some(2) = x {
         do_thing();
     }
 }

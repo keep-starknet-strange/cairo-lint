@@ -1,17 +1,13 @@
-//! > duplicate underscore args
+//! > duplicate underscore args allowed
 
 //! > cairo_code
+#[allow(duplicate_underscore_args)]
 fn foo(a: u32, _a: u32) {}
 
 //! > diagnostics
-warning: Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult
---> lib.cairo:0:16
- |
-0 | fn foo(a: u32, _a: u32) {}
- |                --
- |
 
 //! > fixed
+#[allow(duplicate_underscore_args)]
 fn foo(a: u32, _a: u32) {}
 
 //! > ==========================================================================

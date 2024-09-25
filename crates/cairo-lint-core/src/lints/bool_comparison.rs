@@ -2,6 +2,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
@@ -30,6 +31,11 @@ pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: 
 }
 
 pub fn check_bool_comparison(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
+    if let Some(node) = node.as_syntax_node().parent()
+        && node.has_attr_with_arg(db, "allow", "bool_comparison")
+    {
+        return;
+    }
     let lhs = node.lhs(db);
     let op = node.op(db);
     let rhs = node.rhs(db);

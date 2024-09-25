@@ -4,6 +4,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, ExprMatch, Pattern};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthesized, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const DESTRUCT_MATCH: &str =
@@ -47,6 +48,11 @@ pub fn check_single_match(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
+    if let Some(node) = match_expr.stable_ptr.lookup(db.upcast()).as_syntax_node().parent()
+        && node.has_attr_with_arg(db.upcast(), "allow", "single_match")
+    {
+        return;
+    }
     let arms = &match_expr.arms;
     let mut is_single_armed = false;
     let mut is_complete = false;

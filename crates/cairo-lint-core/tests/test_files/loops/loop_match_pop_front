@@ -76,6 +76,46 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > loop match pop front with comment in some allowed
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    #[allow(loop_match_pop_front)]
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => {
+                // This is a comment
+                println!("{val}")
+            },
+            Option::None => { 
+                break;
+            },
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    #[allow(loop_match_pop_front)]
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => {
+                // This is a comment
+                println!("{val}")
+            },
+            Option::None => { 
+                break;
+            },
+        }
+    }
+}
+
+//! > ==========================================================================
+
 //! > loop match pop front with sutff in none
 
 //! > cairo_code

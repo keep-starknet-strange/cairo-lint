@@ -34,6 +34,36 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > loop with arithmetic condition allowed
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 5;
+    #[allow(loop_for_while)]
+    loop {
+        if x * 2 >= 20 {
+            break;
+        }
+        x += 1;
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 5;
+    #[allow(loop_for_while)]
+    loop {
+        if x * 2 >= 20 {
+            break;
+        }
+        x += 1;
+    }
+}
+
+//! > ==========================================================================
+
 //! > loop with arithmetic condition and else block
 
 //! > cairo_code
