@@ -3,15 +3,15 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf, ExprMatch};
+use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf, ExprLoop, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loops,
-    single_match
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loop_for_while,
+    loops, panic, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -35,9 +35,12 @@ pub enum CairoLintKind {
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
     ManualUnwrapOrDefault,
+    LoopForWhile,
     Unknown,
+    Panic,
     ErasingOperation,
     ManualOkOr,
+    ManualIsSome,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -55,8 +58,11 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
+        panic::PANIC_IN_CODE => CairoLintKind::Panic,
+        loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
+        manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -119,8 +125,20 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
+                    SyntaxKind::ExprLoop => {
+                        loop_for_while::check_loop_for_while(
+                            db.upcast(),
+                            &ExprLoop::from_syntax_node(db.upcast(), node),
+                            &mut diags,
+                        );
+                    }
                     SyntaxKind::ExprMatch => {
                         manual_ok_or::check_manual_ok_or(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_is_some::check_manual_is_some(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node),
                             &mut diags,
@@ -153,6 +171,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
             }
+            Expr::FunctionCall(expr_func) => panic::check_panic_usage(db, expr_func, diagnostics),
             _ => (),
         };
     }
