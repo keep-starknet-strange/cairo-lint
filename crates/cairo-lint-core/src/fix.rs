@@ -493,14 +493,9 @@ impl Fixer {
 
     /// Rewrites a manual implementation of is_some
     pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let expr_match = if let Expr::Match(expr_match) = Expr::from_syntax_node(db, node.clone()) {
-            expr_match
-        } else {
-            panic!("Expected a match expression");
-        };
+        let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
-        let val = expr_match.expr(db);
-        let option_var_name = match val {
+        let option_var_name = match expr_match.expr(db) {
             Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
             _ => panic!("Expected a variable or path in match expression"),
         };

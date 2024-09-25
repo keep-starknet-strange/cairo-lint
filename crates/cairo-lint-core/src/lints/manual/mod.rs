@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 #[derive(Copy, Clone, Debug)]
 pub enum ManualLint {
     ManualOkOr,
+    ManualIsSome,
 }
 pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: ManualLint) -> bool {
     let arms = expr_match.arms(db).elements(db);
@@ -51,6 +52,9 @@ fn check_syntax_some_expression(arm_expression: Expr, db: &dyn SyntaxGroup, manu
                 return func_call.path(db).as_syntax_node().get_text(db) == "Result::Ok";
             }
         }
+        ManualLint::ManualIsSome => {
+            return arm_expression.as_syntax_node().get_text_without_trivia(db) == "true";
+        }
     }
     false
 }
@@ -61,6 +65,9 @@ fn check_syntax_none_expression(arm_expression: Expr, db: &dyn SyntaxGroup, manu
             if let Expr::FunctionCall(func_call) = arm_expression {
                 return func_call.path(db).as_syntax_node().get_text(db) == "Result::Err";
             }
+        }
+        ManualLint::ManualIsSome => {
+            return arm_expression.as_syntax_node().get_text_without_trivia(db) == "false";
         }
     }
 
