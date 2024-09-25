@@ -12,6 +12,7 @@ pub enum ManualLint {
     ManualOkOr,
     ManualIsSome,
     ManualExpect,
+    ManualIsNone,
 }
 pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: ManualLint) -> bool {
     let arms = expr_match.arms(db).elements(db);

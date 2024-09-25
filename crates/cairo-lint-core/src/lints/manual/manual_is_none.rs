@@ -4,7 +4,7 @@ use cairo_lang_syntax::node::ast::ExprMatch;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
-use crate::lints::manual::manual::{check_manual, ManualLint};
+use crate::lints::manual::{check_manual, ManualLint};
 
 pub const MANUAL_IS_NONE: &str = "Manual match for `is_none` detected. Consider using `is_none()` instead";
 
