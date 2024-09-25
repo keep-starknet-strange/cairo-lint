@@ -12,7 +12,7 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-error: Plugin diagnostic: The condition contains contradictory comparisons, meaning no value can satisfy both conditions at once.
+error: Plugin diagnostic: This double comparison is contradictory and always false.
  --> lib.cairo:6:8
   |
 6 |     if x == y && x < y {
@@ -46,7 +46,7 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-error: Plugin diagnostic: The condition contains contradictory comparisons, meaning no value can satisfy both conditions at once.
+error: Plugin diagnostic: This double comparison is contradictory and always false.
  --> lib.cairo:6:8
   |
 6 |     if x < y && x > y {
@@ -416,7 +416,7 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-error: Plugin diagnostic: The condition contains contradictory comparisons, meaning no value can satisfy both conditions at once.
+error: Plugin diagnostic: This double comparison is contradictory and always false.
  --> lib.cairo:6:8
   |
 6 |     if x <= y && x > y {
@@ -428,6 +428,41 @@ fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
     if x <= y && x > y {
+        true
+    } else {
+        false
+    }
+}
+
+
+//! > ==========================================================================
+
+//! > every impossible comparison
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 4_u32;
+    let y = 10_u32;
+    if x > y && x >= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: This double comparison is contradictory and always false.
+ --> lib.cairo:6:8
+  |
+6 |     if x > y && x >= y {
+  |        ^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() -> bool {
+    let x = 4_u32;
+    let y = 10_u32;
+    if x > y && x >= y {
         true
     } else {
         false
