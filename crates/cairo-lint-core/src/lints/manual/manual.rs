@@ -69,3 +69,4 @@ fn check_syntax_none_expression(arm_expression: Expr, db: &dyn SyntaxGroup, manu
     }
     false
 }
+
