@@ -4,7 +4,7 @@ use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::ast::ExprInlineMacro; 
 use cairo_lang_syntax::node::TypedSyntaxNode;
-use cairo_lang_syntax::node::helpers::WrappedArgListHelper; // Añade esta línea
+use cairo_lang_syntax::node::helpers::WrappedArgListHelper;
 use std::str::FromStr;
 
 pub const ASSERT_EQ_FALSE_MSG: &str = "assert_eq!(expr, false) can be replaced with assert!(!expr).";
