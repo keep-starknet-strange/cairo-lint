@@ -132,7 +132,15 @@ test_file!(
     "Negated comparison with false",
     "Negated comparison with false on LHS"
 );
-
+test_file!(
+    erasing_operations,
+    erasing_operations,
+    "Multiplication by zero",
+    "Division by zero",
+    "Bitwise AND with zero",
+    "Multiple operations",
+    "Multiple bitwise operations"
+);
 test_file!(
     duplicate_underscore_args,
     duplicate_underscore_args,
@@ -155,6 +163,32 @@ test_file!(
 );
 
 test_file!(
+    panic,
+    panic,
+    "Single Panic",
+    "Multiple Panic",
+    "Multiple Panic and other macros",
+    "Empty Panic",
+    "NO Panic",
+    "Panic inside function"
+);
+
+test_file!(
+    loop_for_while,
+    loop_for_while,
+    "simple loop with break",
+    "loop with comparison condition",
+    "loop with negative condition",
+    "loop with arithmetic condition",
+    "loop with multiple conditions",
+    "loop with arithmetic condition and else block",
+    "loop with multiple condition inside if block",
+    "loop with arithmetic condition and second increment",
+    "loop with multiple increments and comparison",
+    "loop with condition depending on external variable"
+);
+
+test_file!(
     manual,
     manual_ok_or,
     "test error str",
@@ -162,5 +196,7 @@ test_file!(
     "test with comment in None",
     "test with comment in Some"
 );
+
+test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
 
 test_file!(manual, manual_assert, "check-if-then", "check-if-then2");
