@@ -1,8 +1,7 @@
-use cairo_lang_semantic::{db::SemanticGroup, Condition, FixedSizeArrayItems, Statement};
+use cairo_lang_semantic::{db::SemanticGroup, Condition, ExprBlock, FixedSizeArrayItems, Statement};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Expr, Arenas};
-
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use num_bigint::BigInt;
 
@@ -58,15 +57,9 @@ fn is_manual_unwrap_or_default(
     db: &dyn SemanticGroup, 
     first_arm: &Expr, 
     second_arm: &Expr,
-    arenas: &Arenas // Assuming arenas is needed for array lookup
+    arenas: &Arenas
 ) -> bool {
-    // Check if the expression is a variable (`Expr::Var`).
-    let is_var = is_expr_var(db, first_arm, arenas);
-    
-    // Use the helper function to check if the second expression is default
-    let is_default = is_expr_default(db, second_arm, arenas);
-    
-    is_var && is_default
+    is_expr_var(db, first_arm, arenas) && is_expr_default(db, second_arm, arenas)
 }
 
 fn is_expr_var(
@@ -76,28 +69,7 @@ fn is_expr_var(
 ) -> bool {
     match expr {
         Expr::Var(_) => true,
-        Expr::Block(block_expr) => {
-            // Check if all statements in the block are variables
-            let statements_default = block_expr.statements.iter().all(|&statement_id| {
-                let statement = &arenas.statements[statement_id];
-                match statement {
-                    Statement::Let(statement_let) => {
-                        let expr = &arenas.exprs[statement_let.expr];
-                        is_expr_var(db, expr, arenas)
-                    }
-                    _ => false, // Return false if it's not a `let` statement
-                }
-            });
-
-            let tail_default = if let Some(tail_expr_id) = block_expr.tail {
-                let tail_expr = &arenas.exprs[tail_expr_id];
-                is_expr_var(db, tail_expr, arenas)
-            } else {
-                false // If no tail, it's considered false
-            };
-
-            statements_default || tail_default
-        },
+        Expr::Block(block_expr) => check_block_expr(db, block_expr, arenas, is_expr_var),
         _ => false   
     }
 }
@@ -126,52 +98,53 @@ fn is_expr_default(
                 .as_syntax_node().get_text_without_trivia(db.upcast());
             enum_text == FALSE
         },
-        Expr::Block(block_expr) => {
-            // Check if all statements in the block are default
-            let statements_default = block_expr.statements.iter().all(|&statement_id| {
-                let statement = &arenas.statements[statement_id];
-                match statement {
-                    Statement::Let(statement_let) => {
-                        let expr = &arenas.exprs[statement_let.expr];
-                        is_expr_default(db, expr, arenas)
-                    }
-                    _ => false, // Return false if it's not a `let` statement
-                }
-            });
-
-            let tail_default = if let Some(tail_expr_id) = block_expr.tail {
-                let tail_expr = &arenas.exprs[tail_expr_id];
-                is_expr_default(db, tail_expr, arenas)
-            } else {
-                false // If no tail, it's considered false
-            };
-
-            statements_default || tail_default
-        },
+        Expr::Block(block_expr) => check_block_expr(db, block_expr, arenas, is_expr_default),
         Expr::FixedSizeArray(arr_expr) => {
             match &arr_expr.items {
                 // check if all items are default
                 FixedSizeArrayItems::Items(items) => {
-                    items.iter().all(|&expr_id| {
-                        let item_expr = &arenas.exprs[expr_id];
-                        is_expr_default(db, item_expr, arenas) // Recursively check each item
-                    })
+                    items.iter().all(|&expr_id| is_expr_default(db, &arenas.exprs[expr_id], arenas))
                 },
                 // If the array is repeated, check if the repeated value is default
                 FixedSizeArrayItems::ValueAndSize(expr_id, _) => {
-                    let item_expr = &arenas.exprs[*expr_id];
-                    is_expr_default(db, item_expr, arenas) // Check the repeated value
+                    is_expr_default(db, &arenas.exprs[*expr_id], arenas)
                 },
             }
         },
         Expr::Tuple(tup_expr) => {
-            tup_expr.items.iter().all(|&expr_id| {
-                let item_expr = &arenas.exprs[expr_id];
-                is_expr_default(db, item_expr, arenas) // Recursively check each item
-            })
+            tup_expr.items.iter().all(|&expr_id| is_expr_default(db, &arenas.exprs[expr_id], arenas))
         },
         _ => false,
     }
+}
+
+/// Helper function for checking block expressions.
+fn check_block_expr<F>(
+    db: &dyn SemanticGroup,
+    block_expr: &ExprBlock,
+    arenas: &Arenas,
+    checker: F,
+) -> bool
+where
+    F: Fn(&dyn SemanticGroup, &Expr, &Arenas) -> bool,
+{
+    let statements_default = block_expr.statements.iter().all(|&statement_id| {
+        let statement = &arenas.statements[statement_id];
+        match statement {
+            Statement::Let(statement_let) => {
+                let expr = &arenas.exprs[statement_let.expr];
+                checker(db, expr, arenas)
+            }
+            _ => false,
+        }
+    });
+
+    let tail_default = block_expr.tail.map_or(false, |tail_expr_id| {
+        let tail_expr = &arenas.exprs[tail_expr_id];
+        checker(db, tail_expr, arenas)
+    });
+
+    statements_default || tail_default
 }
 
 /// Detects manual `unwrap_or_default` patterns and adds a diagnostic warning if found.
