@@ -130,49 +130,6 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > simple double comparison allowed
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    #[allow(double_comparison)]
-    x == y || x > y 
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    #[allow(double_comparison)]
-    x == y || x > y 
-}
-//! > ==========================================================================
-
-//! > simple let double comparison allowed
-
-//! > cairo_code
-fn main() {
-    let x = 5_u32;
-    let y = 10_u32;
-    #[allow(double_comparison)]
-     let _cond = x == y || x > y;
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let x = 5_u32;
-    let y = 10_u32;
-    #[allow(double_comparison)]
-     let _cond = x == y || x > y;
-}
-
-//! > ==========================================================================
-
 //! > double comparison equal or less than
 
 //! > cairo_code
@@ -471,4 +428,48 @@ fn main() -> bool {
     } else {
         false
     }
+}
+
+//! > ==========================================================================
+
+//! > simple double comparison allowed
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(double_comparison)]
+    x == y || x > y 
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(double_comparison)]
+    x == y || x > y 
+}
+
+//! > ==========================================================================
+
+//! > simple let double comparison allowed
+
+//! > cairo_code
+fn main() {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(double_comparison)]
+     let _cond = x == y || x > y;
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(double_comparison)]
+     let _cond = x == y || x > y;
 }

@@ -39,6 +39,7 @@ warning: Plugin diagnostic: unnecessary double parentheses found. Consider remov
 fn main() {
     let _x = 10 * 2;
 }
+
 //! > ==========================================================================
 
 //! > double parens in let statement allowed

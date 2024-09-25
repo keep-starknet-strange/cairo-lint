@@ -1,3 +1,40 @@
+//! > test error enum
+
+//! > cairo_code
+mod Error {
+    pub const Error: felt252 = 'this is an err';
+}
+fn main() {
+    let foo: Option<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(v) => Result::Ok(v),
+        Option::None => Result::Err(Error::Error),
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+  --> lib.cairo:10:16
+   |
+10 |       let _foo = match foo {
+   |  ________________-
+11 | |         Option::Some(v) => Result::Ok(v),
+12 | |         Option::None => Result::Err(Error::Error),
+13 | |     };
+   | |_____-
+   |
+
+//! > fixed
+mod Error {
+    pub const Error: felt252 = 'this is an err';
+}
+fn main() {
+    let foo: Option<i32> = Option::None;
+    let _foo = foo.ok_or(Error::Error);
+}
+
+//! > ==========================================================================
+
 //! > test error str
 
 //! > cairo_code
@@ -10,7 +47,6 @@ fn main() {
 }
 
 //! > diagnostics
-
 warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
  --> lib.cairo:4:16
   |
@@ -29,6 +65,7 @@ fn main() {
 }
 
 //! > ==========================================================================
+
 //! > test error str allowed
 
 //! > cairo_code
@@ -52,45 +89,6 @@ fn main() {
         Option::None => Result::Err('this is an err'),
     };
 }
-
-//! > ==========================================================================
-
-//! > test error enum
-
-//! > cairo_code
-mod Error {
-    pub const Error: felt252 = 'this is an err';
-}
-fn main() {
-    let foo: Option<i32> = Option::None;
-    let _foo = match foo {
-        Option::Some(v) => Result::Ok(v),
-        Option::None => Result::Err(Error::Error),
-    };
-}
-
-//! > diagnostics
-
-warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
-  --> lib.cairo:10:16
-   |
-10 |       let _foo = match foo {
-   |  ________________-
-11 | |         Option::Some(v) => Result::Ok(v),
-12 | |         Option::None => Result::Err(Error::Error),
-13 | |     };
-   | |_____-
-   |
-
-//! > fixed
-mod Error {
-    pub const Error: felt252 = 'this is an err';
-}
-fn main() {
-    let foo: Option<i32> = Option::None;
-    let _foo = foo.ok_or(Error::Error);
-}
-
 
 //! > ==========================================================================
 
