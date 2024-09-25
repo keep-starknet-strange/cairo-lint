@@ -576,33 +576,25 @@ impl Fixer {
         let outer_condition = expr_if.condition(db).as_syntax_node().get_text_without_trivia(db);
         let if_block = expr_if.if_block(db);
     
-        // Verificar si el bloque del if externo contiene solo el if interno
         let statements = if_block.statements(db).elements(db);
         if statements.len() != 1 {
-            // Si hay más de una sentencia, no combinar
             return node.get_text(db);
         }
-    
+
         if let Some(Statement::Expr(inner_expr_stmt)) = statements.first() {
             if let Expr::If(inner_if_expr) = inner_expr_stmt.expr(db) {
-                // Verificar si el if interno tiene un bloque else
                 match inner_if_expr.else_clause(db) {
                     OptionElseClause::Empty(_) => {
-                        // No hay bloque else, podemos continuar
                     }
                     OptionElseClause::ElseClause(_) => {
-                        // Hay un bloque else, no debemos combinar
                         return node.get_text(db);
                     }
                 }
     
-                // Verificar si el if externo tiene un bloque else
                 match expr_if.else_clause(db) {
                     OptionElseClause::Empty(_) => {
-                        // No hay bloque else, podemos continuar
                     }
                     OptionElseClause::ElseClause(_) => {
-                        // Hay un bloque else, no debemos combinar
                         return node.get_text(db);
                     }
                 }

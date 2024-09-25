@@ -50,4 +50,3 @@ pub fn check_collapsible_if(db: &dyn SyntaxGroup, expr_if: &ExprIf, diagnostics:
         }
     }
 }
-    
