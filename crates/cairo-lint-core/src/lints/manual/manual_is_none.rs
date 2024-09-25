@@ -1,49 +1,15 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::TypedSyntaxNode;
-use cairo_lang_syntax::node::ast::{ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::ExprMatch;
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::TypedSyntaxNode;
+
+use crate::lints::manual::manual::{check_manual, ManualLint};
 
 pub const MANUAL_IS_NONE: &str = "Manual match for `is_none` detected. Consider using `is_none()` instead";
 
 pub fn check_manual_is_none(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
-    let arms = expr_match.arms(db).elements(db);
-
-    if arms.len() != 2 {
-        return;
-    }
-
-    let first_arm = &arms[0];
-    let second_arm = &arms[1];
-
-    let first_pattern = &first_arm.patterns(db).elements(db)[0];
-    let second_pattern = &second_arm.patterns(db).elements(db)[0];
-
-    // Checks if the pattern matches Option::Some(_) => false
-    let found_some_ok = match first_pattern {
-        Pattern::Enum(enum_pattern) => {
-            let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
-            match enum_name.as_str() {
-                "Option::Some" => first_arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "false",
-                _ => false,
-            }
-        }
-        _ => false,
-    };
-
-    // Checks if the pattern matches Option::None => true
-    let found_none_err = match second_pattern {
-        Pattern::Enum(enum_pattern) => {
-            let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
-            match enum_name.as_str() {
-                "Option::None" => second_arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "true",
-                _ => false,
-            }
-        }
-        _ => false,
-    };
-
-    if found_some_ok && found_none_err {
+    if check_manual(db, expr_match, ManualLint::ManualIsNone) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_match.as_syntax_node().stable_ptr(),
             message: MANUAL_IS_NONE.to_owned(),
