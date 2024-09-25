@@ -323,10 +323,15 @@ test_file!(
     "collapsible if with simple numerical conditions",
     "collapsible if with else clause",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "collapsible if with independent statement",
     "collapsible if with else on outer if"
 );
 =======
     "collapsible if with independent statement"
+=======
+    "collapsible if with independent statement",
+    "collapsible if with else on outer if"
+>>>>>>> 73fa12d (feat: add more test)
 );
 >>>>>>> 4b56c2c (feat: improve test)

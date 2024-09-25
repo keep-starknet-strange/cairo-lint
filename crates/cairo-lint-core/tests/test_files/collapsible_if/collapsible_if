@@ -31,7 +31,7 @@ fn main() {
     let x = true;
     let y = true;
     let z = false;
-    if x || z && y && z {
+    if (x || z) && (y && z) {
         println!("Hello");
     }
 }
@@ -77,7 +77,7 @@ fn main() {
     let a = 5_u32;
     let b = 2_u32;
     let c = 10_u32;
-    if x + y > a && z * b < c {
+    if (x + y > a) && (z * b < c) {
         println!("Complex conditions");
     }
 }
@@ -115,7 +115,7 @@ warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which
 fn main() {
     let x = true;
     let z = true;
-    if x && z {
+    if (x) && (z) {
         println!("No fix here");
     }
 }
@@ -140,32 +140,57 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:10:5
-   |
-10 |       if x || z {
-   |  _____-
-11 | |         if y && z {
-...  |
-15 | |         }
-16 | |     }
-   | |_____-
-   |
-
-//! > The `collapsible_if` diagnostic should NOT trigger here, because combining the 
-
-//! > `if` statements would break the logic of the `else` clause.
 
 //! > fixed
 fn main() {
     let x = true;
     let y = true;
     let z = false;
-    if x || z && y && z {
-        println!("Hello");
-    }}
 
-//! > No fix should be applied in this case, as the original logic is correct.
+    if x || z {
+        if y && z {
+            println!("Hello");
+        } else {
+            println!("World");
+        }
+    }
+}
+
+//! > ==========================================================================
+
+//! > collapsible if with else on outer if
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        } 
+    } else {
+        println!("World");
+    }
+}
+
+//! > fixed
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        } 
+    } else {
+        println!("World");
+    }
+}
+
+//! > diagnostics
 
 //! > ==========================================================================
 
@@ -201,7 +226,7 @@ fn is_valid(_a: bool) -> bool { true }
 fn is_ready(_b: bool) -> bool { true } 
 
 fn main() {
-    if is_valid(true) && is_ready(true) {
+    if (is_valid(true)) && (is_ready(true)) {
         println!("Function calls in conditions");
     }
 }
@@ -225,33 +250,20 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:10:5
-   |
-10 |       if x || z {
-   |  _____-
-11 | |         if y && z {
-...  |
-14 | |         println!("World");
-15 | |     }
-   | |_____-
-   |
-
-//! > The `collapsible_if` diagnostic should NOT trigger here, because combining the 
-
-//! > `if` statements would break the logic of the `println!("World");` line.
 
 //! > fixed
 fn main() {
     let x = true;
     let y = true;
     let z = false;
-    if x || z && y && z {
-        println!("Hello");
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
+        println!("World");
     }
 }
-
-//! > No fix should be applied in this case, as the original logic is correct.
 
 //! > ==========================================================================
 
@@ -288,7 +300,7 @@ fn main() {
     let a = 10_u32;
     let b = 20_u32;
     let c = 5_u32;
-    if a > b && c < b {
+    if (a > b) && (c < b) {
         println!("Simple numerical conditions");
     }
 }
