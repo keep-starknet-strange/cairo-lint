@@ -1,3 +1,35 @@
+//! > test error str
+
+//! > cairo_code
+fn main() {
+    let foo: Option<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(v) => Result::Ok(v),
+        Option::None => Result::Err('this is an err'),
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+ --> lib.cairo:4:16
+  |
+4 |       let _foo = match foo {
+  |  ________________-
+5 | |         Option::Some(v) => Result::Ok(v),
+6 | |         Option::None => Result::Err('this is an err'),
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let foo: Option<i32> = Option::None;
+    let _foo = foo.ok_or('this is an err');
+}
+
+//! > ==========================================================================
+
 //! > test error enum
 
 //! > cairo_code
@@ -13,6 +45,7 @@ fn main() {
 }
 
 //! > diagnostics
+
 warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
   --> lib.cairo:10:16
    |
@@ -33,36 +66,6 @@ fn main() {
     let _foo = foo.ok_or(Error::Error);
 }
 
-//! > ==========================================================================
-
-//! > test error str
-
-//! > cairo_code
-fn main() {
-    let foo: Option<i32> = Option::None;
-    let _foo = match foo {
-        Option::Some(v) => Result::Ok(v),
-        Option::None => Result::Err('this is an err'),
-    };
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
- --> lib.cairo:4:16
-  |
-4 |       let _foo = match foo {
-  |  ________________-
-5 | |         Option::Some(v) => Result::Ok(v),
-6 | |         Option::None => Result::Err('this is an err'),
-7 | |     };
-  | |_____-
-  |
-
-//! > fixed
-fn main() {
-    let foo: Option<i32> = Option::None;
-    let _foo = foo.ok_or('this is an err');
-}
 
 //! > ==========================================================================
 
