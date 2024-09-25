@@ -17,7 +17,7 @@ fn evaluate_expression(expr: &str) -> Option<bool> {
 }
 
 pub fn check_assert(db: &dyn SyntaxGroup, node: SyntaxNode, diagnostics: &mut Vec<PluginDiagnostic>) {
-    let expr_macro = ExprInlineMacro::from_syntax_node(db, node.clone());
+    let expr_macro: ExprInlineMacro = ExprInlineMacro::from_syntax_node(db, node.clone());
     let path = expr_macro.path(db);
     let arguments = expr_macro.arguments(db);
 
