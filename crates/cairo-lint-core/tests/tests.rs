@@ -196,3 +196,5 @@ test_file!(
     "test with comment in None",
     "test with comment in Some"
 );
+
+test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");

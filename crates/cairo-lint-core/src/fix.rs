@@ -184,6 +184,7 @@ impl Fixer {
             }
             CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -446,14 +447,9 @@ impl Fixer {
 
     /// Rewrites a manual implementation of ok_or
     pub fn fix_manual_ok_or(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let expr_match = if let Expr::Match(expr_match) = Expr::from_syntax_node(db, node.clone()) {
-            expr_match
-        } else {
-            panic!("Expected a match expression");
-        };
+        let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
-        let val = expr_match.expr(db);
-        let option_var_name = match val {
+        let option_var_name = match expr_match.expr(db) {
             Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
             _ => panic!("Expected a variable or path in match expression"),
         };
@@ -463,24 +459,9 @@ impl Fixer {
             panic!("Expected exactly two arms in the match expression");
         }
 
-        let first_arm = &arms[0];
         let second_arm = &arms[1];
 
-        let first_pattern = &first_arm.patterns(db).elements(db)[0];
-        let second_pattern = &second_arm.patterns(db).elements(db)[0];
-
-        match first_pattern {
-            Pattern::Enum(enum_pattern) => {
-                let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
-                match enum_name.as_str() {
-                    "Option::Some" => {}
-                    _ => panic!("Expected Option::Some enum pattern"),
-                }
-            }
-            _ => panic!("Expected an Option enum pattern"),
-        }
-
-        let none_arm_err = match second_pattern {
+        let none_arm_err = match &second_arm.patterns(db).elements(db)[0] {
             Pattern::Enum(enum_pattern) => {
                 let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
                 match enum_name.as_str() {
@@ -508,5 +489,17 @@ impl Fixer {
         };
 
         format!("{option_var_name}.ok_or({none_arm_err})")
+    }
+
+    /// Rewrites a manual implementation of is_some
+    pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+
+        let option_var_name = match expr_match.expr(db) {
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Expected a variable or path in match expression"),
+        };
+
+        format!("{option_var_name}.is_some()")
     }
 }
