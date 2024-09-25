@@ -1,4 +1,4 @@
-use cairo_lang_semantic::{db::SemanticGroup, Condition, FixedSizeArrayItems};
+use cairo_lang_semantic::{db::SemanticGroup, Condition, FixedSizeArrayItems, Statement};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Expr, Arenas};
@@ -8,7 +8,8 @@ use num_bigint::BigInt;
 
 pub const MANUAL_UNWRAP_OR_DEFAULT: &str = "This can be done in one call with `.unwrap_or_default()`";
 
-pub const DEFAULT: &str = "\"Felt252Default::default\"";
+pub const DEFAULT: &str = "\"Default::default\"";
+pub const DEFAULT_APPEND: &str = "Default::default";
 pub const ARRAY_NEW: &str = "\"ArrayImpl::new\"";
 pub const FALSE: &str = "#[default]\n    False";
 
@@ -60,12 +61,45 @@ fn is_manual_unwrap_or_default(
     arenas: &Arenas // Assuming arenas is needed for array lookup
 ) -> bool {
     // Check if the expression is a variable (`Expr::Var`).
-    let is_var = matches!(first_arm, Expr::Var(_));
+    let is_var = is_expr_var(db, first_arm, arenas);
     
     // Use the helper function to check if the second expression is default
     let is_default = is_expr_default(db, second_arm, arenas);
     
     is_var && is_default
+}
+
+fn is_expr_var(
+    db: &dyn SemanticGroup, 
+    expr: &Expr,
+    arenas: &Arenas
+) -> bool {
+    match expr {
+        Expr::Var(_) => true,
+        Expr::Block(block_expr) => {
+            // Check if all statements in the block are variables
+            let statements_default = block_expr.statements.iter().all(|&statement_id| {
+                let statement = &arenas.statements[statement_id];
+                match statement {
+                    Statement::Let(statement_let) => {
+                        let expr = &arenas.exprs[statement_let.expr];
+                        is_expr_var(db, expr, arenas)
+                    }
+                    _ => false, // Return false if it's not a `let` statement
+                }
+            });
+
+            let tail_default = if let Some(tail_expr_id) = block_expr.tail {
+                let tail_expr = &arenas.exprs[tail_expr_id];
+                is_expr_var(db, tail_expr, arenas)
+            } else {
+                false // If no tail, it's considered false
+            };
+
+            statements_default || tail_default
+        },
+        _ => false   
+    }
 }
 
 /// Helper function to check if an expression is a "default" value
@@ -77,7 +111,7 @@ fn is_expr_default(
     match expr {
         Expr::FunctionCall(call_expr) => {
             let func_name = &call_expr.function.name(db);
-            func_name.as_str() == DEFAULT || func_name.as_str() == ARRAY_NEW
+            func_name.as_str() == DEFAULT || func_name.as_str() == ARRAY_NEW || func_name.as_str().contains(DEFAULT_APPEND)
         },
         Expr::StringLiteral(str_expr) => {
             str_expr.value.is_empty()
@@ -91,6 +125,28 @@ fn is_expr_default(
                 .lookup(db.upcast())
                 .as_syntax_node().get_text_without_trivia(db.upcast());
             enum_text == FALSE
+        },
+        Expr::Block(block_expr) => {
+            // Check if all statements in the block are default
+            let statements_default = block_expr.statements.iter().all(|&statement_id| {
+                let statement = &arenas.statements[statement_id];
+                match statement {
+                    Statement::Let(statement_let) => {
+                        let expr = &arenas.exprs[statement_let.expr];
+                        is_expr_default(db, expr, arenas)
+                    }
+                    _ => false, // Return false if it's not a `let` statement
+                }
+            });
+
+            let tail_default = if let Some(tail_expr_id) = block_expr.tail {
+                let tail_expr = &arenas.exprs[tail_expr_id];
+                is_expr_default(db, tail_expr, arenas)
+            } else {
+                false // If no tail, it's considered false
+            };
+
+            statements_default || tail_default
         },
         Expr::FixedSizeArray(arr_expr) => {
             match &arr_expr.items {

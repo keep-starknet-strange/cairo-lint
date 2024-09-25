@@ -197,6 +197,8 @@ test_file!(
     "test with comment in Some"
 );
 
+test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
+
 test_file!(
     manual_unwrap_or_default, 
     manual_unwrap_or_default, 
@@ -206,12 +208,14 @@ test_file!(
     "manual unwrap or default for if let with zero integer",
     "manual unwrap or default for if let with fixed array",
     "manual unwrap or default for if let with tuple",
+    "manual unwrap or default for if let with array!",
+    "manual unwrap or default for if let with comments",
     "manual unwrap or default for match with zero integer",
     "manual unwrap or default for match with empty string",
     "manual unwrap or default for match with default",
     "manual unwrap or default for match with new",
     "manual unwrap or default for match with fixed array",
-    "manual unwrap or default for match with tuple"
+    "manual unwrap or default for match with tuple",
+    "manual unwrap or default for match with array!",
+    "manual unwrap or default for match with comments"
 );
-
-test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
