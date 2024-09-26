@@ -235,6 +235,32 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > manual unwrap or default for if let with tuple without trigger
+
+//! > cairo_code
+fn main() {
+  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+  if let Option::Some(v) = a {
+    v
+   } else {
+      ("", 0, true)
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+  if let Option::Some(v) = a {
+    v
+   } else {
+      ("", 0, true)
+  };
+}
+
+//! > ==========================================================================
+
 //! > manual unwrap or default for if let with zero integer
 
 //! > cairo_code
@@ -524,11 +550,10 @@ fn main() {
 
 //! > cairo_code
 fn main() {
-  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
-  if let Option::Some(v) = a {
-    v
-   } else {
-      ("", 0, true)
+  let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
+  match x {
+    Option::Some(v) => v,
+    Option::None => ("sdkfh", 898, false)
   };
 }
 
@@ -536,11 +561,10 @@ fn main() {
 
 //! > fixed
 fn main() {
-  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
-  if let Option::Some(v) = a {
-    v
-   } else {
-      ("", 0, true)
+  let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
+  match x {
+    Option::Some(v) => v,
+    Option::None => ("sdkfh", 898, false)
   };
 }
 

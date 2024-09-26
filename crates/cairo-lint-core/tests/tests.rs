@@ -221,6 +221,7 @@ test_file!(
     "manual unwrap or default for if let with tuple",
     "manual unwrap or default for if let with array!",
     "manual unwrap or default for if let with comments",
+    "manual unwrap or default for if let with tuple without trigger",
     "manual unwrap or default for match with tuple without trigger",
     "manual unwrap or default for match with zero integer",
     "manual unwrap or default for match with empty string",
