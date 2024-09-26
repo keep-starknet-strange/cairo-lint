@@ -1,8 +1,9 @@
+pub mod manual_expect;
 pub mod manual_is_some;
 pub mod manual_ok_or;
 pub mod manual_unwrap_or_default;
 
-use cairo_lang_syntax::node::ast::{Expr, ExprMatch, Pattern};
+use cairo_lang_syntax::node::ast::{Expr, ExprMatch, MatchArm, OptionPatternEnumInnerPattern, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
@@ -10,6 +11,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 pub enum ManualLint {
     ManualOkOr,
     ManualIsSome,
+    ManualExpect,
 }
 
 pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: ManualLint) -> bool {
@@ -26,7 +28,7 @@ pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: M
         Pattern::Enum(enum_pattern) => {
             let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
             match enum_name.as_str() {
-                "Option::Some" => check_syntax_some_expression(first_arm.expression(db), db, manual_lint),
+                "Option::Some" => check_syntax_some_arm(first_arm, db, manual_lint),
                 _ => false,
             }
         }
@@ -47,16 +49,33 @@ pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: M
     found_some && found_none
 }
 
-fn check_syntax_some_expression(arm_expression: Expr, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
+fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
         ManualLint::ManualOkOr => {
-            if let Expr::FunctionCall(func_call) = arm_expression {
+            if let Expr::FunctionCall(func_call) = arm.expression(db) {
                 return func_call.path(db).as_syntax_node().get_text(db) == "Result::Ok";
             }
         }
         ManualLint::ManualIsSome => {
-            return arm_expression.as_syntax_node().get_text_without_trivia(db) == "true";
+            return arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "true";
         }
+        ManualLint::ManualExpect => match &arm.patterns(db).elements(db)[0] {
+            Pattern::Enum(enum_pattern) => {
+                let enum_arg = enum_pattern.pattern(db);
+                match enum_arg {
+                    OptionPatternEnumInnerPattern::PatternEnumInnerPattern(x) => {
+                        return x.pattern(db).as_syntax_node().get_text_without_trivia(db)
+                            == arm.expression(db).as_syntax_node().get_text_without_trivia(db);
+                    }
+                    OptionPatternEnumInnerPattern::Empty(_) => {
+                        return false;
+                    }
+                }
+            }
+            _ => {
+                return false;
+            }
+        },
     }
     false
 }
@@ -70,6 +89,15 @@ fn check_syntax_none_expression(arm_expression: Expr, db: &dyn SyntaxGroup, manu
         }
         ManualLint::ManualIsSome => {
             return arm_expression.as_syntax_node().get_text_without_trivia(db) == "false";
+        }
+        ManualLint::ManualExpect => {
+            if let Expr::FunctionCall(func_call) = arm_expression {
+                let func_name = func_call.path(db).as_syntax_node().get_text(db);
+
+                return func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252";
+            } else {
+                return false;
+            }
         }
     }
 
