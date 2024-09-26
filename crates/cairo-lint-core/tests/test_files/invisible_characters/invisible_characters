@@ -1,0 +1,129 @@
+//! > loop match pop front with spaces
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![ 1,  2,  3,  4,  5 ].span();  
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+               
+                break;
+            },
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+  --> lib.cairo:4:5
+   |
+ 4 |       loop {
+   |  _____-
+ 5 | |         match a.pop_front() {
+...  |
+11 | |         }
+12 | |     }
+   | |_____-
+   |
+warning: Plugin diagnostic: Whitespace detected.
+ --> lib.cairo:2:28
+  |
+2 |     let mut a: Span<u32> = array![ 1,  2,  3,  4,  5 ].span();  
+  |                            ---------------------------
+  |
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1,2,3,4,5].span();  
+
+    for val in a {
+        println!("{val}")
+    };
+}
+
+//! > ==========================================================================
+
+//! > loop match pop front with spaces in none
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![ 1, 2, 3, 4, 5 ].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+                println!("Finished looping  ");  
+                break;
+            },
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Whitespace detected.
+ --> lib.cairo:2:28
+  |
+2 |     let mut a: Span<u32> = array![ 1, 2, 3, 4, 5 ].span();
+  |                            -----------------------
+  |
+warning: Plugin diagnostic: Whitespace detected.
+  --> lib.cairo:12:17
+   |
+12 |                 println!("Finished looping  ");  
+   |                 ------------------------------
+   |
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1,2,3,4,5].span();
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+println!("Finishedlooping");  
+                break;
+            },
+        }
+    }
+}
+
+//! > ==========================================================================
+
+//! > simple loop match pop front with comment and spaces
+
+//! > cairo_code
+fn main() {
+    let mut a: Span<u32> = array![ 1,  2,  3,  4,  5 ].span();  // Extra spaces between elements
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+                // Comment with space
+                break;
+            },
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Whitespace detected.
+ --> lib.cairo:2:28
+  |
+2 |     let mut a: Span<u32> = array![ 1,  2,  3,  4,  5 ].span();  // Extra spaces between elements
+  |                            ---------------------------
+  |
+
+//! > fixed
+fn main() {
+    let mut a: Span<u32> = array![1,2,3,4,5].span();  // Extra spaces between elements
+    loop {
+        match a.pop_front() {
+            Option::Some(val) => println!("{val}"),
+            Option::None => { 
+                // Comment with space
+                break;
+            },
+        }
+    }
+}

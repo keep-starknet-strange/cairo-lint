@@ -11,7 +11,7 @@ use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
     bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loop_for_while,
-    loops, panic, single_match,
+    loops, panic, single_match, invisible_characters
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -40,6 +40,7 @@ pub enum CairoLintKind {
     ErasingOperation,
     ManualOkOr,
     ManualIsSome,
+    InvisibleCharacters,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -61,6 +62,8 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
         manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
+        invisible_characters::WHITESPACE_DETECTED => CairoLintKind::InvisibleCharacters,
+        invisible_characters::INVISIBLE_CHARACTER_DETECTED => CairoLintKind::InvisibleCharacters,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -139,6 +142,12 @@ impl AnalyzerPlugin for CairoLint {
                         manual_is_some::check_manual_is_some(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node),
+                            &mut diags,
+                        );
+                    }
+                    SyntaxKind::ExprInlineMacro => {invisible_characters::check_invisible_characters(
+                        &AstExpr::from_syntax_node(db.upcast(), node),
+                        db.upcast(),
                             &mut diags,
                         );
                     }

@@ -169,6 +169,9 @@ impl Fixer {
             CairoLintKind::DoubleComparison => {
                 self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
+            CairoLintKind::InvisibleCharacters => {
+                self.fix_whitespace_issues(db, plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             CairoLintKind::EquatableIfLet => self.fix_equatable_if_let(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BreakUnit => self.fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::BoolComparison => self.fix_bool_comparison(
@@ -501,5 +504,12 @@ impl Fixer {
         };
 
         format!("{option_var_name}.is_some()")
+    }
+
+      /// Removes all spaces from the given text.
+      pub fn fix_whitespace_issues(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let text = node.get_text(db);
+         text.replace(" ", "")
+    
     }
 }

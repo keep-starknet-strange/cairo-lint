@@ -198,3 +198,11 @@ test_file!(
 );
 
 test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
+
+test_file!(
+    invisible_characters,
+    invisible_characters,
+    "loop match pop front with spaces",
+    "loop match pop front with spaces in none",
+    "simple loop match pop front with comment and spaces"
+);
