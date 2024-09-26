@@ -41,6 +41,7 @@ pub enum CairoLintKind {
     ErasingOperation,
     ManualOkOr,
     ManualIsSome,
+    ManualIsNone,
     ManualExpect,
 }
 
@@ -64,6 +65,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
         bitwise_for_parity_check::BITWISE_FOR_PARITY => CairoLintKind::BitwiseForParityCheck,
         manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
+        manual_is_none::MANUAL_IS_NONE => CairoLintKind::ManualIsNone,
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
         _ => CairoLintKind::Unknown,
     }
@@ -142,6 +144,11 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                         manual_is_some::check_manual_is_some(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_is_none::check_manual_is_none(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
