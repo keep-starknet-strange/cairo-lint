@@ -10,7 +10,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loop_for_while,
+    assertions_on_constants, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loop_for_while,
     loops, panic, single_match,
 };
 
@@ -40,6 +40,7 @@ pub enum CairoLintKind {
     ErasingOperation,
     ManualOkOr,
     ManualIsSome,
+    AssertBoolLiteral,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -61,6 +62,8 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
         manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
+        assertions_on_constants::ASSERT_MSG => CairoLintKind::AssertBoolLiteral,
+        assertions_on_constants::ASSERT_MSG_FALSE => CairoLintKind::AssertBoolLiteral,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -123,6 +126,11 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
+
+                    SyntaxKind::ExprInlineMacro => {
+                        assertions_on_constants::check_assert(db.upcast(), node, &mut diags);
+                    },
+
                     SyntaxKind::ExprLoop => {
                         loop_for_while::check_loop_for_while(
                             db.upcast(),

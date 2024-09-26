@@ -10,3 +10,4 @@ pub mod loops;
 pub mod manual;
 pub mod panic;
 pub mod single_match;
+pub mod assertions_on_constants;

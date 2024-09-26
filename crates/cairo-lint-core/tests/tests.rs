@@ -198,3 +198,11 @@ test_file!(
 );
 
 test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
+
+
+test_file!(
+    assertions_on_constants,
+     assertions_on_constants, 
+     "Assertions on constants false",
+     "Assertions on constants true"
+     );

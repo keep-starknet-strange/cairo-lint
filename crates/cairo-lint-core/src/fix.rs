@@ -21,6 +21,7 @@ mod import_fixes;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
 mod helper;
 use helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
+use std::str::FromStr;
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
@@ -175,6 +176,10 @@ impl Fixer {
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
+            CairoLintKind::AssertBoolLiteral => self.fix_assert_bool_literal(
+                db,
+                 plugin_diag.stable_ptr.lookup(db.upcast())
+                ),
             CairoLintKind::CollapsibleIfElse => self.fix_collapsible_if_else(
                 db,
                 &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
@@ -502,4 +507,30 @@ impl Fixer {
 
         format!("{option_var_name}.is_some()")
     }
+  
+
+    /// Rewrites `assert!(true);` as a comment or a no-op,
+    /// and `assert!(false);` as `panic!("assert!(false) encountered and replaced.");`
+    pub fn fix_assert_bool_literal(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let node_text = node.get_text(db).trim().to_string();
+        
+        if node_text.starts_with("assert!(") {
+            let inner_expr = node_text
+                .trim_start_matches("assert!(")
+                .trim_end_matches(|c| c == ')' || c == ';')
+                .trim();
+    
+            if let Ok(result) = bool::from_str(inner_expr) {
+                if result {
+                    return "/* assert!(true) was removed as it is redundant */".to_string();
+                } else {
+                    return "panic!(assert!(false)); /* assert!(false) encountered and replaced with panic! */".to_string();
+                }
+            }
+        }
+        
+        node_text
+    }
+
+
 }
