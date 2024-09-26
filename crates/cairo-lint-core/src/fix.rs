@@ -332,7 +332,7 @@ impl Fixer {
         else_clause.as_syntax_node().get_text(db)
     }
 
-    /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
+    /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
 
@@ -383,47 +383,36 @@ impl Fixer {
         )
     }
 
-
-    /// Rewrites `assert_eq!(expr, true)` as `assert!(expr);`,
-    /// `assert_eq!(expr, false)` as `assert!(!expr);`,
-    /// and similarly for `assert_ne!`.
+    /// Simplifies `assert_eq!` and `assert_ne!` assertions with boolean literals.
+    ///
+    /// This method performs the following transformations:
+    /// - Replaces `assert_eq!(expr, false)` with `assert!(!expr)`.
+    /// - Replaces `assert_eq!(expr, true)` with `assert!(expr)`.
+    /// - Replaces `assert_ne!(expr, false)` with `assert!(expr)`.
+    /// - Replaces `assert_ne!(expr, true)` with `assert!(!expr)`.
+    ///
+    /// Note: This implementation modifies both the macro name and the internal logic
+    /// of the assertions to maintain the original behavior while simplifying the syntax.
     pub fn fix_assert_bool_literal(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let node_text = node.get_text(db).trim().to_string();
+        let original_text = node.get_text(db);
+        let initial_indentation = original_text.chars().take_while(|c| c.is_whitespace()).count() / 4;
+        
+        let modified_text = original_text
+            .replace("assert_eq!(", "assert!(")
+            .replace("assert_ne!(", "assert!(")
+            .replace(", false)", ")")
+            .replace(", true)", ")");
 
-        if node_text.starts_with("assert_eq!(") || node_text.starts_with("assert_ne!(") {
-            let is_assert_eq = node_text.starts_with("assert_eq!(");
-            let inner_expr = node_text
-                .trim_start_matches("assert_eq!(")
-                .trim_start_matches("assert_ne!(")
-                .trim_end_matches(')')
-                .trim_end_matches(';')
-                .trim();
+        let final_text = if (original_text.contains("assert_eq!(") && original_text.ends_with(", false)"))
+            || (original_text.contains("assert_ne!(") && original_text.ends_with(", true)")) 
+        {
+            modified_text.replace("assert!(", "assert!(!")
+        } else {
+            modified_text
+        };
 
-            let parts: Vec<&str> = inner_expr.split(',').map(|s| s.trim()).collect();
-
-            if parts.len() == 2 {
-                let left_expr = parts[0]; 
-                let right_expr = parts[1]; 
-
-                if let Ok(result) = right_expr.parse::<bool>() {
-                    if is_assert_eq {
-                        if result {
-                            return format!("assert!({});", left_expr);
-                        } else {
-                            return format!("assert!(!{});", left_expr);
-                        }
-                    } else {
-                        if result {
-                            return format!("assert!(!{});", left_expr);
-                        } else {
-                            return format!("assert!({});", left_expr);
-                        }
-                    }
-                }
-            }
-        }
-        node_text
+        indent_snippet(&final_text, initial_indentation)
     }
-
-
+    
+    
 }

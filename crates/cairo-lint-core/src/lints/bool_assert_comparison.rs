@@ -12,10 +12,6 @@ pub const ASSERT_EQ_TRUE_MSG: &str = "assert_eq!(expr, true) can be replaced wit
 pub const ASSERT_NE_FALSE_MSG: &str = "assert_ne!(expr, false) can be replaced with assert!(expr).";
 pub const ASSERT_NE_TRUE_MSG: &str = "assert_ne!(expr, true) can be replaced with assert!(!expr).";
 
-fn evaluate_expression(expr: &str) -> Option<bool> {
-    bool::from_str(expr).ok()
-}
-
 pub fn check_assert(db: &dyn SyntaxGroup, node: SyntaxNode, diagnostics: &mut Vec<PluginDiagnostic>) {
     let expr_macro: ExprInlineMacro = ExprInlineMacro::from_syntax_node(db, node.clone());
     let path = expr_macro.path(db);
@@ -27,13 +23,13 @@ pub fn check_assert(db: &dyn SyntaxGroup, node: SyntaxNode, diagnostics: &mut Ve
             if let Some(right_arg) = args.get(1) {
                 let arg_clause = right_arg.arg_clause(db);
                 let right_text = arg_clause.as_syntax_node().get_text_without_trivia(db);
-                if let Some(right_val) = evaluate_expression(&right_text) {
-                    let (message, _is_eq) = if path.as_syntax_node().get_text_without_trivia(db).contains("assert_eq") {
-                        (if right_val { ASSERT_EQ_TRUE_MSG } else { ASSERT_EQ_FALSE_MSG }, true)
-                    } else {
-                        (if right_val { ASSERT_NE_TRUE_MSG } else { ASSERT_NE_FALSE_MSG }, false)
+                if let Ok(right_val) = bool::from_str(&right_text) {
+                    let path_text = path.as_syntax_node().get_text_without_trivia(db);
+                    let (message, _is_eq) = match path_text.as_str() {
+                        "assert_eq" => (if right_val { ASSERT_EQ_TRUE_MSG } else { ASSERT_EQ_FALSE_MSG }, true),
+                        "assert_ne" => (if right_val { ASSERT_NE_TRUE_MSG } else { ASSERT_NE_FALSE_MSG }, false),
+                        _ => return, 
                     };
-
                     diagnostics.push(PluginDiagnostic {
                         stable_ptr: node.stable_ptr(),
                         message: message.to_string(),
