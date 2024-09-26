@@ -143,11 +143,6 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
-                        manual_is_some::check_manual_is_some(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
                         manual_expect::check_manual_expect(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
