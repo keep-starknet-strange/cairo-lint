@@ -505,6 +505,18 @@ impl Fixer {
         format!("{option_var_name}.is_some()")
     }
 
+    // Rewrites a manual implementation of is_none
+    pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+
+        let option_var_name = match expr_match.expr(db) {
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Expected a variable or path in match expression"),
+        };
+
+        format!("{option_var_name}.is_none()")
+    }
+
     /// Rewrites a manual implementation of expect
     pub fn fix_manual_expect(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr_match = ExprMatch::from_syntax_node(db, node.clone());
@@ -543,17 +555,5 @@ impl Fixer {
         };
 
         format!("{option_var_name}.expect({none_arm_err})")
-    }
-
-    /// Rewrites a manual implementation of is_none
-    pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let expr_match = ExprMatch::from_syntax_node(db, node.clone());
-
-        let option_var_name = match expr_match.expr(db) {
-            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
-            _ => panic!("Expected a variable or path in match expression"),
-        };
-
-        format!("{option_var_name}.is_none()")
     }
 }

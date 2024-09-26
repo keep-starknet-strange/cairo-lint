@@ -210,6 +210,8 @@ test_file!(
 
 test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
 
+test_file!(manual, manual_is_none, "test basic is none", "test with comment in Some", "test with comment in None");
+
 test_file!(
     manual,
     manual_expect,
@@ -219,5 +221,3 @@ test_file!(
     "test with comment in Some",
     "test with comment in None"
 );
-
-test_file!(manual, manual_is_none, "test basic is none", "test with comment in Some", "test with comment in None");
