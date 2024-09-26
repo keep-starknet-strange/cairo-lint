@@ -132,6 +132,7 @@ test_file!(
     "Negated comparison with false",
     "Negated comparison with false on LHS"
 );
+
 test_file!(
     erasing_operations,
     erasing_operations,
@@ -141,6 +142,7 @@ test_file!(
     "Multiple operations",
     "Multiple bitwise operations"
 );
+
 test_file!(
     duplicate_underscore_args,
     duplicate_underscore_args,
@@ -195,6 +197,15 @@ test_file!(
     "test error enum",
     "test with comment in None",
     "test with comment in Some"
+);
+
+test_file!(
+    bitwise_for_parity_check,
+    bitwise_for_parity_check,
+    "with single variable",
+    "with multiple variables",
+    "In a loop",
+    "with conditional logic"
 );
 
 test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
