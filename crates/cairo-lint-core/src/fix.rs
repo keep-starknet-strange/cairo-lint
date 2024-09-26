@@ -470,11 +470,11 @@ impl Fixer {
                         Expr::FunctionCall(func_call) => {
                             let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
                             if func_name == "Result::Err" {
-                                if let Some(arg) = func_call.arguments(db).arguments(db).elements(db).first() {
-                                    arg.as_syntax_node().get_text_without_trivia(db).to_string()
-                                } else {
-                                    panic!("Result::Err should have arg");
-                                }
+                                let args = func_call.arguments(db).arguments(db).elements(db);
+
+                                let arg = args.first().expect("Result::Err should have arg");
+
+                                arg.as_syntax_node().get_text_without_trivia(db).to_string()
                             } else {
                                 panic!("Expected Result::Err");
                             }
@@ -523,29 +523,17 @@ impl Fixer {
         let none_arm_err = match &second_arm.patterns(db).elements(db)[0] {
             Pattern::Enum(enum_pattern) => {
                 let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
+
                 match enum_name.as_str() {
                     "Option::None" => match second_arm.expression(db) {
                         Expr::FunctionCall(func_call) => {
-                            let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
-                            if func_name == "core::panic_with_felt252" {
-                                if let Some(arg) = func_call.arguments(db).arguments(db).elements(db).first() {
-                                    arg.as_syntax_node().get_text_without_trivia(db).to_string()
-                                } else {
-                                    panic!("core::panic_with_felt252 should have felt252 arg");
-                                }
-                            } else if func_name == "panic_with_felt252" {
-                                if let Some(arg) = func_call.arguments(db).arguments(db).elements(db).first() {
-                                    arg.as_syntax_node().get_text_without_trivia(db).to_string()
-                                } else {
-                                    panic!("panic_with_felt252 should have felt252 arg");
-                                }
-                            } else {
-                                panic!("Expected panic_with_felt252");
-                            }
+                            let args = func_call.arguments(db).arguments(db).elements(db);
+
+                            let arg = args.first().expect("panic_with_felt252 should have felt252 arg");
+
+                            arg.as_syntax_node().get_text_without_trivia(db).to_string()
                         }
-                        _ => {
-                            panic!("Expected panic_with_felt252");
-                        }
+                        _ => panic!("Expected a function call expression"),
                     },
                     _ => panic!("Expected Option::None enum pattern"),
                 }
