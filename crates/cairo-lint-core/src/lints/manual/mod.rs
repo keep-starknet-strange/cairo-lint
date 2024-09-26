@@ -1,4 +1,5 @@
 pub mod manual_expect;
+pub mod manual_is_none;
 pub mod manual_is_some;
 pub mod manual_ok_or;
 pub mod manual_unwrap_or_default;
@@ -11,6 +12,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 pub enum ManualLint {
     ManualOkOr,
     ManualIsSome,
+    ManualIsNone,
     ManualExpect,
 }
 
@@ -59,6 +61,9 @@ fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manu
         ManualLint::ManualIsSome => {
             return arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "true";
         }
+        ManualLint::ManualIsNone => {
+            return arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "false";
+        }
         ManualLint::ManualExpect => match &arm.patterns(db).elements(db)[0] {
             Pattern::Enum(enum_pattern) => {
                 let enum_arg = enum_pattern.pattern(db);
@@ -89,6 +94,9 @@ fn check_syntax_none_expression(arm_expression: Expr, db: &dyn SyntaxGroup, manu
         }
         ManualLint::ManualIsSome => {
             return arm_expression.as_syntax_node().get_text_without_trivia(db) == "false";
+        }
+        ManualLint::ManualIsNone => {
+            return arm_expression.as_syntax_node().get_text_without_trivia(db) == "true";
         }
         ManualLint::ManualExpect => {
             if let Expr::FunctionCall(func_call) = arm_expression {
