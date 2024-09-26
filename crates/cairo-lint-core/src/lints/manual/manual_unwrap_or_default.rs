@@ -7,8 +7,7 @@ use num_bigint::BigInt;
 
 pub const MANUAL_UNWRAP_OR_DEFAULT: &str = "This can be done in one call with `.unwrap_or_default()`";
 
-pub const DEFAULT: &str = "\"Default::default\"";
-pub const DEFAULT_APPEND: &str = "Default::default";
+pub const DEFAULT: &str = "Default::default";
 pub const ARRAY_NEW: &str = "\"ArrayImpl::new\"";
 pub const FALSE: &str = "#[default]\n    False";
 
@@ -83,7 +82,7 @@ fn is_expr_default(
     match expr {
         Expr::FunctionCall(call_expr) => {
             let func_name = &call_expr.function.name(db);
-            func_name.as_str() == DEFAULT || func_name.as_str() == ARRAY_NEW || func_name.as_str().contains(DEFAULT_APPEND)
+            func_name.as_str() == DEFAULT || func_name.as_str() == ARRAY_NEW || func_name.as_str().contains(DEFAULT)
         },
         Expr::StringLiteral(str_expr) => {
             str_expr.value.is_empty()

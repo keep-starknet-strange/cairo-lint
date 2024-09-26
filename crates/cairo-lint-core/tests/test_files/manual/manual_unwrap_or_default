@@ -520,6 +520,32 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > manual unwrap or default for match with tuple without trigger
+
+//! > cairo_code
+fn main() {
+  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+  if let Option::Some(v) = a {
+    v
+   } else {
+      ("", 0, true)
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+  if let Option::Some(v) = a {
+    v
+   } else {
+      ("", 0, true)
+  };
+}
+
+//! > ==========================================================================
+
 //! > manual unwrap or default for match with without trigger
 
 //! > cairo_code
