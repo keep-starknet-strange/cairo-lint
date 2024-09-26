@@ -20,7 +20,7 @@ use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::{Upcast, UpcastMut};
 use cairo_lint_core::diagnostics::format_diagnostic;
 use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
-use cairo_lint_core::plugin::cairo_lint_plugin_suite;
+use cairo_lint_core::plugin::{cairo_lint_plugin_suite, diagnostic_kind_from_message, CairoLintKind};
 use clap::Parser;
 use helpers::*;
 use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
@@ -124,6 +124,12 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             )?;
             // Get the package path.
             let package_path = package.root.clone().into();
+            let cairo_lint_config = package.tool_metadata("cairo-lint");
+            let should_lint_panics = if let Some(config) = cairo_lint_config {
+                config["nopanic"].as_bool().unwrap_or_default()
+            } else {
+                false
+            };
             // Build the config for this package.
             let config = build_project_config(
                 compilation_unit,
@@ -151,7 +157,20 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 .iter()
                 .flat_map(|diags| {
                     let all_diags = diags.get_all();
-                    all_diags.iter().for_each(|diag| ui.print(format_diagnostic(diag, &db, &renderer)));
+                    all_diags
+                        .iter()
+                        .filter(|diag| {
+                            if let SemanticDiagnosticKind::PluginDiagnostic(diag) = &diag.kind {
+                                if matches!(diagnostic_kind_from_message(&diag.message), CairoLintKind::Panic) {
+                                    should_lint_panics
+                                } else {
+                                    true
+                                }
+                            } else {
+                                true
+                            }
+                        })
+                        .for_each(|diag| ui.print(format_diagnostic(diag, &db, &renderer)));
                     all_diags
                 })
                 .collect::<Vec<_>>();
