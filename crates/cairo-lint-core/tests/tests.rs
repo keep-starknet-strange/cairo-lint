@@ -209,3 +209,13 @@ test_file!(
 );
 
 test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
+
+test_file!(
+    manual,
+    manual_expect,
+    "test core::panic_with_felt252",
+    "test panic_with_felt252",
+    "test with enum error",
+    "test with comment in Some",
+    "test with comment in None"
+);
