@@ -196,7 +196,8 @@ test_file!(
     "test error str",
     "test error enum",
     "test with comment in None",
-    "test with comment in Some"
+    "test with comment in Some",
+    "test match expression not a variable"
 );
 
 test_file!(
@@ -208,7 +209,23 @@ test_file!(
     "with conditional logic"
 );
 
-test_file!(manual, manual_is_some, "test basic is some", "test with comment in Some", "test with comment in None");
+test_file!(
+    manual,
+    manual_is_some,
+    "test basic is some",
+    "test with comment in Some",
+    "test with comment in None",
+    "test match expression is a function"
+);
+
+test_file!(
+    manual,
+    manual_is_none,
+    "test basic is none",
+    "test with comment in Some",
+    "test with comment in None",
+    "test match expression is a function"
+);
 
 test_file!(
     manual, 
@@ -243,5 +260,6 @@ test_file!(
     "test panic_with_felt252",
     "test with enum error",
     "test with comment in Some",
-    "test with comment in None"
+    "test with comment in None",
+    "test match expression is a function"
 );

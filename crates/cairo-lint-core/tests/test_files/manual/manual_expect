@@ -161,3 +161,43 @@ fn main() {
         },
     };
 }
+
+//! > ==========================================================================
+
+//! > test match expression is a function
+
+//! > cairo_code
+fn foo(a: u256) -> Option<u256> {
+    Option::Some(a)
+} 
+fn main() {
+    let a: u256 = 0; 
+    let _a = match foo(a) {
+        Option::Some(value) => value,
+        Option::None => core::panic_with_felt252('err')
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+  --> lib.cairo:10:14
+   |
+10 |       let _a = match foo(a) {
+   |  ______________-
+11 | |         Option::Some(value) => value,
+12 | |         Option::None => core::panic_with_felt252('err')
+13 | |     };
+   | |_____-
+   |
+
+//! > fixed
+fn foo(a: u256) -> Option<u256> {
+    Option::Some(a)
+} 
+fn main() {
+    let a: u256 = 0; 
+    let _a = foo(a).expect('err');
+}
+
+
