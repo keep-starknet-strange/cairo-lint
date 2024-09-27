@@ -1,0 +1,123 @@
+//! > In a loop
+
+//! > cairo_code
+fn main() {
+    for i in 0..10_u8 {
+        let y = i & 1;
+        println!("{}", y);
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+ --> lib.cairo:4:17
+  |
+4 |         let y = i & 1;
+  |                 -----
+  |
+
+//! > fixed
+fn main() {
+    for i in 0..10_u8 {
+        let y = i & 1;
+        println!("{}", y);
+    }
+}
+
+//! > ==========================================================================
+
+//! > with conditional logic
+
+//! > cairo_code
+fn main() {
+    let x = 17;
+    if (x & 1) == 1 {
+        println!("Odd number");
+    } else {
+        println!("Even number");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+ --> lib.cairo:4:9
+  |
+4 |     if (x & 1) == 1 {
+  |         -----
+  |
+error: Trait has no implementation in context: core::traits::BitAnd::<core::felt252>.
+ --> lib.cairo:4:9
+  |
+4 |     if (x & 1) == 1 {
+  |         ^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x = 17;
+    if (x & 1) == 1 {
+        println!("Odd number");
+    } else {
+        println!("Even number");
+    }
+}
+
+//! > ==========================================================================
+
+//! > with multiple variables
+
+//! > cairo_code
+fn main() {
+    let x = 150;
+    let y = 47;
+    let _result = (x & 1) + (y & 1);
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+ --> lib.cairo:6:20
+  |
+6 |     let _result = (x & 1) + (y & 1);
+  |                    -----
+  |
+warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+ --> lib.cairo:6:30
+  |
+6 |     let _result = (x & 1) + (y & 1);
+  |                              -----
+  |
+error: Trait has no implementation in context: core::traits::BitAnd::<core::felt252>.
+ --> lib.cairo:6:20
+  |
+6 |     let _result = (x & 1) + (y & 1);
+  |                    ^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x = 150;
+    let y = 47;
+    let _result = (x & 1) + (y & 1);
+}
+
+//! > ==========================================================================
+
+//! > with single variable
+
+//! > cairo_code
+fn main() {
+    let _a = 200_u32 & 1;
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+ --> lib.cairo:2:14
+  |
+2 |     let _a = 200_u32 & 1;
+  |              -----------
+  |
+
+//! > fixed
+fn main() {
+    let _a = 200_u32 & 1;
+}

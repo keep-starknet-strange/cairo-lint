@@ -186,6 +186,8 @@ impl Fixer {
             CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualAssert => self.fix_if_then_panic(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualExpect => self.fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -470,11 +472,11 @@ impl Fixer {
                         Expr::FunctionCall(func_call) => {
                             let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
                             if func_name == "Result::Err" {
-                                if let Some(arg) = func_call.arguments(db).arguments(db).elements(db).first() {
-                                    arg.as_syntax_node().get_text_without_trivia(db).to_string()
-                                } else {
-                                    panic!("Result::Err should have arg");
-                                }
+                                let args = func_call.arguments(db).arguments(db).elements(db);
+
+                                let arg = args.first().expect("Result::Err should have arg");
+
+                                arg.as_syntax_node().get_text_without_trivia(db).to_string()
                             } else {
                                 panic!("Expected Result::Err");
                             }
@@ -504,30 +506,55 @@ impl Fixer {
         format!("{option_var_name}.is_some()")
     }
 
-    pub fn fix_if_then_panic(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let if_expr = ExprIf::from_syntax_node(db, node.clone());
-        let condition_text = if_expr.condition(db).as_syntax_node().get_text_without_trivia(db);
-        let block_expr = if_expr.if_block(db);
-        let statements = block_expr.statements(db).elements(db);
+    // Rewrites a manual implementation of is_none
+    pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
-        if let Some(Statement::Expr(statement_expr)) = statements.first() {
-            if let Expr::InlineMacro(inline_macro) = &statement_expr.expr(db) {
-                let panic_message = inline_macro.arguments(db).as_syntax_node().get_text_without_trivia(db);
+        let option_var_name = match expr_match.expr(db) {
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Expected a variable or path in match expression"),
+        };
 
-                let indentation = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+        format!("{option_var_name}.is_none()")
+    }
 
-                let assert_macro = format!(
-                    "{}assert!({}, \"{}: {{:?}}\", {});\n",
-                    indentation,
-                    condition_text,
-                    panic_message.trim_matches(&['(', ')'][..]).replace("\"", "").trim(),
-                    condition_text.split('.').next().unwrap_or(&condition_text),
-                );
+    /// Rewrites a manual implementation of expect
+    pub fn fix_manual_expect(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
-                return assert_macro;
-            }
+        let option_var_name = match expr_match.expr(db) {
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Expected a variable or path in match expression"),
+        };
+
+        let arms = expr_match.arms(db).elements(db);
+        if arms.len() != 2 {
+            panic!("Expected exactly two arms in the match expression");
         }
 
-        node.get_text(db).to_string()
+        let second_arm = &arms[1];
+
+        let none_arm_err = match &second_arm.patterns(db).elements(db)[0] {
+            Pattern::Enum(enum_pattern) => {
+                let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
+
+                match enum_name.as_str() {
+                    "Option::None" => match second_arm.expression(db) {
+                        Expr::FunctionCall(func_call) => {
+                            let args = func_call.arguments(db).arguments(db).elements(db);
+
+                            let arg = args.first().expect("panic_with_felt252 should have felt252 arg");
+
+                            arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                        }
+                        _ => panic!("Expected a function call expression"),
+                    },
+                    _ => panic!("Expected Option::None enum pattern"),
+                }
+            }
+            _ => panic!("Expected an Option enum pattern"),
+        };
+
+        format!("{option_var_name}.expect({none_arm_err})")
     }
 }

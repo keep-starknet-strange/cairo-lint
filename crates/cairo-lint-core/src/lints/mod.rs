@@ -1,3 +1,4 @@
+pub mod bitwise_for_parity_check;
 pub mod bool_comparison;
 pub mod breaks;
 pub mod double_comparison;
