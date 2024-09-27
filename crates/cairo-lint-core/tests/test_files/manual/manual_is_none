@@ -88,3 +88,40 @@ fn main() {
   };
 }
 
+//! > ==========================================================================
+
+//! > test match expression is a function
+
+//! > cairo_code
+fn foo(a: u256) -> Option<u256> {
+    Option::Some(a)
+}
+fn main() {
+    let a: u256 = 0;
+    let _a = match foo(a) {
+        Option::Some(_) => false,
+        Option::None => true
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+  --> lib.cairo:10:14
+   |
+10 |       let _a = match foo(a) {
+   |  ______________-
+11 | |         Option::Some(_) => false,
+12 | |         Option::None => true
+13 | |     };
+   | |_____-
+   |
+
+//! > fixed
+fn foo(a: u256) -> Option<u256> {
+    Option::Some(a)
+}
+fn main() {
+    let a: u256 = 0;
+    let _a = foo(a).is_none();
+}
