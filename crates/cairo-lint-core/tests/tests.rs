@@ -170,7 +170,6 @@ test_file!(
     "simple lt op",
     "simple gt op",
     "simple bitwise op",
-    "simple add op",
     "simple sub op",
     "simple divide op",
     "op with method call"

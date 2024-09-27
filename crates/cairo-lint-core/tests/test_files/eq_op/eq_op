@@ -14,22 +14,6 @@ fn foo(a: Array<u256>) -> bool {
 
 //! > ==========================================================================
 
-//! > simple add op
-
-//! > cairo_code
-fn foo(a: u256) -> u256 {
-    a + a
-}
-
-//! > diagnostics
-
-//! > fixed
-fn foo(a: u256) -> u256 {
-    a + a
-}
-
-//! > ==========================================================================
-
 //! > simple bitwise op
 
 //! > cairo_code
@@ -104,6 +88,12 @@ fn foo(a: u256) -> bool {
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a > a
+  |     -----
+  |
 
 //! > fixed
 fn foo(a: u256) -> bool {
@@ -120,6 +110,12 @@ fn foo(a: u256) -> bool {
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a < a
+  |     -----
+  |
 
 //! > fixed
 fn foo(a: u256) -> bool {

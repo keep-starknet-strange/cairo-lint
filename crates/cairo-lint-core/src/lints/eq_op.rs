@@ -52,8 +52,8 @@ fn is_method_call(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
 
 fn get_diagnostic_message(op: &BinaryOperator) -> Option<&'static str> {
     match op {
-        BinaryOperator::EqEq(_) => Some(EQ_COMP_OP),
-        BinaryOperator::Neq(_) => Some(NEQ_COMP_OP),
+        BinaryOperator::EqEq(_) | BinaryOperator::LE(_) | BinaryOperator::GE(_) => Some(EQ_COMP_OP),
+        BinaryOperator::Neq(_) | BinaryOperator::LT(_) | BinaryOperator::GT(_) => Some(NEQ_COMP_OP),
         BinaryOperator::And(_) | BinaryOperator::Or(_) => Some(EQ_LOGICAL_OP),
         BinaryOperator::Xor(_) | BinaryOperator::Not(_) => Some(EQ_BITWISE_OP),
         BinaryOperator::Minus(_) => Some(EQ_DIFF_OP),
