@@ -127,28 +127,28 @@ fn check_block_expr<F>(
 where
     F: Fn(&dyn SemanticGroup, &Expr, &Arenas) -> bool,
 {
-    let statements_default = if !block_expr.statements.is_empty() {
-        block_expr.statements.iter().all(|&statement_id| {
-            let statement = &arenas.statements[statement_id];
-            match statement {
-                Statement::Let(statement_let) => {
-                    let expr = &arenas.exprs[statement_let.expr];
-                    checker(db, expr, arenas)
-                }
-                _ => false,
-            }
-        })
-    } else {
-        false
-    };
+    // Initialize flag
+    let mut statements_check = false;
 
-    // Check the tail expression, if it exists
-    let tail_default = block_expr.tail.map_or(false, |tail_expr_id| {
+    // check statements in block
+    for &statement_id in &block_expr.statements {
+        let statement = &arenas.statements[statement_id];
+        statements_check = match statement {
+            Statement::Let(statement_let) => {
+                let expr = &arenas.exprs[statement_let.expr];
+                checker(db, expr, arenas)
+            }
+            _ => false,
+        }
+    }
+
+    // Check the tail expression
+    let tail_check = block_expr.tail.map_or(false, |tail_expr_id| {
         let tail_expr = &arenas.exprs[tail_expr_id];
         checker(db, tail_expr, arenas)
     });
 
-    statements_default || tail_default
+    statements_check || tail_check
 }
 
 /// Detects manual `unwrap_or_default` patterns and adds a diagnostic warning if found.
