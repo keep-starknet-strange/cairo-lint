@@ -385,34 +385,21 @@ impl Fixer {
 
     /// Simplifies `assert_eq!` and `assert_ne!` assertions with boolean literals.
     ///
-    /// This method performs the following transformations:
-    /// - Replaces `assert_eq!(expr, false)` with `assert!(!expr)`.
-    /// - Replaces `assert_eq!(expr, true)` with `assert!(expr)`.
-    /// - Replaces `assert_ne!(expr, false)` with `assert!(expr)`.
-    /// - Replaces `assert_ne!(expr, true)` with `assert!(!expr)`.
+    /// Transforms:
+    /// - `assert_eq!(expr, false)` to `assert!(!expr)`
+    /// - `assert_eq!(expr, true)` to `assert!(expr)`
+    /// - `assert_ne!(expr, false)` to `assert!(expr)`
+    /// - `assert_ne!(expr, true)` to `assert!(!expr)`
     ///
-    /// Note: This implementation modifies both the macro name and the internal logic
-    /// of the assertions to maintain the original behavior while simplifying the syntax.
+    /// Preserves original indentation and comments.
     pub fn fix_assert_bool_literal(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let original_text = node.get_text(db);
-        let initial_indentation = original_text.chars().take_while(|c| c.is_whitespace()).count() / 4;
-        
-        let modified_text = original_text
-            .replace("assert_eq!(", "assert!(")
-            .replace("assert_ne!(", "assert!(")
-            .replace(", false)", ")")
-            .replace(", true)", ")");
-
-        let final_text = if (original_text.contains("assert_eq!(") && original_text.ends_with(", false)"))
-            || (original_text.contains("assert_ne!(") && original_text.ends_with(", true)")) 
-        {
-            modified_text.replace("assert!(", "assert!(!")
-        } else {
-            modified_text
-        };
-
-        indent_snippet(&final_text, initial_indentation)
+        let text = node.get_text(db);
+        match (text.contains("assert_eq!("), text.contains("assert_ne!("), text.ends_with(", false)"), text.ends_with(", true)")) {
+            (true, _, true, _) => text.replace("assert_eq!(", "assert!(!").replace(", false)", ")"),
+            (true, _, _, true) => text.replace("assert_eq!(", "assert!(").replace(", true)", ")"),
+            (_, true, true, _) => text.replace("assert_ne!(", "assert!(").replace(", false)", ")"),
+            (_, true, _, true) => text.replace("assert_ne!(", "assert!(!").replace(", true)", ")"),
+            _ => text,
+        }
     }
-    
-    
 }
