@@ -11,7 +11,7 @@ use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, collapsible_if, double_comparison, double_parens,
-    duplicate_underscore_args, eq_op, erasing_op, loop_for_while, loops, panic, single_match,
+    duplicate_underscore_args, eq_op, erasing_op, loop_for_while, loops, panic, single_match, min_max,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -38,6 +38,7 @@ pub enum CairoLintKind {
     ManualUnwrapOrDefault,
     BitwiseForParityCheck,
     LoopForWhile,
+    MinMax,
     Unknown,
     Panic,
     ErasingOperation,
@@ -81,6 +82,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         manual_is::MANUAL_IS_ERR => CairoLintKind::ManualIsErr,
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
         manual_expect_err::MANUAL_EXPECT_ERR => CairoLintKind::ManualExpectErr,
+        min_max::MIN_MAX => CairoLintKind::MinMax,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -230,6 +232,9 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
+                    }
+                    SyntaxKind::ExprFunctionCall => {
+                        min_max::check_min_max(db.upcast(), node, &mut diags);
                     }
                     _ => continue,
                 }

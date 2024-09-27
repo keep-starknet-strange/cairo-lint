@@ -1,0 +1,19 @@
+//! > Min and max functions are used incorrectly
+
+//! > cairo_code
+fn main() {
+    let a: u32 = 10;
+    let b: u32 = 5;
+
+    let incorrect_min = min(b, a);
+    let incorrect_max = max(a, b);
+}
+
+//! > Min and max swapped wrong
+
+//! > cairo_code
+fn main() {
+    let x: felt = 120;
+
+    let incorrect_result = max(0, min(100, x));
+}

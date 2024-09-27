@@ -338,3 +338,10 @@ test_file!(
     "collapsible if with independent statement",
     "collapsible if with else on outer if"
 );
+
+test_file!(
+    min_max,
+    min_max,
+    "min and max functions are used incorrectly",
+    "Min and max swapped wrong"
+);

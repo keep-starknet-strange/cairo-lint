@@ -181,6 +181,7 @@ impl Fixer {
                 db,
                 &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
+            CairoLintKind::MinMax => self.fix_min_max(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::LoopMatchPopFront => {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
@@ -199,9 +200,29 @@ impl Fixer {
             CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsOk => self.fix_manual_is_ok(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsErr => self.fix_manual_is_err(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
+    }
+
+    /// Fixes incorrect usage of min or max by swapping the arguments if they are in the wrong order.
+    pub fn fix_min_max(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let children = db.get_children(node.clone());
+
+        if let Some(func_name_node) = children.first() {
+            if let Some(func_name) = func_name_node.text(db) {
+                if let [arg1, arg2] = &children[1..] {
+                    let arg1_text = arg1.get_text(db);
+                    let arg2_text = arg2.get_text(db);
+
+                    if (func_name == "min" && arg1_text > arg2_text) || (func_name == "max" && arg1_text < arg2_text) {
+                        return format!("{}({}, {})", func_name, arg2_text, arg1_text);
+                    }
+                }
+            }
+        }
+        node.get_text(db)
     }
 
     /// Rewrites `break ();` as `break;` given the node text contains it.
