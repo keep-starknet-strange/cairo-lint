@@ -414,7 +414,7 @@ impl Fixer {
         };
     
         let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
-        return format!("{indent}{}.unwrap_or_default()", matched_expr.get_text_without_trivia(db));
+        format!("{indent}{}.unwrap_or_default()", matched_expr.get_text_without_trivia(db))
     }
     /// Converts a `loop` with a conditionally-breaking `if` statement into a `while` loop.
     ///

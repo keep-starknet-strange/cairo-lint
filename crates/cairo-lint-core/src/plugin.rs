@@ -172,11 +172,11 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
     for (_expression_id, expression) in &function_body.arenas.exprs {
         match &expression {
             Expr::If(_) => {
-                manual_unwrap_or_default::check_manual_unwrap_or_default(db, &expression, diagnostics, &function_body.arenas)
+                manual_unwrap_or_default::check_manual_unwrap_or_default(db, expression, diagnostics, &function_body.arenas)
             }
             Expr::Match(expr_match) => {
                 single_match::check_single_match(db, expr_match,  diagnostics, &function_body.arenas);
-                manual_unwrap_or_default::check_manual_unwrap_or_default(db, &expression,  diagnostics, &function_body.arenas)
+                manual_unwrap_or_default::check_manual_unwrap_or_default(db, expression,  diagnostics, &function_body.arenas)
             }
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
