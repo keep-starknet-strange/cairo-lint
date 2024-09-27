@@ -91,13 +91,11 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 })
                 .collect::<Vec<_>>()
         } else {
-            vec![
-                metadata
-                    .compilation_units
-                    .iter()
-                    .find(|compilation_unit| compilation_unit.package == package.id)
-                    .unwrap(),
-            ]
+            vec![metadata
+                .compilation_units
+                .iter()
+                .find(|compilation_unit| compilation_unit.package == package.id)
+                .unwrap()]
         };
         for compilation_unit in compilation_units {
             // Print that we're checking this package.
