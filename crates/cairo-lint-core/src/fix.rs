@@ -575,7 +575,7 @@ impl Fixer {
         let expr_if = ExprIf::from_syntax_node(db, node.clone());
         let outer_condition = expr_if.condition(db).as_syntax_node().get_text_without_trivia(db);
         let if_block = expr_if.if_block(db);
-    
+
         let statements = if_block.statements(db).elements(db);
         if statements.len() != 1 {
             return node.get_text(db);
@@ -584,22 +584,19 @@ impl Fixer {
         if let Some(Statement::Expr(inner_expr_stmt)) = statements.first() {
             if let Expr::If(inner_if_expr) = inner_expr_stmt.expr(db) {
                 match inner_if_expr.else_clause(db) {
-                    OptionElseClause::Empty(_) => {
-                    }
+                    OptionElseClause::Empty(_) => {}
                     OptionElseClause::ElseClause(_) => {
                         return node.get_text(db);
                     }
                 }
-    
+
                 match expr_if.else_clause(db) {
-                    OptionElseClause::Empty(_) => {
-                    }
+                    OptionElseClause::Empty(_) => {}
                     OptionElseClause::ElseClause(_) => {
                         return node.get_text(db);
                     }
                 }
-    
-                // Si no hay else y el if interno es la única sentencia, podemos combinar
+
                 let inner_condition = inner_if_expr.condition(db).as_syntax_node().get_text_without_trivia(db);
                 let combined_condition = format!("({}) && ({})", outer_condition, inner_condition);
                 let inner_if_block = inner_if_expr.if_block(db).as_syntax_node().get_text(db);

@@ -18,19 +18,15 @@ pub fn check_collapsible_if(db: &dyn SyntaxGroup, expr_if: &ExprIf, diagnostics:
     if let Some(Statement::Expr(inner_expr_stmt)) = statements.first() {
         if let Expr::If(inner_if_expr) = inner_expr_stmt.expr(db) {
             match inner_if_expr.else_clause(db) {
-                OptionElseClause::Empty(_) => {
-                }
+                OptionElseClause::Empty(_) => {}
                 OptionElseClause::ElseClause(_) => {
                     return;
                 }
             }
 
             match expr_if.else_clause(db) {
-                OptionElseClause::Empty(_) => {
-
-                }
+                OptionElseClause::Empty(_) => {}
                 OptionElseClause::ElseClause(_) => {
-
                     return;
                 }
             }
