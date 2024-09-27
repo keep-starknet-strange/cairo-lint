@@ -20,6 +20,7 @@ use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 mod import_fixes;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
 mod helper;
+use cairo_lang_syntax::node::ast::ExprBlock;
 use helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
@@ -556,5 +557,63 @@ impl Fixer {
         };
 
         format!("{option_var_name}.expect({none_arm_err})")
+    }
+
+    pub fn fix_if_then_panic(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let if_expr = ExprIf::from_syntax_node(db, node.clone());
+        let mut result = String::new();
+
+        // process each conditional block
+        let process_block = |condition_text: String, block_expr: ExprBlock, indentation: &str| {
+            let mut output = String::new();
+            let statements = block_expr.statements(db).elements(db);
+            if let Some(Statement::Expr(statement_expr)) = statements.first() {
+                if let Expr::InlineMacro(inline_macro) = &statement_expr.expr(db) {
+                    let panic_message = inline_macro.arguments(db).as_syntax_node().get_text_without_trivia(db);
+
+                    let variable_name = condition_text
+                        .split(|c: char| !c.is_alphanumeric() && c != '_')
+                        .find(|part| !part.is_empty())
+                        .unwrap_or(&condition_text);
+
+                    let assert_macro = format!(
+                        "{}assert!({}, \"{}: {{:?}}\", {});\n",
+                        indentation,
+                        condition_text,
+                        panic_message.trim_matches(&['(', ')'][..]).replace("\"", "").trim(),
+                        variable_name,
+                    );
+                    output.push_str(&assert_macro);
+                }
+            }
+            output
+        };
+
+        // process first 'if' condition
+        let condition_text = if_expr.condition(db).as_syntax_node().get_text_without_trivia(db);
+        let block_expr = if_expr.if_block(db);
+        let indentation = node
+            .get_text(db)
+            .lines()
+            .next()
+            .unwrap_or("")
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect::<String>();
+        result.push_str(&process_block(condition_text, block_expr, &indentation));
+
+        // process 'else if' block
+        let mut else_clause = if_expr.else_clause(db);
+        while let OptionElseClause::ElseClause(else_if_clause) = else_clause {
+            if let BlockOrIf::If(else_if_expr) = else_if_clause.else_block_or_if(db) {
+                let condition_text = else_if_expr.condition(db).as_syntax_node().get_text_without_trivia(db);
+                let block_expr = else_if_expr.if_block(db);
+                result.push_str(&process_block(condition_text, block_expr, &indentation));
+                else_clause = else_if_expr.else_clause(db);
+            } else {
+                break;
+            }
+        }
+        result
     }
 }

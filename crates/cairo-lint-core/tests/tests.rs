@@ -222,4 +222,4 @@ test_file!(
     "test with comment in None"
 );
 
-test_file!(manual, manual_assert, "check-if-then", "check-if-then2");
+test_file!(manual, manual_assert, "check if then else", "check if or if", "check-if-then", "check-if-then2");

@@ -1,3 +1,118 @@
+//! > check if or if
+
+//! > cairo_code
+fn main() {
+    let sad_people: Array<u32> = array![];
+    let happy_people: Array<u32> = array![];
+    if !sad_people.is_empty() || !happy_people.is_empty() {
+        panic!("panic");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+ --> lib.cairo:8:9
+  |
+8 |         panic!("panic");
+  |         -----
+  |
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+ --> lib.cairo:8:9
+  |
+8 |         panic!("panic");
+  |         -----
+  |
+warning: Plugin diagnostic: `assert!` is simpler than `if`-then-`panic!`
+ --> lib.cairo:6:5
+  |
+6 |       if !sad_people.is_empty() || !happy_people.is_empty() {
+  |  _____-
+7 | |         panic!("panic");
+8 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let sad_people: Array<u32> = array![];
+    let happy_people: Array<u32> = array![];
+    assert!(!sad_people.is_empty() || !happy_people.is_empty(), "panic: {:?}", sad_people);
+}
+
+//! > ==========================================================================
+
+//! > check if then else
+
+//! > cairo_code
+fn main() {
+    let sad_people: Array<u32> = array![1, 2, 3];
+    if !sad_people.is_empty() {
+        let _ = 0;
+    } else if sad_people.len() > 1 {
+        panic!("there are sad people");
+    } else if sad_people.len() > 2 {
+        panic!("there are more sad people");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+  --> lib.cairo:10:9
+   |
+10 |         panic!("there are sad people");
+   |         -----
+   |
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+  --> lib.cairo:10:9
+   |
+10 |         panic!("there are sad people");
+   |         -----
+   |
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+  --> lib.cairo:14:9
+   |
+14 |         panic!("there are more sad people");
+   |         -----
+   |
+warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+  --> lib.cairo:14:9
+   |
+14 |         panic!("there are more sad people");
+   |         -----
+   |
+warning: Plugin diagnostic: `assert!` is simpler than `if`-then-`panic!`
+  --> lib.cairo:8:12
+   |
+ 8 |       } else if sad_people.len() > 1 {
+   |  ____________-
+ 9 | |         panic!("there are sad people");
+10 | |     } else if sad_people.len() > 2 {
+11 | |         panic!("there are more sad people");
+12 | |     }
+   | |_____-
+   |
+warning: Plugin diagnostic: `assert!` is simpler than `if`-then-`panic!`
+  --> lib.cairo:12:12
+   |
+12 |       } else if sad_people.len() > 2 {
+   |  ____________-
+13 | |         panic!("there are more sad people");
+14 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let sad_people: Array<u32> = array![1, 2, 3];
+    if !sad_people.is_empty() {
+        let _ = 0;
+    } else assert!(sad_people.len() > 1, "there are sad people: {:?}", sad_people);
+assert!(sad_people.len() > 2, "there are more sad people: {:?}", sad_people);
+
+}
+
+//! > ==========================================================================
+
 //! > check-if-then
 
 //! > cairo_code
@@ -34,7 +149,7 @@ warning: Plugin diagnostic: `assert!` is simpler than `if`-then-`panic!`
 //! > fixed
 fn main() {
     let sad_people: Array<u32> = array![];
-    assert!(!sad_people.is_empty(), "there are sad people: {:?}", !sad_people);
+    assert!(!sad_people.is_empty(), "there are sad people: {:?}", sad_people);
 }
 
 //! > ==========================================================================
