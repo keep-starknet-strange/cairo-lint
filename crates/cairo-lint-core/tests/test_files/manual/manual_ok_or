@@ -126,3 +126,43 @@ fn main() {
         Option::None => Result::Err('this is an err'),
     };
 }
+
+//! > ==========================================================================
+
+//! > test match expression not a variable
+
+//! > cairo_code
+#[derive(Copy, Drop)]
+enum Error {
+    Error,
+}
+fn main() {
+    let self: u256 = 0; 
+    let _self_result: Result<u8, Error> = match self.try_into() {
+        Option::Some(value) => Result::Ok(value),
+        Option::None => Result::Err(Error::Error)
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+  --> lib.cairo:12:43
+   |
+12 |       let _self_result: Result<u8, Error> = match self.try_into() {
+   |  ___________________________________________-
+13 | |         Option::Some(value) => Result::Ok(value),
+14 | |         Option::None => Result::Err(Error::Error)
+15 | |     };
+   | |_____-
+   |
+
+//! > fixed
+#[derive(Copy, Drop)]
+enum Error {
+    Error,
+}
+fn main() {
+    let self: u256 = 0; 
+    let _self_result: Result<u8, Error> = self.try_into().ok_or(Error::Error);
+}
