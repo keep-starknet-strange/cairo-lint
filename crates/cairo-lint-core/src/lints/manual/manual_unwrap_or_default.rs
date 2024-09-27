@@ -127,17 +127,22 @@ fn check_block_expr<F>(
 where
     F: Fn(&dyn SemanticGroup, &Expr, &Arenas) -> bool,
 {
-    let statements_default = block_expr.statements.iter().all(|&statement_id| {
-        let statement = &arenas.statements[statement_id];
-        match statement {
-            Statement::Let(statement_let) => {
-                let expr = &arenas.exprs[statement_let.expr];
-                checker(db, expr, arenas)
+    let statements_default = if !block_expr.statements.is_empty() {
+        block_expr.statements.iter().all(|&statement_id| {
+            let statement = &arenas.statements[statement_id];
+            match statement {
+                Statement::Let(statement_let) => {
+                    let expr = &arenas.exprs[statement_let.expr];
+                    checker(db, expr, arenas)
+                }
+                _ => false,
             }
-            _ => false,
-        }
-    });
+        })
+    } else {
+        false
+    };
 
+    // Check the tail expression, if it exists
     let tail_default = block_expr.tail.map_or(false, |tail_expr_id| {
         let tail_expr = &arenas.exprs[tail_expr_id];
         checker(db, tail_expr, arenas)
