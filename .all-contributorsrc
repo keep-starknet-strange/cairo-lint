@@ -89,6 +89,46 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "chachaleo",
+      "name": "Charlotte",
+      "avatar_url": "https://avatars.githubusercontent.com/u/49371958?v=4",
+      "profile": "https://github.com/chachaleo",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "BrunoAmbricca",
+      "name": "Bruno Ambricca",
+      "avatar_url": "https://avatars.githubusercontent.com/u/64877723?v=4",
+      "profile": "https://github.com/BrunoAmbricca",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "guha-rahul",
+      "name": "guha-rahul",
+      "avatar_url": "https://avatars.githubusercontent.com/u/52607971?v=4",
+      "profile": "https://github.com/guha-rahul",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "manlikeHB",
+      "name": "Yusuf Habib",
+      "avatar_url": "https://avatars.githubusercontent.com/u/109147010?v=4",
+      "profile": "https://github.com/manlikeHB",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
