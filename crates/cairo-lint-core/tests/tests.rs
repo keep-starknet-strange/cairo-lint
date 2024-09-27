@@ -202,7 +202,7 @@ test_file!(manual, manual_is_some, "test basic is some", "test with comment in S
 test_file!(
     invisible_characters,
     invisible_characters,
-    "loop match pop front with spaces",
-    "loop match pop front with spaces in none",
-    "simple loop match pop front with comment and spaces"
+    "loop check invisible characters",
+    "loop check multiple invisible characters",
+    "loop check invisible characters in comments"
 );

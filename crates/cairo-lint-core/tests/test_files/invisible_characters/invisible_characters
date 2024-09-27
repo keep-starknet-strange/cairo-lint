@@ -1,13 +1,22 @@
-//! > loop match pop front with spaces
+//! > loop check invisible characters
 
 //! > cairo_code
 fn main() {
-    let mut a: Span<u32> = array![ 1,  2,  3,  4,  5 ].span();  
+    let text = "Hello\u{200B}World\u{2060}!";
+    let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
+
+    let mut index = 0;
+    let chars: Vec<char> = text.chars().collect();
+
     loop {
-        match a.pop_front() {
-            Option::Some(val) => println!("{val}"),
-            Option::None => { 
-               
+        match chars.get(index) {
+            Some(&ch) => {
+                if invisible_chars.contains(&ch) {
+                    println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+                }
+                index += 1;
+            },
+            None => {
                 break;
             },
         }
@@ -15,45 +24,195 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-  --> lib.cairo:4:5
+error: Type not found.
+  --> lib.cairo:10:16
    |
- 4 |       loop {
-   |  _____-
- 5 | |         match a.pop_front() {
-...  |
-11 | |         }
-12 | |     }
-   | |_____-
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                ^^^
    |
-warning: Plugin diagnostic: Whitespace detected.
- --> lib.cairo:2:28
+error: Method `chars` not found on type `?0`. Did you import the correct trait and impl?
+  --> lib.cairo:10:33
+   |
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                                 ^^^^^
+   |
+error: Method `collect` not found on type `<missing>`. Did you import the correct trait and impl?
+  --> lib.cairo:10:41
+   |
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                                         ^^^^^^^
+   |
+error: Ambiguous method call. More than one applicable trait function with a suitable self type was found: ArrayTrait::get and SpanTrait::get. Consider adding type annotations or explicitly refer to the impl function.
+  --> lib.cairo:16:21
+   |
+16 |         match chars.get(index) {
+   |                     ^^^
+   |
+error: Identifier not found.
+  --> lib.cairo:18:13
+   |
+18 |             Some(&ch) => {
+   |             ^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:18:13
+   |
+18 |             Some(&ch) => {
+   |             ^^^^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:18:21
+   |
+18 |             Some(&ch) => {
+   |                     ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:18:19
+   |
+18 |             Some(&ch) => {
+   |                   --
+   |
+error: Identifier not found.
+  --> lib.cairo:20:36
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                    ^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:20
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                    ^^^^^^^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:36
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                    ^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:46
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                              ^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:20:48
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                                ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:20:20
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                    ---------------
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:20:46
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                              --
+   |
+error: Unexpected type for tuple pattern. "<missing>" is not a tuple.
+  --> lib.cairo:22:29
+   |
+22 |                     println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:22:29
+   |
+22 |                     println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:22:105
+   |
+22 |                     println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+   |                                                                                                         ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:22:21
+   |
+22 |                     println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+   |                     -------
+   |
+error: Missing semicolon
+  --> lib.cairo:28:14
+   |
+28 |             },
+   |              ^
+   |
+error: Identifier not found.
+  --> lib.cairo:30:13
+   |
+30 |             None => {
+   |             ^^^^
+   |
+error: Missing semicolon
+  --> lib.cairo:30:17
+   |
+30 |             None => {
+   |                 ^
+   |
+error: `break` only allowed inside a `loop`.
+  --> lib.cairo:32:17
+   |
+32 |                 break;
+   |                 ^^^^^^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:4:9
   |
-2 |     let mut a: Span<u32> = array![ 1,  2,  3,  4,  5 ].span();  
-  |                            ---------------------------
+4 |     let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
+  |         ---------------
   |
 
 //! > fixed
 fn main() {
-    let mut a: Span<u32> = array![1,2,3,4,5].span();  
+    let text = "Hello\u{200B}World\u{2060}!";
+    let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
 
-    for val in a {
-        println!("{val}")
-    };
+    let mut index = 0;
+    let chars: Vec<char> = text.chars().collect();
+
+    loop {
+        match chars.get(index) {
+            Some(&ch) => {
+                if invisible_chars.contains(&ch) {
+                    println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+                }
+                index += 1;
+            },
+            None => {
+                break;
+            },
+        }
+    }
 }
 
 //! > ==========================================================================
 
-//! > loop match pop front with spaces in none
+//! > loop check invisible characters in comments
 
 //! > cairo_code
 fn main() {
-    let mut a: Span<u32> = array![ 1, 2, 3, 4, 5 ].span();
+    let text = "HelloWorld! // Comment with invisible\u{200B}character";
+    let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
+
+    let mut index = 0;
+    let chars: Vec<char> = text.chars().collect();
+
     loop {
-        match a.pop_front() {
-            Option::Some(val) => println!("{val}"),
-            Option::None => { 
-                println!("Finished looping  ");  
+        match chars.get(index) {
+            Some(&ch) => {
+                if invisible_chars.contains(&ch) {
+                    println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+                }
+                index += 1;
+            },
+            None => {
                 break;
             },
         }
@@ -61,27 +220,168 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Whitespace detected.
- --> lib.cairo:2:28
-  |
-2 |     let mut a: Span<u32> = array![ 1, 2, 3, 4, 5 ].span();
-  |                            -----------------------
-  |
-warning: Plugin diagnostic: Whitespace detected.
-  --> lib.cairo:12:17
+error: Type not found.
+  --> lib.cairo:10:16
    |
-12 |                 println!("Finished looping  ");  
-   |                 ------------------------------
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                ^^^
    |
+error: Method `chars` not found on type `?0`. Did you import the correct trait and impl?
+  --> lib.cairo:10:33
+   |
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                                 ^^^^^
+   |
+error: Method `collect` not found on type `<missing>`. Did you import the correct trait and impl?
+  --> lib.cairo:10:41
+   |
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                                         ^^^^^^^
+   |
+error: Ambiguous method call. More than one applicable trait function with a suitable self type was found: ArrayTrait::get and SpanTrait::get. Consider adding type annotations or explicitly refer to the impl function.
+  --> lib.cairo:16:21
+   |
+16 |         match chars.get(index) {
+   |                     ^^^
+   |
+error: Identifier not found.
+  --> lib.cairo:18:13
+   |
+18 |             Some(&ch) => {
+   |             ^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:18:13
+   |
+18 |             Some(&ch) => {
+   |             ^^^^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:18:21
+   |
+18 |             Some(&ch) => {
+   |                     ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:18:19
+   |
+18 |             Some(&ch) => {
+   |                   --
+   |
+error: Identifier not found.
+  --> lib.cairo:20:36
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                    ^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:20
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                    ^^^^^^^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:36
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                    ^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:46
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                              ^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:20:48
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                                ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:20:20
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                    ---------------
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:20:46
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                              --
+   |
+error: Unexpected type for tuple pattern. "<missing>" is not a tuple.
+  --> lib.cairo:22:29
+   |
+22 |                     println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:22:29
+   |
+22 |                     println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:22:105
+   |
+22 |                     println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+   |                                                                                                         ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:22:21
+   |
+22 |                     println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+   |                     -------
+   |
+error: Missing semicolon
+  --> lib.cairo:28:14
+   |
+28 |             },
+   |              ^
+   |
+error: Identifier not found.
+  --> lib.cairo:30:13
+   |
+30 |             None => {
+   |             ^^^^
+   |
+error: Missing semicolon
+  --> lib.cairo:30:17
+   |
+30 |             None => {
+   |                 ^
+   |
+error: `break` only allowed inside a `loop`.
+  --> lib.cairo:32:17
+   |
+32 |                 break;
+   |                 ^^^^^^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:4:9
+  |
+4 |     let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
+  |         ---------------
+  |
 
 //! > fixed
 fn main() {
-    let mut a: Span<u32> = array![1,2,3,4,5].span();
+    let text = "HelloWorld! // Comment with invisible\u{200B}character";
+    let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
+
+    let mut index = 0;
+    let chars: Vec<char> = text.chars().collect();
+
     loop {
-        match a.pop_front() {
-            Option::Some(val) => println!("{val}"),
-            Option::None => { 
-println!("Finishedlooping");  
+        match chars.get(index) {
+            Some(&ch) => {
+                if invisible_chars.contains(&ch) {
+                    println!("Invisible character detected at index {}: {}", index, ch.escape_unicode());
+                }
+                index += 1;
+            },
+            None => {
                 break;
             },
         }
@@ -90,16 +390,25 @@ println!("Finishedlooping");
 
 //! > ==========================================================================
 
-//! > simple loop match pop front with comment and spaces
+//! > loop check multiple invisible characters
 
 //! > cairo_code
 fn main() {
-    let mut a: Span<u32> = array![ 1,  2,  3,  4,  5 ].span();  // Extra spaces between elements
+    let text = "Data\u{200B}:\u{2060}Value\u{FEFF}";
+    let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
+
+    let mut index = 0;
+    let chars: Vec<char> = text.chars().collect();
+
     loop {
-        match a.pop_front() {
-            Option::Some(val) => println!("{val}"),
-            Option::None => { 
-                // Comment with space
+        match chars.get(index) {
+            Some(&ch) => {
+                if invisible_chars.contains(&ch) {
+                    println!("Multiple invisible characters detected at index {}: {}", index, ch.escape_unicode());
+                }
+                index += 1;
+            },
+            None => {
                 break;
             },
         }
@@ -107,21 +416,168 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Whitespace detected.
- --> lib.cairo:2:28
+error: Type not found.
+  --> lib.cairo:10:16
+   |
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                ^^^
+   |
+error: Method `chars` not found on type `?0`. Did you import the correct trait and impl?
+  --> lib.cairo:10:33
+   |
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                                 ^^^^^
+   |
+error: Method `collect` not found on type `<missing>`. Did you import the correct trait and impl?
+  --> lib.cairo:10:41
+   |
+10 |     let chars: Vec<char> = text.chars().collect();
+   |                                         ^^^^^^^
+   |
+error: Ambiguous method call. More than one applicable trait function with a suitable self type was found: ArrayTrait::get and SpanTrait::get. Consider adding type annotations or explicitly refer to the impl function.
+  --> lib.cairo:16:21
+   |
+16 |         match chars.get(index) {
+   |                     ^^^
+   |
+error: Identifier not found.
+  --> lib.cairo:18:13
+   |
+18 |             Some(&ch) => {
+   |             ^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:18:13
+   |
+18 |             Some(&ch) => {
+   |             ^^^^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:18:21
+   |
+18 |             Some(&ch) => {
+   |                     ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:18:19
+   |
+18 |             Some(&ch) => {
+   |                   --
+   |
+error: Identifier not found.
+  --> lib.cairo:20:36
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                    ^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:20
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                    ^^^^^^^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:36
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                    ^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:20:46
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                              ^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:20:48
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                                ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:20:20
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                    ---------------
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:20:46
+   |
+20 |                 if invisible_chars.contains(&ch) {
+   |                                              --
+   |
+error: Unexpected type for tuple pattern. "<missing>" is not a tuple.
+  --> lib.cairo:22:29
+   |
+22 |                     println!("Multiple invisible characters detected at index {}: {}", index, ch.escape_unicode());
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+error: Missing variable in pattern.
+  --> lib.cairo:22:29
+   |
+22 |                     println!("Multiple invisible characters detected at index {}: {}", index, ch.escape_unicode());
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+error: Unsupported feature.
+  --> lib.cairo:22:115
+   |
+22 |                     println!("Multiple invisible characters detected at index {}: {}", index, ch.escape_unicode());
+   |                                                                                                                   ^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:22:21
+   |
+22 |                     println!("Multiple invisible characters detected at index {}: {}", index, ch.escape_unicode());
+   |                     -------
+   |
+error: Missing semicolon
+  --> lib.cairo:28:14
+   |
+28 |             },
+   |              ^
+   |
+error: Identifier not found.
+  --> lib.cairo:30:13
+   |
+30 |             None => {
+   |             ^^^^
+   |
+error: Missing semicolon
+  --> lib.cairo:30:17
+   |
+30 |             None => {
+   |                 ^
+   |
+error: `break` only allowed inside a `loop`.
+  --> lib.cairo:32:17
+   |
+32 |                 break;
+   |                 ^^^^^^
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:4:9
   |
-2 |     let mut a: Span<u32> = array![ 1,  2,  3,  4,  5 ].span();  // Extra spaces between elements
-  |                            ---------------------------
+4 |     let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
+  |         ---------------
   |
 
 //! > fixed
 fn main() {
-    let mut a: Span<u32> = array![1,2,3,4,5].span();  // Extra spaces between elements
+    let text = "Data\u{200B}:\u{2060}Value\u{FEFF}";
+    let invisible_chars = ['\u{200B}', '\u{2060}', '\u{FEFF}', '\u{00AD}', '\u{200C}', '\u{200D}'];
+
+    let mut index = 0;
+    let chars: Vec<char> = text.chars().collect();
+
     loop {
-        match a.pop_front() {
-            Option::Some(val) => println!("{val}"),
-            Option::None => { 
-                // Comment with space
+        match chars.get(index) {
+            Some(&ch) => {
+                if invisible_chars.contains(&ch) {
+                    println!("Multiple invisible characters detected at index {}: {}", index, ch.escape_unicode());
+                }
+                index += 1;
+            },
+            None => {
                 break;
             },
         }
