@@ -1,19 +1,31 @@
 //! > assert_eq! with false
 
 //! > cairo_code
-#[cfg(test)]
+// #[cfg(test)]
 fn main() {
     let a: Array<felt252> = ArrayTrait::new();
     assert_eq!(a.is_empty(), false);
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: assert_eq!(expr, false) can be replaced with assert!(!expr).
+ --> lib.cairo:6:5
+  |
+6 |     assert_eq!(a.is_empty(), false);
+  |     -------------------------------
+  |
+error: Plugin diagnostic: `assert_eq` macro is only available in test mode.
+ --> lib.cairo:6:5
+  |
+6 |     assert_eq!(a.is_empty(), false);
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
 
 //! > fixed
-#[cfg(test)]
+//! #[cfg(test)]
 fn main() {
     let a: Array<felt252> = ArrayTrait::new();
-    assert_eq!(a.is_empty(), false);
+    assert!(!a.is_empty());
 }
 
 //! > ==========================================================================

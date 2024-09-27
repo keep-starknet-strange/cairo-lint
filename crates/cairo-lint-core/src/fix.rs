@@ -366,7 +366,6 @@ impl Fixer {
         node.get_text(db).to_string()
     }
 
-    
     /// Simplifies `assert_eq!` and `assert_ne!` assertions with boolean literals.
     ///
     /// Transforms:
