@@ -22,7 +22,7 @@ error: Plugin diagnostic: `assert_eq` macro is only available in test mode.
   |
 
 //! > fixed
-//! #[cfg(test)]
+// #[cfg(test)]
 fn main() {
     let a: Array<felt252> = ArrayTrait::new();
     assert!(!a.is_empty());
