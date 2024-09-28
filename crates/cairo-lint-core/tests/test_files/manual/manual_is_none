@@ -1,23 +1,23 @@
-//! > test basic is some
+//! > test basic is none
 
 //! > cairo_code
 fn main() {
     let foo: Option::<i32> = Option::None;
     let _foo = match foo {
-        Option::Some(_) => true,
-        Option::None => false,
+        Option::Some(_) => false,
+        Option::None => true,
     };
 }
 
 //! > diagnostics
 
-warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
+warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
  --> lib.cairo:4:16
   |
 4 |       let _foo = match foo {
   |  ________________-
-5 | |         Option::Some(_) => true,
-6 | |         Option::None => false,
+5 | |         Option::Some(_) => false,
+6 | |         Option::None => true,
 7 | |     };
   | |_____-
   |
@@ -25,7 +25,7 @@ warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using 
 //! > fixed
 fn main() {
     let foo: Option::<i32> = Option::None;
-    let _foo = foo.is_some();
+    let _foo = foo.is_none();
 }
 
 //! > ==========================================================================
@@ -38,9 +38,9 @@ fn main() {
   let _foo = match foo {
       Option::Some(_) => {
           // do something
-          true
+          false
       },
-      Option::None => false,
+      Option::None => true,
   };
 }
 
@@ -52,9 +52,9 @@ fn main() {
   let _foo = match foo {
       Option::Some(_) => {
           // do something
-          true
+          false
       },
-      Option::None => false,
+      Option::None => true,
   };
 }
 
@@ -66,10 +66,10 @@ fn main() {
 fn main() {
   let foo: Option::<i32> = Option::None;
   let _foo = match foo {
-      Option::Some(_) => true,
+      Option::Some(_) => false,
       Option::None => {
           // do something
-          false
+          true
       },
   };
 }
@@ -80,10 +80,10 @@ fn main() {
 fn main() {
   let foo: Option::<i32> = Option::None;
   let _foo = match foo {
-      Option::Some(_) => true,
+      Option::Some(_) => false,
       Option::None => {
           // do something
-          false
+          true
       },
   };
 }
@@ -94,35 +94,34 @@ fn main() {
 
 //! > cairo_code
 fn foo(a: u256) -> Option<u256> {
-  Option::Some(a)
+    Option::Some(a)
 }
 fn main() {
-  let a: u256 = 0;
-  let _a = match foo(a) {
-      Option::Some(_) => true,
-      Option::None => false
-  };
+    let a: u256 = 0;
+    let _a = match foo(a) {
+        Option::Some(_) => false,
+        Option::None => true
+    };
 }
-
 
 //! > diagnostics
 
-warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
-  --> lib.cairo:10:12
+warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+  --> lib.cairo:10:14
    |
-10 |     let _a = match foo(a) {
-   |  ____________-
-11 | |       Option::Some(_) => true,
-12 | |       Option::None => false
-13 | |   };
-   | |___-
+10 |       let _a = match foo(a) {
+   |  ______________-
+11 | |         Option::Some(_) => false,
+12 | |         Option::None => true
+13 | |     };
+   | |_____-
    |
 
 //! > fixed
 fn foo(a: u256) -> Option<u256> {
-  Option::Some(a)
+    Option::Some(a)
 }
 fn main() {
-  let a: u256 = 0;
-  let _a = foo(a).is_some();
+    let a: u256 = 0;
+    let _a = foo(a).is_none();
 }
