@@ -62,7 +62,6 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
         manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
-      
         invisible_characters::INVISIBLE_CHARACTER_DETECTED => CairoLintKind::InvisibleCharacters,
         _ => CairoLintKind::Unknown,
     }

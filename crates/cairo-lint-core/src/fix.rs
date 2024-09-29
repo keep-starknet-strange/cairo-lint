@@ -5,7 +5,7 @@ use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
-    OptionPatternEnumInnerPattern, Pattern, Statement,
+    OptionPatternEnumInnerPattern, Pattern, Statement
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
@@ -506,10 +506,12 @@ impl Fixer {
         format!("{option_var_name}.is_some()")
     }
 
-      /// Removes all spaces from the given text.
-      pub fn fix_whitespace_issues(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let text = node.get_text(db);
-         text.replace(" ", "")
+    /// Removes all spaces from the given text.
+    pub fn fix_whitespace_issues(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    let text = node.get_text(db);
+    text.replace(" ", "")
     
     }
+
+
 }

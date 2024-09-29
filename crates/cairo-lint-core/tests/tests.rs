@@ -204,5 +204,10 @@ test_file!(
     invisible_characters,
     "loop check invisible characters",
     "loop check multiple invisible characters",
-    "loop check invisible characters in comments"
+    "loop check invisible characters in comments",
+    "loop check invisible characters in identifier",
+    "loop check invisible characters in URL",
+    "loop check invisible characters in filename",
+    "loop check invisible characters in number",
+    "loop check invisible characters in config"
 );
