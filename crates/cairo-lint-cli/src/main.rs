@@ -161,11 +161,9 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                         .iter()
                         .filter(|diag| {
                             if let SemanticDiagnosticKind::PluginDiagnostic(diag) = &diag.kind {
-                                if matches!(diagnostic_kind_from_message(&diag.message), CairoLintKind::Panic) {
-                                    should_lint_panics
-                                } else {
-                                    true
-                                }
+                                (matches!(diagnostic_kind_from_message(&diag.message), CairoLintKind::Panic)
+                                    && should_lint_panics)
+                                    || !matches!(diagnostic_kind_from_message(&diag.message), CairoLintKind::Panic)
                             } else {
                                 true
                             }
