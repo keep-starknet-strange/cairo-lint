@@ -113,11 +113,33 @@ impl AnalyzerPlugin for CairoLint {
                         &mut diags,
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
-                    SyntaxKind::ExprIf => equatable_if_let::check_equatable_if_let(
-                        db.upcast(),
-                        &ExprIf::from_syntax_node(db.upcast(), node),
-                        &mut diags,
-                    ),
+                    SyntaxKind::ExprIf => {
+                        equatable_if_let::check_equatable_if_let(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_is_some::check_manual_if_is_some(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_is_none::check_manual_if_is_none(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_expect::check_manual_if_expect(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_ok_or::check_manual_if_ok_or(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                    }
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
