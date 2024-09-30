@@ -4,7 +4,8 @@ use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
-    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, MatchArm, OptionElseClause, OptionPatternEnumInnerPattern, Pattern, Statement
+    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, MatchArm, OptionElseClause,
+    OptionPatternEnumInnerPattern, Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
@@ -645,5 +646,4 @@ impl Fixer {
             _ => false,
         }
     }
-
 }

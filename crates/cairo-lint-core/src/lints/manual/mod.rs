@@ -80,7 +80,7 @@ fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manu
             _ => {
                 return false;
             }
-        }
+        },
         ManualLint::ManualUnwrapOr => {
             if let Expr::Path(path_expr) = arm.expression(db) {
                 let expr_name = path_expr.as_syntax_node().get_text_without_trivia(db);
