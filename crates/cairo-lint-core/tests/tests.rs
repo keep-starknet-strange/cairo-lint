@@ -199,7 +199,9 @@ test_file!(
     "test error enum",
     "test with comment in None",
     "test with comment in Some",
-    "test match expression not a variable"
+    "test match expression not a variable",
+    "test manual if",
+    "test manual if with additional instructions"
 );
 
 test_file!(
@@ -217,7 +219,9 @@ test_file!(
     "test basic is some",
     "test with comment in Some",
     "test with comment in None",
-    "test match expression is a function"
+    "test match expression is a function",
+    "test manual if",
+    "test manual if with additional instructions"
 );
 
 test_file!(
@@ -226,7 +230,9 @@ test_file!(
     "test basic is none",
     "test with comment in Some",
     "test with comment in None",
-    "test match expression is a function"
+    "test match expression is a function",
+    "test manual if",
+    "test manual if with additional instructions"
 );
 
 test_file!(
@@ -237,5 +243,7 @@ test_file!(
     "test with enum error",
     "test with comment in Some",
     "test with comment in None",
-    "test match expression is a function"
+    "test match expression is a function",
+    "test manual if",
+    "test manual if with additional instructions"
 );
