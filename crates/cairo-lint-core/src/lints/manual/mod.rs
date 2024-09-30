@@ -160,21 +160,21 @@ fn check_syntax_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint)
                         let func_name: String =
                             func_call.path(db).as_syntax_node().get_text(db).chars().filter(|&c| c != ' ').collect();
 
-                        return func_name == "Result::Ok";
+                        func_name == "Result::Ok"
                     } else {
-                        return false;
+                        false
                     }
                 }
                 _ => {
-                    return false;
+                    false
                 }
             }
         }
         ManualLint::ManualIsSome => {
-            return expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "true";
+            expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "true"
         }
         ManualLint::ManualIsNone => {
-            return expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "false";
+            expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "false"
         }
         ManualLint::ManualExpect => {
             if let Condition::Let(condition_let) = expr.condition(db) {
@@ -183,20 +183,20 @@ fn check_syntax_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint)
                         let enum_arg = enum_pattern.pattern(db);
                         match enum_arg {
                             OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                                return inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                                    == expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db);
+                                inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
+                                    == expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db)
                             }
                             OptionPatternEnumInnerPattern::Empty(_) => {
-                                return false;
+                                false
                             }
                         }
                     }
                     _ => {
-                        return false;
+                        false
                     }
                 }
             } else {
-                return false;
+                false
             }
         }
     }
@@ -214,21 +214,21 @@ fn check_syntax_else(expr_block: ExprBlock, db: &dyn SyntaxGroup, manual_lint: M
                         let func_name: String =
                             func_call.path(db).as_syntax_node().get_text(db).chars().filter(|&c| c != ' ').collect();
 
-                        return func_name == "Result::Err";
+                        func_name == "Result::Err"
                     } else {
-                        return false;
+                        false
                     }
                 }
                 _ => {
-                    return false;
+                    false
                 }
             }
         }
         ManualLint::ManualIsSome => {
-            return expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "false";
+            expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "false"
         }
         ManualLint::ManualIsNone => {
-            return expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "true";
+            expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "true"
         }
         ManualLint::ManualExpect => {
             let statement = expr_block.statements(db).elements(db)[0].clone();
@@ -240,13 +240,13 @@ fn check_syntax_else(expr_block: ExprBlock, db: &dyn SyntaxGroup, manual_lint: M
                         let func_name: String =
                             func_call.path(db).as_syntax_node().get_text(db).chars().filter(|&c| c != ' ').collect();
 
-                        return func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252";
+                        func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252"
                     } else {
-                        return false;
+                        false
                     }
                 }
                 _ => {
-                    return false;
+                    false
                 }
             }
         }

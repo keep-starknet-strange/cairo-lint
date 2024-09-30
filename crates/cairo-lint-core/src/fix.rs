@@ -571,7 +571,7 @@ fn expr_match_get_var_name_and_err(expr_match: ExprMatch, db: &dyn SyntaxGroup) 
         }
         _ => panic!("Expected an Option enum pattern"),
     };
-    return (option_var_name, none_arm_err);
+    (option_var_name, none_arm_err)
 }
 
 fn expr_if_get_var_name_and_err(expr_if: ExprIf, db: &dyn SyntaxGroup) -> (String, String) {
@@ -610,5 +610,5 @@ fn expr_if_get_var_name_and_err(expr_if: ExprIf, db: &dyn SyntaxGroup) -> (Strin
             }
         },
     };
-    return (option_var_name, err);
+    (option_var_name, err)
 }
