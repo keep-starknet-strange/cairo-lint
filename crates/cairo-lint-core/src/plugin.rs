@@ -43,6 +43,7 @@ pub enum CairoLintKind {
     ManualIsSome,
     ManualIsNone,
     ManualExpect,
+    ManualUnwrapOr,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -67,6 +68,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
         manual_is_none::MANUAL_IS_NONE => CairoLintKind::ManualIsNone,
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
+        manual_unwrap_or::MANUAL_UNWRAP_OR => CairoLintKind::ManualUnwrapOr,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -154,6 +156,11 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                         manual_expect::check_manual_expect(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_unwrap_or::check_manual_unwrap_or(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,

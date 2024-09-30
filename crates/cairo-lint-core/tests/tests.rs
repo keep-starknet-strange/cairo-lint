@@ -237,3 +237,14 @@ test_file!(
     "test with comment in None",
     "test match expression is a function"
 );
+
+test_file!(
+    manual,
+    manual_unwrap_or,
+    "simple manual unwrap_or",
+    "manual unwrap_or with default struct",
+    "manual unwrap_or with literal None",
+    "manual unwrap_or with Result",
+    "manual unwrap_or with Result returning felt252",
+    "manual match with multiple arms (no unwrap_or)"
+);

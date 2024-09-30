@@ -1,0 +1,186 @@
+//! > manual match with multiple arms (no unwrap_or)
+
+//! > cairo_code
+fn main() {
+  let bar: Result<u32, ()> = Result::Err(());
+  match bar {
+      Result::Ok(value) => value,
+      Result::Err(_) => 123,
+      _ => 456,  
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let bar: Result<u32, ()> = Result::Err(());
+  match bar {
+      Result::Ok(value) => value,
+      Result::Err(_) => 123,
+      _ => 456,  
+  };
+}
+
+//! > ==========================================================================
+
+//! > manual unwrap_or with Result
+
+//! > cairo_code
+fn main() {
+  let bar: Result<u32, ()> = Result::Err(());
+  match bar {
+      Result::Ok(value) => value,
+      Result::Err(_) => 123,
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for Option<T> or Result<T, E> detected. Consider using unwrap_or instead.
+ --> lib.cairo:4:3
+  |
+4 |     match bar {
+  |  ___-
+5 | |       Result::Ok(value) => value,
+6 | |       Result::Err(_) => 123,
+7 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let bar: Result<u32, ()> = Result::Err(());
+bar.unwrap_or(123);
+}
+
+//! > ==========================================================================
+
+//! > manual unwrap_or with Result returning felt252
+
+//! > cairo_code
+fn main() {
+  let bar: Result<felt252, ()> = Result::Err(());
+  match bar {
+      Result::Ok(value) => value,
+      Result::Err(_) => 100,
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for Option<T> or Result<T, E> detected. Consider using unwrap_or instead.
+ --> lib.cairo:4:3
+  |
+4 |     match bar {
+  |  ___-
+5 | |       Result::Ok(value) => value,
+6 | |       Result::Err(_) => 100,
+7 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let bar: Result<felt252, ()> = Result::Err(());
+bar.unwrap_or(100);
+}
+
+//! > ==========================================================================
+
+//! > manual unwrap_or with default struct
+
+//! > cairo_code
+struct CustomType {
+  field: u32,
+}
+
+fn main() {
+  let bar: Option<CustomType> = Option::None;
+  match bar {
+      Option::Some(value) => value,
+      Option::None => CustomType { field: 10 },
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for Option<T> or Result<T, E> detected. Consider using unwrap_or instead.
+  --> lib.cairo:12:3
+   |
+12 |     match bar {
+   |  ___-
+13 | |       Option::Some(value) => value,
+14 | |       Option::None => CustomType { field: 10 },
+15 | |   };
+   | |___-
+   |
+
+//! > fixed
+struct CustomType {
+  field: u32,
+}
+
+fn main() {
+  let bar: Option<CustomType> = Option::None;
+bar.unwrap_or(CustomType { field: 10 });
+}
+
+//! > ==========================================================================
+
+//! > manual unwrap_or with literal None
+
+//! > cairo_code
+fn main() {
+  let foo: Option<u64> = Option::None;
+  match foo {
+      Option::Some(value) => value,
+      Option::None => 999,
+  };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for Option<T> or Result<T, E> detected. Consider using unwrap_or instead.
+ --> lib.cairo:4:3
+  |
+4 |     match foo {
+  |  ___-
+5 | |       Option::Some(value) => value,
+6 | |       Option::None => 999,
+7 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let foo: Option<u64> = Option::None;
+foo.unwrap_or(999);
+}
+
+//! > ==========================================================================
+
+//! > simple manual unwrap_or
+
+//! > cairo_code
+fn main() {
+    let foo: Option<u32> = Option::None;
+    match foo {
+        Option::Some(value) => value,
+        Option::None => 1,
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for Option<T> or Result<T, E> detected. Consider using unwrap_or instead.
+ --> lib.cairo:4:5
+  |
+4 |       match foo {
+  |  _____-
+5 | |         Option::Some(value) => value,
+6 | |         Option::None => 1,
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let foo: Option<u32> = Option::None;
+    foo.unwrap_or(1);
+}

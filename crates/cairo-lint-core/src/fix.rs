@@ -4,8 +4,7 @@ use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
-    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
-    OptionPatternEnumInnerPattern, Pattern, Statement,
+    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, MatchArm, OptionElseClause, OptionPatternEnumInnerPattern, Pattern, Statement
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
@@ -187,6 +186,7 @@ impl Fixer {
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualExpect => self.fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualUnwrapOr => self.fix_manual_unwrap_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -544,4 +544,106 @@ impl Fixer {
 
         format!("{option_var_name}.expect({none_arm_err})")
     }
+
+    /// Rewrites a manual match expression for `Option<T>` or `Result<T, E>` into a more concise
+    /// `unwrap_or`.
+    ///
+    /// Simplifies an expression by converting a manual match that checks `Option::Some` or
+    /// `Result::Ok` and provides a default for `Option::None` or `Result::Err` into an `unwrap_or`
+    /// statement.
+    ///
+    /// # Arguments
+    ///
+    /// * `db` - Reference to the `SyntaxGroup` for accessing the syntax tree.
+    /// * `node` - The `SyntaxNode` containing the match expression.
+    ///
+    /// # Returns
+    ///
+    /// A `String` representing the refactored expression with `unwrap_or`.
+    pub fn fix_manual_unwrap_or(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let expr_match = if let Expr::Match(expr_match) = Expr::from_syntax_node(db, node.clone()) {
+            expr_match
+        } else {
+            panic!("Expected a match expression");
+        };
+
+        let var_name = match expr_match.expr(db) {
+            Expr::Path(path_expr) => path_expr.as_syntax_node().get_text_without_trivia(db),
+            _ => panic!("Expected a variable or path in match expression"),
+        };
+
+        let arms = expr_match.arms(db).elements(db);
+        if arms.len() != 2 {
+            panic!("Expected exactly two arms in the match expression");
+        }
+
+        let first_arm = &arms[0];
+        let second_arm = &arms[1];
+
+        let first_pattern = &first_arm.patterns(db).elements(db)[0];
+        let second_pattern = &second_arm.patterns(db).elements(db)[0];
+
+        if let Some(default_value) =
+            Self::extract_default_value_for_option(db, first_pattern, second_pattern, second_arm)
+        {
+            return indent_snippet(
+                &format!("{}.unwrap_or({})", var_name, default_value),
+                node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>().len() / 4,
+            );
+        }
+
+        if let Some(default_value) =
+            Self::extract_default_value_for_result(db, first_pattern, second_pattern, second_arm)
+        {
+            return indent_snippet(
+                &format!("{}.unwrap_or({})", var_name, default_value),
+                node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>().len() / 4,
+            );
+        }
+
+        expr_match.as_syntax_node().get_text_without_trivia(db)
+    }
+
+    fn extract_default_value_for_option(
+        db: &dyn SyntaxGroup,
+        first_pattern: &Pattern,
+        second_pattern: &Pattern,
+        second_arm: &MatchArm,
+    ) -> Option<String> {
+        let is_some = Self::match_enum_pattern(db, first_pattern, "Option::Some");
+        let is_none = Self::match_enum_pattern(db, second_pattern, "Option::None");
+
+        if is_some && is_none {
+            Some(second_arm.expression(db).as_syntax_node().get_text_without_trivia(db))
+        } else {
+            None
+        }
+    }
+
+    fn extract_default_value_for_result(
+        db: &dyn SyntaxGroup,
+        first_pattern: &Pattern,
+        second_pattern: &Pattern,
+        second_arm: &MatchArm,
+    ) -> Option<String> {
+        let is_ok = Self::match_enum_pattern(db, first_pattern, "Result::Ok");
+        let is_err = Self::match_enum_pattern(db, second_pattern, "Result::Err");
+
+        if is_ok && is_err {
+            Some(second_arm.expression(db).as_syntax_node().get_text_without_trivia(db))
+        } else {
+            None
+        }
+    }
+
+    fn match_enum_pattern(db: &dyn SyntaxGroup, pattern: &Pattern, expected: &str) -> bool {
+        match pattern {
+            Pattern::Enum(enum_pattern) => {
+                let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
+                enum_name.as_str() == expected
+            }
+            _ => false,
+        }
+    }
+
 }
