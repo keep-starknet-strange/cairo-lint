@@ -155,7 +155,14 @@ test_file!(
 );
 
 test_file!(
-    unwrap_used,
-    unwrap_used,
-    "Test unwrap usage should trigger diagnostic"
+    unwrap,
+    unwrap,
+    "Single Unwrap",
+    "Multiple Unwrap",
+    "Multiple Unwrap and other statements",
+    "Empty Unwrap",
+    "NO Unwrap",
+    "Unwrap inside function",
+    "Test Function with Unwrap",
+    "Unwrap in Function Definition"
 );

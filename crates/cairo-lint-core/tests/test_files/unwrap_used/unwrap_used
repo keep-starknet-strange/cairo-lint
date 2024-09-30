@@ -1,63 +1,195 @@
-use cairo_lint_test_utils::assert_lint;
-use cairo_lint_core::lints::check_unwrap_used;
-use indoc::indoc;
+//! > Empty Unwrap
 
-#[test]
-fn test_unwrap_usage_should_trigger_diagnostic() {
-    let content = indoc! {"
-        //! > Test unwrap usage
+//! > cairo_code
+fn main() {
+  let x = None.unwrap();
+}
 
-        //! > test_runner_name
-        test_function_diagnostics
+//! > diagnostics
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:2:16
+|
+2 |     let x = None.unwrap();
+|                ^^^^^^^^
+|
 
-        //! > function
-        fn test_unwrap() {
-            let x = Option::Some(5);
-            let y = x.unwrap();
-        }
+//! > fixed
+fn main() {
+  let x = None.unwrap();
+}
 
-        //! > expected_diagnostics
-        warning: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
-         --> lib.cairo:5:17
-        let y = x.unwrap();
-                ^*******
+//! > ==========================================================================
 
-        //! > ==========================================================================
+//! > Multiple Unwrap
 
-        //! > Test unwrap with comment
+//! > cairo_code
+fn main() {
+  let a = Some(1).unwrap();
+  let b = None.unwrap();
+}
 
-        //! > test_runner_name
-        test_function_diagnostics
+//! > diagnostics
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:2:16
+|
+2 |     let a = Some(1).unwrap();
+|                ^^^^^^^^
+|
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:3:16
+|
+3 |     let b = None.unwrap();
+|                ^^^^^^^^
+|
 
-        //! > function
-        fn test_unwrap_with_comment() {
-            let x = Option::Some(5);
-            // Using unwrap here
-            let y = x.unwrap();
-            // Done with unwrap
-        }
+//! > fixed
+fn main() {
+  let a = Some(1).unwrap();
+  let b = None.unwrap();
+}
 
-        //! > expected_diagnostics
-        warning: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
-         --> lib.cairo:7:17
-        let y = x.unwrap();
-                ^*******
+//! > ==========================================================================
 
-        //! > ==========================================================================
+//! > Multiple Unwrap and other statements
 
-        //! > Test no unwrap usage
+//! > cairo_code
+fn main() {
+  let a = Some(1).unwrap();
+  let b = None.unwrap();
+  println!("Done");
+}
 
-        //! > test_runner_name
-        test_function_diagnostics
+//! > diagnostics
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:2:16
+|
+2 |     let a = Some(1).unwrap();
+|                ^^^^^^^^
+|
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:3:16
+|
+3 |     let b = None.unwrap();
+|                ^^^^^^^^
+|
 
-        //! > function
-        fn test_no_unwrap() {
-            let x = Option::Some(5);
-            let y = x?;
-        }
+//! > fixed
+fn main() {
+  let a = Some(1).unwrap();
+  let b = None.unwrap();
+  println!("Done");
+}
 
-        //! > expected_diagnostics
-    "};
+//! > ==========================================================================
 
-    assert_lint(content, check_unwrap_used, vec![]);
+//! > NO Unwrap
+
+//! > cairo_code
+fn main() {
+  println!("Hello, World!");
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  println!("Hello, World!");
+}
+
+//! > ==========================================================================
+
+//! > Unwrap inside function
+
+//! > cairo_code
+pub fn example() {
+  let x = None.unwrap();
+}
+
+fn main() {
+  example();
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:4:16
+|
+4 |     let x = None.unwrap();
+|                ^^^^^^^^
+|
+
+//! > fixed
+pub fn example() {
+  let x = None.unwrap();
+}
+
+fn main() {
+  example();
+}
+
+//! > ==========================================================================
+
+//! > Single Unwrap
+
+//! > cairo_code
+fn main() {
+  let x = Some(2).unwrap();
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:2:16
+|
+2 |     let x = Some(2).unwrap();
+|                ^^^^^^^^
+|
+
+//! > fixed
+fn main() {
+  let x = Some(2).unwrap();
+}
+
+//! > ==========================================================================
+
+//! > Unwrap in Function Definition
+
+//! > cairo_code
+fn wrapping_unwrap(self: Option<u32>) -> u32 {
+  self.unwrap()
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:2:12
+|
+2 |     self.unwrap()
+|          ^^^^^^^
+|
+
+//! > fixed
+fn wrapping_unwrap(self: Option<u32>) -> u32 {
+  self.unwrap()
+}
+
+//! > ==========================================================================
+
+//! > Test Function with Unwrap
+
+//! > cairo_code
+fn test_unwrap() {
+  let x = Option::Some(5);
+  let y = x.unwrap();
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Use of unwrap() detected. Consider using '?' or 'expect()' instead.
+--> lib.cairo:4:12
+|
+4 |     let y = x.unwrap();
+|            ^^^^^^^
+|
+
+//! > fixed
+fn test_unwrap() {
+  let x = Option::Some(5);
+  let y = x.unwrap();
 }
