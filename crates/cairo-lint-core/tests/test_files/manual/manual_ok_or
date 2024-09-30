@@ -166,3 +166,65 @@ fn main() {
     let self: u256 = 0; 
     let _self_result: Result<u8, Error> = self.try_into().ok_or(Error::Error);
 }
+
+//! > ==========================================================================
+
+//! > test manual if
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        Result::Ok(val)
+    } else {
+        Result::Err('err')
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = if let Option::Some(val) = opt_val {
+  |  ______________-
+5 | |         Result::Ok(val)
+6 | |     } else {
+7 | |         Result::Err('err')
+8 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = opt_val.ok_or('err');
+}
+
+//! > ==========================================================================
+
+//! > test manual if with additional instructions
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        let val = val + 1;
+        Result::Ok(val)
+    } else {
+        Result::Err('err')
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        let val = val + 1;
+        Result::Ok(val)
+    } else {
+        Result::Err('err')
+    };
+}
