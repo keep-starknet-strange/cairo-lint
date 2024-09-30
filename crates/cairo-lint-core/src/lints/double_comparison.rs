@@ -103,54 +103,19 @@ fn is_contradictory_double_comparison(
     rhs_op: &BinaryOperator,
     middle_op: &BinaryOperator,
 ) -> bool {
-    let lhs_value = extract_value_from_operator(lhs_op);
-    let rhs_value = extract_value_from_operator(rhs_op);
-
-    if let (Some(lhs_val), Some(rhs_val)) = (lhs_value, rhs_value) {
-        match middle_op {
-            BinaryOperator::AndAnd(_) => {
-                match (lhs_op, rhs_op) {
-                    // Contradictory comparisons
-                    (BinaryOperator::LE(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::LE(_)) => {
-                        return lhs_val <= rhs_val;
-                    }
-                    (BinaryOperator::LT(_), BinaryOperator::GE(_)) | (BinaryOperator::GE(_), BinaryOperator::LT(_)) => {
-                        return lhs_val < rhs_val;
-                    }
-                    (BinaryOperator::LT(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::LT(_)) => {
-                        return lhs_val >= rhs_val;
-                    }
-                    (BinaryOperator::EqEq(_), BinaryOperator::LT(_)) | (BinaryOperator::LT(_), BinaryOperator::EqEq(_)) => {
-                        return lhs_val >= rhs_val;
-                    }
-                    (BinaryOperator::EqEq(_), BinaryOperator::GT(_)) | (BinaryOperator::GT(_), BinaryOperator::EqEq(_)) => {
-                        return lhs_val <= rhs_val;
-                    }
-                    (BinaryOperator::GT(_), BinaryOperator::GE(_)) | (BinaryOperator::GE(_), BinaryOperator::GT(_)) => {
-                        return lhs_val <= rhs_val;
-                    }
-
-                    _ => false,
-                }
-            }
-            _ => false,
-        }
-    } else {
-        false
-    }
+    matches!(
+        (lhs_op, middle_op, rhs_op),
+        (BinaryOperator::EqEq(_), BinaryOperator::AndAnd(_), BinaryOperator::LT(_))
+            | (BinaryOperator::LT(_), BinaryOperator::AndAnd(_), BinaryOperator::EqEq(_))
+            | (BinaryOperator::EqEq(_), BinaryOperator::AndAnd(_), BinaryOperator::GT(_))
+            | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::EqEq(_))
+            | (BinaryOperator::LT(_), BinaryOperator::AndAnd(_), BinaryOperator::GT(_))
+            | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::LT(_))
+            | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::GE(_))
+            | (BinaryOperator::LE(_), BinaryOperator::AndAnd(_), BinaryOperator::GT(_))
+    )
 }
 
-
-fn extract_value_from_operator(op: &BinaryOperator) -> Option<i32> {
-    match op {
-        BinaryOperator::EqEq(_)
-        | BinaryOperator::LT(_)
-        | BinaryOperator::LE(_)
-        | BinaryOperator::GT(_)
-        | BinaryOperator::GE(_) => Some(0), 
-        _ => None,
-    }
-}
 
 pub fn operator_to_replace(lhs_op: BinaryOperator) -> Option<&'static str> {
     match lhs_op {
