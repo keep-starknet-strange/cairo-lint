@@ -126,3 +126,69 @@ fn main() {
   let a: u256 = 0;
   let _a = foo(a).is_some();
 }
+
+
+//! > ==========================================================================
+
+//! > test manual if
+
+//! > cairo_code
+fn main() {
+  let opt_val: Option<i32> = Option::None;
+  let _a = if let Option::Some(_) = opt_val {
+      true
+  } else {
+      false
+  };
+}
+
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
+ --> lib.cairo:4:12
+  |
+4 |     let _a = if let Option::Some(_) = opt_val {
+  |  ____________-
+5 | |       true
+6 | |   } else {
+7 | |       false
+8 | |   };
+  | |___-
+  |
+
+//! > fixed
+fn main() {
+  let opt_val: Option<i32> = Option::None;
+  let _a = opt_val.is_some();
+}
+
+//! > ==========================================================================
+
+//! > test manual if with additional instructions
+
+//! > cairo_code
+fn main() {
+  let opt_val: Option<i32> = Option::None;
+  let mut val = 1;
+  let _a = if let Option::Some(_) = opt_val {
+      val += 1;
+      false
+  } else {
+      true
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let opt_val: Option<i32> = Option::None;
+  let mut val = 1;
+  let _a = if let Option::Some(_) = opt_val {
+      val += 1;
+      false
+  } else {
+      true
+  };
+}
+
