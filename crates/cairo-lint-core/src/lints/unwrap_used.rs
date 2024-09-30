@@ -1,38 +1,36 @@
+use cairo_lang_defs::diagnostic_utils::StableLocation;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::ast::{Expr, PathSegment};
-use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::{TypedSyntaxNode, Terminal};
-use cairo_lang_syntax::node::helpers::PathSegmentEx;
-use cairo_lang_semantic::resolve::AsSegments;
+use cairo_lang_filesystem::db::get_originating_location;
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::ExprFunctionCall;
+use cairo_lang_syntax::node::{ TypedStablePtr, TypedSyntaxNode };
 
-
-/// Diagnostic message for usage of `unwrap()`
 pub const UNWRAP_USED: &str = "Use of unwrap() detected. Consider using '?' or 'expect()' instead.";
+const UNWRAP: &str = "\"unwrap\"";
 
-/// Function to check for the usage of `unwrap()` in expressions.
 pub fn check_unwrap_used(
-    ctx: &dyn SyntaxGroup,
-    expr: &Expr,
-) -> Option<PluginDiagnostic> {
-    // Check if the expression is a function call.
-    if let Expr::FunctionCall(func_call) = expr {
-        // Get the path segment of the called function.
-        if let Some(last_segment) = func_call.path(ctx).to_segments(ctx).last() {
-            // Check if the last path segment is the unwrap function.
-            if is_unwrap_function(ctx, last_segment) {
-                return Some(PluginDiagnostic {
-                    stable_ptr: expr.stable_ptr().into(),
-                    message: UNWRAP_USED.to_string(),
+    db: &dyn SemanticGroup,
+    expr_function_call: &ExprFunctionCall,
+    diagnostics: &mut Vec<PluginDiagnostic>
+) {
+    let function_id = expr_function_call.function;
+    if function_id.name(db) == UNWRAP {
+        let (file_id, span) = get_originating_location(
+            db.upcast(),
+            StableLocation::new(expr_function_call.stable_ptr.untyped()).file_id(db.upcast()),
+            expr_function_call.stable_ptr.lookup(db.upcast()).as_syntax_node().span(db.upcast())
+        );
+        if let Some(text_position) = span.position_in_file(db.upcast(), file_id) {
+            if let Ok(syntax_node) = db.file_syntax(file_id) {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: syntax_node
+                        .lookup_position(db.upcast(), text_position.start)
+                        .stable_ptr(),
+                    message: UNWRAP_USED.to_owned(),
                     severity: Severity::Warning,
                 });
             }
         }
     }
-    None
-}
-
-/// Helper function to determine if the called function is `unwrap()`.
-fn is_unwrap_function(ctx: &dyn SyntaxGroup, segment: &PathSegment) -> bool {
-    segment.identifier_ast(ctx).text(ctx) == "unwrap"
 }
