@@ -11,7 +11,7 @@ use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    erasing_op, loop_for_while, loops, panic, single_match,
+    erasing_op, loop_for_while, loops, panic, single_match, comparison_to_empty,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -43,6 +43,7 @@ pub enum CairoLintKind {
     ManualIsSome,
     ManualIsNone,
     ManualExpect,
+    ComparisonToEmpty,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -67,6 +68,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
         manual_is_none::MANUAL_IS_NONE => CairoLintKind::ManualIsNone,
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
+        comparison_to_empty::COMPARISON_TO_EMPTY => CairoLintKind::ComparisonToEmpty,
         _ => CairoLintKind::Unknown,
     }
 }
