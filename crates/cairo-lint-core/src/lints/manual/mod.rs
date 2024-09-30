@@ -205,9 +205,7 @@ fn check_syntax_else(expr_block: ExprBlock, db: &dyn SyntaxGroup, manual_lint: M
                 Statement::Expr(statement_expr) => {
                     let expr = statement_expr.expr(db);
                     if let Expr::FunctionCall(func_call) = expr {
-                        let func_name: String =
-                            func_call.path(db).as_syntax_node().get_text(db).chars().filter(|&c| c != ' ').collect();
-
+                        let func_name: String = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
                         func_name == "Result::Err"
                     } else {
                         false
@@ -225,9 +223,7 @@ fn check_syntax_else(expr_block: ExprBlock, db: &dyn SyntaxGroup, manual_lint: M
                 Statement::Expr(statement_expr) => {
                     let expr = statement_expr.expr(db);
                     if let Expr::FunctionCall(func_call) = expr {
-                        let func_name: String =
-                            func_call.path(db).as_syntax_node().get_text(db).chars().filter(|&c| c != ' ').collect();
-
+                        let func_name: String = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
                         func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252"
                     } else {
                         false
