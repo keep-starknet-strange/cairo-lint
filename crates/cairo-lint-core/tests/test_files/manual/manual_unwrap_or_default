@@ -103,6 +103,38 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > manual unwrap or default for if let with different type not trigger
+
+//! > cairo_code
+fn main() {
+  let a: Option<ByteArray> = Option::Some("Helok");
+
+  if let Option::Some(_) = a {
+    // testing with comments
+    100
+   } else {
+    // testing with comments
+    0
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let a: Option<ByteArray> = Option::Some("Helok");
+
+  if let Option::Some(_) = a {
+    // testing with comments
+    100
+   } else {
+    // testing with comments
+    0
+  };
+}
+
+//! > ==========================================================================
+
 //! > manual unwrap or default for if let with empty string
 
 //! > cairo_code
@@ -418,6 +450,30 @@ fn main() {
   let a: Option<felt252> = Option::Some(1);
 
   a.unwrap_or_default();
+}
+
+//! > ==========================================================================
+
+//! > manual unwrap or default for match with different type not trigger
+
+//! > cairo_code
+fn main() {
+  let x: Option<u128> = Option::Some(1038);
+  match x {
+    Option::Some(_) => array![1, 2, 3, 4, 5],
+    Option::None => array![]
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let x: Option<u128> = Option::Some(1038);
+  match x {
+    Option::Some(_) => array![1, 2, 3, 4, 5],
+    Option::None => array![]
+  };
 }
 
 //! > ==========================================================================

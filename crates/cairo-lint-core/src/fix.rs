@@ -182,7 +182,7 @@ impl Fixer {
             ),
             CairoLintKind::LoopMatchPopFront => {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-            },
+            }
             CairoLintKind::ManualUnwrapOrDefault => {
                 self.fix_manual_unwrap_or_default(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
@@ -393,16 +393,16 @@ impl Fixer {
     pub fn fix_manual_unwrap_or_default(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         // Check if the node is a general expression
         let expr = Expr::from_syntax_node(db, node.clone());
-    
+
         let matched_expr = match expr {
             // Handle the case where the expression is a match expression
             Expr::Match(expr_match) => expr_match.expr(db).as_syntax_node(),
-    
+
             // Handle the case where the expression is an if-let expression
             Expr::If(expr_if) => {
                 // Extract the condition from the if-let expression
                 let condition = expr_if.condition(db);
-                
+
                 match condition {
                     Condition::Let(condition_let) => {
                         // Extract and return the syntax node for the matched expression
@@ -414,7 +414,7 @@ impl Fixer {
             // Handle unsupported expressions
             _ => panic!("The expression cannot be simplified to `.unwrap_or_default()`."),
         };
-    
+
         let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
         format!("{indent}{}.unwrap_or_default()", matched_expr.get_text_without_trivia(db))
     }
