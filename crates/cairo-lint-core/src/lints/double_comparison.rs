@@ -111,7 +111,6 @@ fn is_contradictory_double_comparison(
             | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::EqEq(_))
             | (BinaryOperator::LT(_), BinaryOperator::AndAnd(_), BinaryOperator::GT(_))
             | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::LT(_))
-            // Additions to check for x > y && x >= y and x <= y && x > y
             | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::GE(_))
             | (BinaryOperator::LE(_), BinaryOperator::AndAnd(_), BinaryOperator::GT(_))
     )
