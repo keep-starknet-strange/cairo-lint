@@ -14,15 +14,15 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
-  --> lib.cairo:10:16
-   |
-10 |       let _foo = match foo {
-   |  ________________-
-11 | |         Option::Some(v) => Result::Ok(v),
-12 | |         Option::None => Result::Err(Error::Error),
-13 | |     };
-   | |_____-
-   |
+ --> lib.cairo:6:16
+  |
+6 |       let _foo = match foo {
+  |  ________________-
+7 | |         Option::Some(v) => Result::Ok(v),
+8 | |         Option::None => Result::Err(Error::Error),
+9 | |     };
+  | |_____-
+  |
 
 //! > fixed
 mod Error {
@@ -48,13 +48,13 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
- --> lib.cairo:4:16
+ --> lib.cairo:3:16
   |
-4 |       let _foo = match foo {
+3 |       let _foo = match foo {
   |  ________________-
-5 | |         Option::Some(v) => Result::Ok(v),
-6 | |         Option::None => Result::Err('this is an err'),
-7 | |     };
+4 | |         Option::Some(v) => Result::Ok(v),
+5 | |         Option::None => Result::Err('this is an err'),
+6 | |     };
   | |_____-
   |
 
@@ -88,6 +88,106 @@ fn main() {
         Option::Some(v) => Result::Ok(v),
         Option::None => Result::Err('this is an err'),
     };
+}
+
+//! > ==========================================================================
+
+//! > test manual if
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        Result::Ok(val)
+    } else {
+        Result::Err('err')
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+ --> lib.cairo:3:14
+  |
+3 |       let _a = if let Option::Some(val) = opt_val {
+  |  ______________-
+4 | |         Result::Ok(val)
+5 | |     } else {
+6 | |         Result::Err('err')
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = opt_val.ok_or('err');
+}
+
+//! > ==========================================================================
+
+//! > test manual if with additional instructions
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        let val = val + 1;
+        Result::Ok(val)
+    } else {
+        Result::Err('err')
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        let val = val + 1;
+        Result::Ok(val)
+    } else {
+        Result::Err('err')
+    };
+}
+
+//! > ==========================================================================
+
+//! > test match expression not a variable
+
+//! > cairo_code
+#[derive(Copy, Drop)]
+enum Error {
+    Error,
+}
+fn main() {
+    let self: u256 = 0; 
+    let _self_result: Result<u8, Error> = match self.try_into() {
+        Option::Some(value) => Result::Ok(value),
+        Option::None => Result::Err(Error::Error)
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+  --> lib.cairo:7:43
+   |
+ 7 |       let _self_result: Result<u8, Error> = match self.try_into() {
+   |  ___________________________________________-
+ 8 | |         Option::Some(value) => Result::Ok(value),
+ 9 | |         Option::None => Result::Err(Error::Error)
+10 | |     };
+   | |_____-
+   |
+
+//! > fixed
+#[derive(Copy, Drop)]
+enum Error {
+    Error,
+}
+fn main() {
+    let self: u256 = 0; 
+    let _self_result: Result<u8, Error> = self.try_into().ok_or(Error::Error);
 }
 
 //! > ==========================================================================
@@ -147,107 +247,5 @@ fn main() {
             Result::Ok(v)
         },
         Option::None => Result::Err('this is an err'),
-    };
-}
-
-//! > ==========================================================================
-
-//! > test match expression not a variable
-
-//! > cairo_code
-#[derive(Copy, Drop)]
-enum Error {
-    Error,
-}
-fn main() {
-    let self: u256 = 0; 
-    let _self_result: Result<u8, Error> = match self.try_into() {
-        Option::Some(value) => Result::Ok(value),
-        Option::None => Result::Err(Error::Error)
-    };
-}
-
-//! > diagnostics
-
-warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
-  --> lib.cairo:12:43
-   |
-12 |       let _self_result: Result<u8, Error> = match self.try_into() {
-   |  ___________________________________________-
-13 | |         Option::Some(value) => Result::Ok(value),
-14 | |         Option::None => Result::Err(Error::Error)
-15 | |     };
-   | |_____-
-   |
-
-//! > fixed
-#[derive(Copy, Drop)]
-enum Error {
-    Error,
-}
-fn main() {
-    let self: u256 = 0; 
-    let _self_result: Result<u8, Error> = self.try_into().ok_or(Error::Error);
-}
-
-//! > ==========================================================================
-
-//! > test manual if
-
-//! > cairo_code
-fn main() {
-    let opt_val: Option<i32> = Option::None;
-    let _a = if let Option::Some(val) = opt_val {
-        Result::Ok(val)
-    } else {
-        Result::Err('err')
-    };
-}
-
-//! > diagnostics
-
-warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
- --> lib.cairo:4:14
-  |
-4 |       let _a = if let Option::Some(val) = opt_val {
-  |  ______________-
-5 | |         Result::Ok(val)
-6 | |     } else {
-7 | |         Result::Err('err')
-8 | |     };
-  | |_____-
-  |
-
-//! > fixed
-fn main() {
-    let opt_val: Option<i32> = Option::None;
-    let _a = opt_val.ok_or('err');
-}
-
-//! > ==========================================================================
-
-//! > test manual if with additional instructions
-
-//! > cairo_code
-fn main() {
-    let opt_val: Option<i32> = Option::None;
-    let _a = if let Option::Some(val) = opt_val {
-        let val = val + 1;
-        Result::Ok(val)
-    } else {
-        Result::Err('err')
-    };
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let opt_val: Option<i32> = Option::None;
-    let _a = if let Option::Some(val) = opt_val {
-        let val = val + 1;
-        Result::Ok(val)
-    } else {
-        Result::Err('err')
     };
 }

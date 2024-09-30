@@ -84,15 +84,15 @@ warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
   |   -----
   |
 warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
- --> lib.cairo:4:3
+ --> lib.cairo:3:3
   |
-4 |   panic!("panic 2");
+3 |   panic!("panic 2");
   |   -----
   |
 warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
- --> lib.cairo:4:3
+ --> lib.cairo:3:3
   |
-4 |   panic!("panic 2");
+3 |   panic!("panic 2");
   |   -----
   |
 
@@ -127,15 +127,15 @@ warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
   |   -----
   |
 warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
- --> lib.cairo:4:3
+ --> lib.cairo:3:3
   |
-4 |   panic!("panic 2");
+3 |   panic!("panic 2");
   |   -----
   |
 warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
- --> lib.cairo:4:3
+ --> lib.cairo:3:3
   |
-4 |   panic!("panic 2");
+3 |   panic!("panic 2");
   |   -----
   |
 
@@ -178,15 +178,15 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
- --> lib.cairo:4:3
+ --> lib.cairo:3:3
   |
-4 |   panic!("panic Alan");
+3 |   panic!("panic Alan");
   |   -----
   |
 warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
- --> lib.cairo:4:3
+ --> lib.cairo:3:3
   |
-4 |   panic!("panic Alan");
+3 |   panic!("panic Alan");
   |   -----
   |
 

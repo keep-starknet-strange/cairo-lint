@@ -9,15 +9,15 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:4:14
+ --> lib.cairo:3:14
   |
-4 |     let _y = x & 0;
+3 |     let _y = x & 0;
   |              -----
   |
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:6:14
+ --> lib.cairo:4:14
   |
-6 |     let _z = 0 & x;
+4 |     let _z = 0 & x;
   |              -----
   |
 
@@ -40,9 +40,9 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:4:14
+ --> lib.cairo:3:14
   |
-4 |     let _y = 0 / x;
+3 |     let _y = 0 / x;
   |              -----
   |
 
@@ -86,9 +86,9 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:8:33
+ --> lib.cairo:5:33
   |
-8 |   let _result1 = (x * y + z) & (z & 0) ^ (z - y);
+5 |   let _result1 = (x * y + z) & (z & 0) ^ (z - y);
   |                                 -----
   |
 
@@ -114,9 +114,9 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:8:13
+ --> lib.cairo:5:13
   |
-8 |   let _f = ((x + y) * 0) & (z / 1);
+5 |   let _f = ((x + y) * 0) & (z / 1);
   |             -----------
   |
 
@@ -141,15 +141,15 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:4:12
+ --> lib.cairo:3:12
   |
-4 |   let _y = 0 * x;
+3 |   let _y = 0 * x;
   |            -----
   |
 warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
- --> lib.cairo:6:12
+ --> lib.cairo:4:12
   |
-6 |   let _z = x * 0;
+4 |   let _z = x * 0;
   |            -----
   |
 

@@ -19,14 +19,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:10:11
+  --> lib.cairo:6:11
    |
-10 |           } else {
+ 6 |           } else {
    |  ___________-
-11 | |             if a == 15 {
+ 7 | |             if a == 15 {
 ...  |
-16 | |             }
-17 | |         }
+12 | |             }
+13 | |         }
    | |_________-
    |
 
@@ -68,14 +68,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:10:5
+  --> lib.cairo:6:5
    |
-10 |       else {
+ 6 |       else {
    |  _____-
-11 | |         if !x {
+ 7 | |         if !x {
 ...  |
-17 | |         }
-18 | |     }
+13 | |         }
+14 | |     }
    | |_____-
    |
 
@@ -116,14 +116,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:10:5
+  --> lib.cairo:6:5
    |
-10 |       else {
+ 6 |       else {
    |  _____-
-11 | |         if !x {
+ 7 | |         if !x {
 ...  |
-16 | |         }
-17 | |     }
+12 | |         }
+13 | |     }
    | |_____-
    |
 
@@ -160,14 +160,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:10:5
+  --> lib.cairo:6:5
    |
-10 |       else {
+ 6 |       else {
    |  _____-
-11 | |         if !x {
-12 | |             println!("x is false");
-13 | |         }
-14 | |     }
+ 7 | |         if !x {
+ 8 | |             println!("x is false");
+ 9 | |         }
+10 | |     }
    | |_____-
    |
 
@@ -234,16 +234,16 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:8:7
-   |
- 8 |       } else {
-   |  _______-
- 9 | |         if !x {
-10 | |             println!("x is false");
-11 | |         }
-12 | |     }
-   | |_____-
-   |
+ --> lib.cairo:5:7
+  |
+5 |       } else {
+  |  _______-
+6 | |         if !x {
+7 | |             println!("x is false");
+8 | |         }
+9 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main() {

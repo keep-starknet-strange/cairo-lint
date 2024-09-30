@@ -13,9 +13,9 @@ fn main() -> bool {
 
 //! > diagnostics
 error: Plugin diagnostic: This double comparison is contradictory and always false.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x == y && x < y {
+4 |     if x == y && x < y {
   |        ^^^^^^^^^^^^^^^
   |
 
@@ -47,9 +47,9 @@ fn main() -> bool {
 
 //! > diagnostics
 error: Plugin diagnostic: This double comparison is contradictory and always false.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x < y && x > y {
+4 |     if x < y && x > y {
   |        ^^^^^^^^^^^^^^
   |
 
@@ -81,9 +81,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x == y || x > y {
+4 |     if x == y || x > y {
   |        ---------------
   |
 
@@ -145,9 +145,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x == y || x < y {
+4 |     if x == y || x < y {
   |        ---------------
   |
 
@@ -179,9 +179,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x > y || x == y {
+4 |     if x > y || x == y {
   |        ---------------
   |
 
@@ -213,9 +213,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x >= y && x <= y {
+4 |     if x >= y && x <= y {
   |        ----------------
   |
 
@@ -247,9 +247,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x > y || x < y {
+4 |     if x > y || x < y {
   |        --------------
   |
 
@@ -281,9 +281,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x < y || x == y {
+4 |     if x < y || x == y {
   |        ---------------
   |
 
@@ -315,9 +315,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x <= y && x >= y {
+4 |     if x <= y && x >= y {
   |        ----------------
   |
 
@@ -349,9 +349,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x < y || x > y {
+4 |     if x < y || x > y {
   |        --------------
   |
 
@@ -413,9 +413,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: Redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x >= y || x <= y {
+4 |     if x >= y || x <= y {
   |        ----------------
   |
 

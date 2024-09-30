@@ -35,11 +35,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-  --> lib.cairo:14:5
-   |
-14 |     if let Enum::UnitVariant = e {}
-   |     -------------------------------
-   |
+ --> lib.cairo:8:5
+  |
+8 |     if let Enum::UnitVariant = e {}
+  |     -------------------------------
+  |
 
 //! > fixed
 enum Enum {
@@ -68,14 +68,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-  --> lib.cairo:8:5
-   |
- 8 |       if let Option::Some(2) = x {
-   |  _____-
- 9 | |         do_thing();
-10 | |     }
-   | |_____-
-   |
+ --> lib.cairo:5:5
+  |
+5 |       if let Option::Some(2) = x {
+  |  _____-
+6 | |         do_thing();
+7 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn do_thing() {}
@@ -127,9 +127,9 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
- --> lib.cairo:4:5
+ --> lib.cairo:3:5
   |
-4 |     if let 2 = a {}
+3 |     if let 2 = a {}
   |     ---------------
   |
 

@@ -52,14 +52,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-  --> lib.cairo:4:5
+  --> lib.cairo:3:5
    |
- 4 |       loop {
+ 3 |       loop {
    |  _____-
- 5 | |         match a.pop_front() {
+ 4 | |         match a.pop_front() {
 ...  |
-13 | |         }
-14 | |     }
+12 | |         }
+13 | |     }
    | |_____-
    |
 
@@ -165,14 +165,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
- --> lib.cairo:4:5
+ --> lib.cairo:3:5
   |
-4 |       loop {
+3 |       loop {
   |  _____-
-5 | |         match a.pop_front() {
+4 | |         match a.pop_front() {
 ... |
-8 | |         }
-9 | |     }
+7 | |         }
+8 | |     }
   | |_____-
   |
 
@@ -203,16 +203,16 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-  --> lib.cairo:6:5
-   |
- 6 |       loop {
-   |  _____-
- 7 | |         match SpanImpl::pop_front(ref a) {
-...  |
-10 | |         }
-11 | |     }
-   | |_____-
-   |
+ --> lib.cairo:4:5
+  |
+4 |       loop {
+  |  _____-
+5 | |         match SpanImpl::pop_front(ref a) {
+... |
+8 | |         }
+9 | |     }
+  | |_____-
+  |
 
 //! > fixed
 use core::array::SpanImpl;
@@ -247,14 +247,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-  --> lib.cairo:16:5
+  --> lib.cairo:9:5
    |
-16 |       loop {
+ 9 |       loop {
    |  _____-
-17 | |         match a.b.c.pop_front() {
+10 | |         match a.b.c.pop_front() {
 ...  |
-20 | |         }
-21 | |     }
+13 | |         }
+14 | |     }
    | |_____-
    |
 

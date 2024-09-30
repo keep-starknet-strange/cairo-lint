@@ -14,11 +14,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
-  --> lib.cairo:10:13
-   |
-10 |             break ();
-   |             ---------
-   |
+ --> lib.cairo:6:13
+  |
+6 |             break ();
+  |             ---------
+  |
 
 //! > fixed
 fn main() {
@@ -52,11 +52,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
-  --> lib.cairo:12:13
-   |
-12 |             break ();
-   |             ---------
-   |
+ --> lib.cairo:7:13
+  |
+7 |             break ();
+  |             ---------
+  |
 
 //! > fixed
 fn main() {
@@ -85,9 +85,9 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
- --> lib.cairo:4:8
+ --> lib.cairo:3:8
   |
-4 |        break ();
+3 |        break ();
   |        ---------
   |
 
@@ -112,11 +112,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
- --> lib.cairo:4:8
+ --> lib.cairo:3:8
   |
-4 |          #[allow(break_unit)]
+3 |          #[allow(break_unit)]
   |  ________-
-5 | |        break ();
+4 | |        break ();
   | |________________-
   |
 
