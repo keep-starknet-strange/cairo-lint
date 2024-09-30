@@ -165,9 +165,7 @@ fn check_syntax_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint)
                         false
                     }
                 }
-                _ => {
-                    false
-                }
+                _ => false,
             }
         }
         ManualLint::ManualIsSome => {
@@ -186,14 +184,10 @@ fn check_syntax_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint)
                                 inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
                                     == expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db)
                             }
-                            OptionPatternEnumInnerPattern::Empty(_) => {
-                                false
-                            }
+                            OptionPatternEnumInnerPattern::Empty(_) => false,
                         }
                     }
-                    _ => {
-                        false
-                    }
+                    _ => false,
                 }
             } else {
                 false
@@ -219,17 +213,11 @@ fn check_syntax_else(expr_block: ExprBlock, db: &dyn SyntaxGroup, manual_lint: M
                         false
                     }
                 }
-                _ => {
-                    false
-                }
+                _ => false,
             }
         }
-        ManualLint::ManualIsSome => {
-            expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "false"
-        }
-        ManualLint::ManualIsNone => {
-            expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "true"
-        }
+        ManualLint::ManualIsSome => expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "false",
+        ManualLint::ManualIsNone => expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "true",
         ManualLint::ManualExpect => {
             let statement = expr_block.statements(db).elements(db)[0].clone();
 
@@ -245,9 +233,7 @@ fn check_syntax_else(expr_block: ExprBlock, db: &dyn SyntaxGroup, manual_lint: M
                         false
                     }
                 }
-                _ => {
-                    false
-                }
+                _ => false,
             }
         }
     }
