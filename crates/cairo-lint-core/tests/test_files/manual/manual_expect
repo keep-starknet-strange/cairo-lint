@@ -200,4 +200,66 @@ fn main() {
     let _a = foo(a).expect('err');
 }
 
+//! > ==========================================================================
+
+//! > test manual if
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        val
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = if let Option::Some(val) = opt_val {
+  |  ______________-
+5 | |         val
+6 | |     } else {
+7 | |         core::panic_with_felt252('panic')
+8 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = opt_val.expect('panic');
+}
+
+//! > ==========================================================================
+
+//! > test manual if with additional instructions
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        let val = val + 1;
+        val
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        let val = val + 1;
+        val
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
 
