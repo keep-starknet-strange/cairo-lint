@@ -10,8 +10,10 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
-    bitwise_for_parity_check, bool_comparison, breaks, comparison_to_empty, double_comparison, double_parens,
-    duplicate_underscore_args, eq_op, erasing_op, loop_for_while, loops, panic, single_match,
+    bitwise_for_parity_check, bool_comparison, bool_comparison, breaks, breaks, comparison_to_empty,
+    comparison_to_empty, double_comparison, double_comparison, double_parens, double_parens, duplicate_underscore_args,
+    duplicate_underscore_args, eq_op, eq_op, erasing_op, erasing_op, loop_for_while, loop_for_while, loops, loops,
+    panic, panic, single_match, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
