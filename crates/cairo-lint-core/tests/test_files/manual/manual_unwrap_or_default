@@ -110,10 +110,8 @@ fn main() {
   let a: Option<ByteArray> = Option::Some("Helok");
 
   if let Option::Some(_) = a {
-    // testing with comments
     100
    } else {
-    // testing with comments
     0
   };
 }
@@ -125,10 +123,8 @@ fn main() {
   let a: Option<ByteArray> = Option::Some("Helok");
 
   if let Option::Some(_) = a {
-    // testing with comments
     100
    } else {
-    // testing with comments
     0
   };
 }

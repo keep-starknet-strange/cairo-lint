@@ -246,6 +246,7 @@ test_file!(
     "manual unwrap or default for if let with comments",
     "manual unwrap or default for if let with tuple without trigger",
     "manual unwrap or default for if let with different type not trigger",
+    "manual unwrap or default for if let without trigger",
     "manual unwrap or default for match with tuple without trigger",
     "manual unwrap or default for match with zero integer",
     "manual unwrap or default for match with empty string",
@@ -254,10 +255,9 @@ test_file!(
     "manual unwrap or default for match with fixed array",
     "manual unwrap or default for match with tuple",
     "manual unwrap or default for match with array!",
-    "manual unwrap or default for match with comments",
-    "manual unwrap or default for if let without trigger",
     "manual unwrap or default for match with without trigger",
-    "manual unwrap or default for match with different type not trigger"
+    "manual unwrap or default for match with different type not trigger",
+    "manual unwrap or default for match with comments"
 );
 
 test_file!(
