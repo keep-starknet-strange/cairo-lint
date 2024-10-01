@@ -11,4 +11,4 @@ pub mod loops;
 pub mod manual;
 pub mod panic;
 pub mod single_match;
-// pub mod comparison_to_empty;
+pub mod comparison_to_empty;

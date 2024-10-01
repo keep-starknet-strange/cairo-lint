@@ -18,11 +18,11 @@ pub fn check_comparison_to_empty(
             let rhs = binary_expr.rhs(db);
 
             if is_empty_array(db, &lhs) || is_empty_array(db, &rhs) {
-                diagnostics.push(create_diagnostic(
-                    COMPARISON_TO_EMPTY,
-                    expr.stable_ptr().untyped(),
-                    Severity::Warning,
-                ));
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: expr.stable_ptr().untyped(),
+                    message: COMPARISON_TO_EMPTY.to_string(),
+                    severity: Severity::Warning,
+                });
             }
         }
     }
@@ -35,8 +35,4 @@ fn is_empty_array(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
     } else {
         false
     }
-}
-
-fn create_diagnostic(message: &str, stable_ptr: SyntaxStablePtrId, severity: Severity) -> PluginDiagnostic {
-    PluginDiagnostic { stable_ptr, message: message.to_string(), severity }
 }
