@@ -177,16 +177,10 @@ pub fn check_is_default(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
                 false
             }
         }
-        Expr::Block(expr_block) => {
-            let mut statements_check = false;
-            for statement in expr_block.statements(db).elements(db) {
-                statements_check = match statement {
-                    Statement::Expr(statement_expr) => check_is_default(db, &statement_expr.expr(db)),
-                    _ => false,
-                }
-            }
-            statements_check
-        }
+        Expr::Block(expr_block) => match &expr_block.statements(db).elements(db)[0] {
+            Statement::Expr(statement_expr) => check_is_default(db, &statement_expr.expr(db)),
+            _ => false,
+        },
         Expr::InlineMacro(expr_macro) => expr_macro.as_syntax_node().get_text_without_trivia(db) == "array![]",
         Expr::FixedSizeArray(expr_arr) => expr_arr.exprs(db).elements(db).iter().all(|expr| check_is_default(db, expr)),
         Expr::Literal(expr_literal) => expr_literal.as_syntax_node().get_text_without_trivia(db) == "0",
