@@ -256,5 +256,8 @@ test_file!(
     "test with comment in None",
     "test match expression is a function",
     "test manual if",
-    "test manual if with additional instructions"
+    "test manual if with additional instructions",
+    "test manual result if",
+    "test manual match result",
+    "test manual match result with unwrapped error"
 );
