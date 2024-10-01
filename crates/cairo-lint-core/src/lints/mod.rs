@@ -1,6 +1,7 @@
 pub mod bitwise_for_parity_check;
 pub mod bool_comparison;
 pub mod breaks;
+pub mod comparison_to_empty;
 pub mod double_comparison;
 pub mod double_parens;
 pub mod duplicate_underscore_args;
@@ -11,4 +12,3 @@ pub mod loops;
 pub mod manual;
 pub mod panic;
 pub mod single_match;
-pub mod comparison_to_empty;

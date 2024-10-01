@@ -2,16 +2,11 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::ids::SyntaxStablePtrId;
-use cairo_lang_syntax::node::{TypedSyntaxNode, TypedStablePtr};
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const COMPARISON_TO_EMPTY: &str = "Consider using `.is_empty()` instead of comparing to an empty array.";
 
-pub fn check_comparison_to_empty(
-    db: &dyn SyntaxGroup,
-    expr: &Expr,
-    diagnostics: &mut Vec<PluginDiagnostic>,
-) {
+pub fn check_comparison_to_empty(db: &dyn SyntaxGroup, expr: &Expr, diagnostics: &mut Vec<PluginDiagnostic>) {
     if let Expr::Binary(binary_expr) = expr {
         if let BinaryOperator::Eq(_) = binary_expr.op(db) {
             let lhs = binary_expr.lhs(db);
