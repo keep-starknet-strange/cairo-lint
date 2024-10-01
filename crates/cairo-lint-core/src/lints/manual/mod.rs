@@ -5,9 +5,8 @@ pub mod manual_is_some;
 pub mod manual_ok_or;
 pub mod manual_unwrap_or_default;
 
-use cairo_lang_syntax::node::ast::{Condition, Expr, ExprIf, ExprMatch, MatchArm, Pattern};
+use cairo_lang_syntax::node::ast::{Condition, Expr, ExprIf, ExprMatch, MatchArm, Pattern, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use helpers::*;
 
@@ -69,37 +68,9 @@ fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manu
             db,
             arm.expression(db).as_syntax_node().get_text_without_trivia(db),
         ),
-        ManualLint::ManualUnwrapOrDefault => match &arm.patterns(db).elements(db)[0] {
-            Pattern::Enum(enum_pattern) => {
-                let enum_arg = enum_pattern.pattern(db);
-                match enum_arg {
-                    OptionPatternEnumInnerPattern::PatternEnumInnerPattern(x) => {
-                        match arm.expression(db).as_syntax_node().kind(db) {
-                            SyntaxKind::ExprBlock => {
-                                if let Expr::Block(expr_block) = arm.expression(db) {
-                                    let statement = expr_block.statements(db).elements(db)[0].clone();
-                                    return statement.as_syntax_node().get_text_without_trivia(db)
-                                        == x.pattern(db).as_syntax_node().get_text_without_trivia(db);
-                                } else {
-                                    return false;
-                                }
-                            }
-                            SyntaxKind::ExprPath => {
-                                return x.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                                    == arm.expression(db).as_syntax_node().get_text_without_trivia(db);
-                            }
-                            _ => return false,
-                        }
-                    }
-                    OptionPatternEnumInnerPattern::Empty(_) => {
-                        return false;
-                    }
-                }
-            }
-            _ => {
-                return false;
-            }
-        },
+        ManualLint::ManualUnwrapOrDefault => {
+            pattern_check_enum_expr(&arm.patterns(db).elements(db)[0], db, &arm.expression(db))
+        }
         _ => false,
     }
 }
@@ -129,6 +100,7 @@ fn check_syntax_none_arm(arm_expression: Expr, db: &dyn SyntaxGroup, manual_lint
                 false
             }
         }
+        ManualLint::ManualUnwrapOrDefault => check_is_default(db, &arm_expression),
         _ => false,
     }
 }
@@ -144,7 +116,6 @@ fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manua
                 false
             }
         }
-        ManualLint::ManualUnwrapOrDefault => return check_is_default(db, &arm_expression),
         _ => false,
     }
 }
@@ -240,26 +211,8 @@ fn check_syntax_opt_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualL
         ManualLint::ManualIsNone => {
             expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "false"
         }
-       ManualLint::ManualOptExpect => expr_check_inner_pattern_is_if_block_statement(expr, db)
-       ManualLint::ManualUnwrapOrDefault => {
-            if let Condition::Let(condition_let) = expr.condition(db) {
-                match &condition_let.patterns(db).elements(db)[0] {
-                    Pattern::Enum(enum_pattern) => {
-                        let enum_arg = enum_pattern.pattern(db);
-                        match enum_arg {
-                            OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                                inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                                    == expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db)
-                            }
-                            OptionPatternEnumInnerPattern::Empty(_) => false,
-                        }
-                    }
-                    _ => false,
-                }
-            } else {
-                false
-            }
-        },
+        ManualLint::ManualOptExpect => expr_check_inner_pattern_is_if_block_statement(expr, db),
+        ManualLint::ManualUnwrapOrDefault => expr_check_inner_pattern_is_if_block_statement(expr, db),
         _ => false,
     }
 }
@@ -282,7 +235,7 @@ fn check_syntax_opt_else(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: Manua
         }
         ManualLint::ManualIsSome => expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "false",
         ManualLint::ManualIsNone => expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "true",
-         ManualLint::ManualOptExpect => statement_check_func_name(
+        ManualLint::ManualOptExpect => statement_check_func_name(
             expr_block.statements(db).elements(db)[0].clone(),
             db,
             &["core::panic_with_felt252", "panic_with_felt252"],

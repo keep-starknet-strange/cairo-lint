@@ -2,6 +2,7 @@ use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition, Expr, ExprBlock, ExprIf, OptionElseClause, OptionPatternEnumInnerPattern, Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
 /// Checks if the input statement is a `FunctionCall` then checks if the function name is one of the
@@ -46,6 +47,43 @@ pub fn pattern_check_enum_arg(pattern: &Pattern, db: &dyn SyntaxGroup, arg_name:
                 OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
                     inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db) == arg_name
                 }
+                OptionPatternEnumInnerPattern::Empty(_) => false,
+            }
+        }
+        _ => false,
+    }
+}
+
+/// Checks if the inner_pattern in the input `Pattern::Enum` matches the given expr
+///
+/// # Arguments
+/// * `pattern` - The pattern to check.
+/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+/// * `expr` - the expr.
+///
+/// # Returns
+/// * `true` if the expr matches, otherwise `false`.
+pub fn pattern_check_enum_expr(pattern: &Pattern, db: &dyn SyntaxGroup, expr: &Expr) -> bool {
+    match pattern {
+        Pattern::Enum(enum_pattern) => {
+            let enum_arg = enum_pattern.pattern(db);
+            match enum_arg {
+                OptionPatternEnumInnerPattern::PatternEnumInnerPattern(x) => match expr.as_syntax_node().kind(db) {
+                    SyntaxKind::ExprBlock => {
+                        if let Expr::Block(expr_block) = expr {
+                            let statement = expr_block.statements(db).elements(db)[0].clone();
+                            statement.as_syntax_node().get_text_without_trivia(db)
+                                == x.pattern(db).as_syntax_node().get_text_without_trivia(db)
+                        } else {
+                            false
+                        }
+                    }
+                    SyntaxKind::ExprPath => {
+                        x.pattern(db).as_syntax_node().get_text_without_trivia(db)
+                            == expr.as_syntax_node().get_text_without_trivia(db)
+                    }
+                    _ => false,
+                },
                 OptionPatternEnumInnerPattern::Empty(_) => false,
             }
         }
@@ -114,5 +152,48 @@ pub fn get_else_expr_block(else_clause: OptionElseClause, db: &dyn SyntaxGroup) 
             BlockOrIf::Block(expr_block) => Some(expr_block),
             _ => None,
         },
+    }
+}
+
+/// Checks if the input `Expr` is a default of the expr kind.
+///
+/// # Arguments
+/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+/// * `expr` - The target expr.
+///
+/// # Returns
+/// * `true` if the expression is a default otherwise `false`.
+
+pub fn check_is_default(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
+    match expr {
+        Expr::FunctionCall(func_call) => {
+            let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
+            func_name == "Default::default" || func_name == "ArrayTrait::new"
+        }
+        Expr::False(expr_false) => !expr_false.boolean_value(),
+        Expr::String(expr_str) => {
+            if let Some(str) = expr_str.string_value(db) {
+                str.is_empty()
+            } else {
+                false
+            }
+        }
+        Expr::Block(expr_block) => {
+            let mut statements_check = false;
+            for statement in expr_block.statements(db).elements(db) {
+                statements_check = match statement {
+                    Statement::Expr(statement_expr) => check_is_default(db, &statement_expr.expr(db)),
+                    _ => false,
+                }
+            }
+            statements_check
+        }
+        Expr::InlineMacro(expr_macro) => expr_macro.as_syntax_node().get_text_without_trivia(db) == "array![]",
+        Expr::FixedSizeArray(expr_arr) => expr_arr.exprs(db).elements(db).iter().all(|expr| check_is_default(db, expr)),
+        Expr::Literal(expr_literal) => expr_literal.as_syntax_node().get_text_without_trivia(db) == "0",
+        Expr::Tuple(expr_tuple) => {
+            expr_tuple.expressions(db).elements(db).iter().all(|expr| check_is_default(db, expr))
+        }
+        _ => false,
     }
 }
