@@ -597,6 +597,14 @@ fn expr_match_get_var_name_and_err(expr_match: ExprMatch, db: &dyn SyntaxGroup) 
                     }
                     _ => panic!("Expected a function call expression"),
                 },
+                "Result::Err" => match second_arm.expression(db) {
+                    Expr::FunctionCall(func_call) => {
+                        let args = func_call.arguments(db).arguments(db).elements(db);
+                        let arg = args.first().expect("Should have arg");
+                        arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                    }
+                    _ => panic!("Expected a function call expression"),
+                },
                 _ => panic!("Expected Option::None enum pattern"),
             }
         }
