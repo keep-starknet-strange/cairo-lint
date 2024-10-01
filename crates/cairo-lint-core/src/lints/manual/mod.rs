@@ -1,14 +1,13 @@
+pub mod helpers;
 pub mod manual_expect;
 pub mod manual_is_none;
 pub mod manual_is_some;
 pub mod manual_ok_or;
 
-use cairo_lang_syntax::node::ast::{
-    BlockOrIf, Condition, Expr, ExprIf, ExprMatch, MatchArm, OptionElseClause, OptionPatternEnumInnerPattern, Pattern,
-    Statement,
-};
+use cairo_lang_syntax::node::ast::{Condition, Expr, ExprIf, ExprMatch, MatchArm, Pattern};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
+use helpers::*;
 
 #[derive(Copy, Clone, Debug)]
 pub enum ManualLint {
@@ -58,60 +57,32 @@ pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: M
 
 fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
-        ManualLint::ManualOkOr => {
-            if let Expr::FunctionCall(func_call) = arm.expression(db) {
-                func_call.path(db).as_syntax_node().get_text(db) == "Result::Ok"
-            } else {
-                false
-            }
-        }
+        ManualLint::ManualOkOr => arm_expr_check_func_name(arm.expression(db), db, "Result::Ok"),
         ManualLint::ManualIsSome => arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "true",
         ManualLint::ManualIsNone => arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "false",
-        ManualLint::ManualOptExpect => match &arm.patterns(db).elements(db)[0] {
-            Pattern::Enum(enum_pattern) => {
-                let enum_arg = enum_pattern.pattern(db);
-                match enum_arg {
-                    OptionPatternEnumInnerPattern::PatternEnumInnerPattern(x) => {
-                        x.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                            == arm.expression(db).as_syntax_node().get_text_without_trivia(db)
-                    }
-                    OptionPatternEnumInnerPattern::Empty(_) => false,
-                }
-            }
-            _ => false,
-        },
+        ManualLint::ManualOptExpect => pattern_check_enum_arg(
+            &arm.patterns(db).elements(db)[0],
+            db,
+            arm.expression(db).as_syntax_node().get_text_without_trivia(db),
+        ),
         _ => false,
     }
 }
 
 fn check_syntax_ok_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
-        ManualLint::ManualResExpect => match &arm.patterns(db).elements(db)[0] {
-            Pattern::Enum(enum_pattern) => {
-                let enum_arg = enum_pattern.pattern(db);
-                match enum_arg {
-                    OptionPatternEnumInnerPattern::PatternEnumInnerPattern(x) => {
-                        x.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                            == arm.expression(db).as_syntax_node().get_text_without_trivia(db)
-                    }
-                    OptionPatternEnumInnerPattern::Empty(_) => false,
-                }
-            }
-            _ => false,
-        },
+        ManualLint::ManualResExpect => pattern_check_enum_arg(
+            &arm.patterns(db).elements(db)[0],
+            db,
+            arm.expression(db).as_syntax_node().get_text_without_trivia(db),
+        ),
         _ => false,
     }
 }
 
 fn check_syntax_none_arm(arm_expression: Expr, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
-        ManualLint::ManualOkOr => {
-            if let Expr::FunctionCall(func_call) = arm_expression {
-                func_call.path(db).as_syntax_node().get_text(db) == "Result::Err"
-            } else {
-                false
-            }
-        }
+        ManualLint::ManualOkOr => arm_expr_check_func_name(arm_expression, db, "Result::Err"),
         ManualLint::ManualIsSome => arm_expression.as_syntax_node().get_text_without_trivia(db) == "false",
         ManualLint::ManualIsNone => arm_expression.as_syntax_node().get_text_without_trivia(db) == "true",
         ManualLint::ManualOptExpect => {
@@ -133,24 +104,9 @@ fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manua
             if let Expr::FunctionCall(func_call) = arm.expression(db) {
                 let func_name = func_call.path(db).as_syntax_node().get_text(db);
 
-                let func_arg = match &arm.patterns(db).elements(db)[0] {
-                    Pattern::Enum(enum_pattern) => {
-                        let enum_arg = enum_pattern.pattern(db);
-                        match enum_arg {
-                            OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                                inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                            }
-                            OptionPatternEnumInnerPattern::Empty(_) => {
-                                return false;
-                            }
-                        }
-                    }
-                    _ => {
-                        return false;
-                    }
-                };
+                let func_arg = pattern_check_enum_arg(&arm.patterns(db).elements(db)[0], db, "_".to_string());
 
-                (func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252") && func_arg == "_"
+                (func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252") && func_arg
             } else {
                 false
             }
@@ -208,21 +164,7 @@ pub fn check_manual_if(db: &dyn SyntaxGroup, expr: &ExprIf, manual_lint: ManualL
 fn check_syntax_opt_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
         ManualLint::ManualOkOr => {
-            let statement = expr.if_block(db).statements(db).elements(db)[0].clone();
-
-            match statement {
-                Statement::Expr(statement_expr) => {
-                    let expr = statement_expr.expr(db);
-                    if let Expr::FunctionCall(func_call) = expr {
-                        let func_name: String = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
-
-                        func_name == "Result::Ok"
-                    } else {
-                        false
-                    }
-                }
-                _ => false,
-            }
+            statement_check_func_name(expr.if_block(db).statements(db).elements(db)[0].clone(), db, &["Result::Ok"])
         }
         ManualLint::ManualIsSome => {
             expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "true"
@@ -230,135 +172,49 @@ fn check_syntax_opt_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualL
         ManualLint::ManualIsNone => {
             expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "false"
         }
-        ManualLint::ManualOptExpect => {
-            if let Condition::Let(condition_let) = expr.condition(db) {
-                match &condition_let.patterns(db).elements(db)[0] {
-                    Pattern::Enum(enum_pattern) => {
-                        let enum_arg = enum_pattern.pattern(db);
-                        match enum_arg {
-                            OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                                inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                                    == expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db)
-                            }
-                            OptionPatternEnumInnerPattern::Empty(_) => false,
-                        }
-                    }
-                    _ => false,
-                }
-            } else {
-                false
-            }
-        }
+        ManualLint::ManualOptExpect => expr_check_inner_pattern_is_if_block_statement(expr, db),
         _ => false,
     }
 }
 
 fn check_syntax_res_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
-        ManualLint::ManualResExpect => {
-            if let Condition::Let(condition_let) = expr.condition(db) {
-                match &condition_let.patterns(db).elements(db)[0] {
-                    Pattern::Enum(enum_pattern) => {
-                        let enum_arg = enum_pattern.pattern(db);
-                        match enum_arg {
-                            OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                                inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                                    == expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db)
-                            }
-                            OptionPatternEnumInnerPattern::Empty(_) => false,
-                        }
-                    }
-                    _ => false,
-                }
-            } else {
-                false
-            }
-        }
+        ManualLint::ManualResExpect => expr_check_inner_pattern_is_if_block_statement(expr, db),
         _ => false,
     }
 }
 
 fn check_syntax_opt_else(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
-    let expr_block = match expr.else_clause(db) {
-        OptionElseClause::Empty(_) => {
-            return false;
-        }
-        OptionElseClause::ElseClause(else_clase) => match else_clase.else_block_or_if(db) {
-            BlockOrIf::Block(expr_block) => expr_block,
-            _ => {
-                return false;
-            }
-        },
+    let expr_block = match get_else_expr_block(expr.else_clause(db), db) {
+        Some(block) => block,
+        None => return false,
     };
     match manual_lint {
         ManualLint::ManualOkOr => {
-            let statement = expr_block.statements(db).elements(db)[0].clone();
-
-            match statement {
-                Statement::Expr(statement_expr) => {
-                    let expr = statement_expr.expr(db);
-                    if let Expr::FunctionCall(func_call) = expr {
-                        let func_name: String = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
-                        func_name == "Result::Err"
-                    } else {
-                        false
-                    }
-                }
-                _ => false,
-            }
+            statement_check_func_name(expr_block.statements(db).elements(db)[0].clone(), db, &["Result::Err"])
         }
         ManualLint::ManualIsSome => expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "false",
         ManualLint::ManualIsNone => expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "true",
-        ManualLint::ManualOptExpect => {
-            let statement = expr_block.statements(db).elements(db)[0].clone();
-
-            match statement {
-                Statement::Expr(statement_expr) => {
-                    let expr = statement_expr.expr(db);
-                    if let Expr::FunctionCall(func_call) = expr {
-                        let func_name: String = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
-                        func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252"
-                    } else {
-                        false
-                    }
-                }
-                _ => false,
-            }
-        }
+        ManualLint::ManualOptExpect => statement_check_func_name(
+            expr_block.statements(db).elements(db)[0].clone(),
+            db,
+            &["core::panic_with_felt252", "panic_with_felt252"],
+        ),
         _ => false,
     }
 }
 
 fn check_syntax_res_else(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
-    let expr_block = match expr.else_clause(db) {
-        OptionElseClause::Empty(_) => {
-            return false;
-        }
-        OptionElseClause::ElseClause(else_clase) => match else_clase.else_block_or_if(db) {
-            BlockOrIf::Block(expr_block) => expr_block,
-            _ => {
-                return false;
-            }
-        },
+    let expr_block = match get_else_expr_block(expr.else_clause(db), db) {
+        Some(block) => block,
+        None => return false,
     };
     match manual_lint {
-        ManualLint::ManualResExpect => {
-            let statement = expr_block.statements(db).elements(db)[0].clone();
-
-            match statement {
-                Statement::Expr(statement_expr) => {
-                    let expr = statement_expr.expr(db);
-                    if let Expr::FunctionCall(func_call) = expr {
-                        let func_name: String = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
-
-                        func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252"
-                    } else {
-                        false
-                    }
-                }
-                _ => false,
-            }
-        }
+        ManualLint::ManualResExpect => statement_check_func_name(
+            expr_block.statements(db).elements(db)[0].clone(),
+            db,
+            &["core::panic_with_felt252", "panic_with_felt252"],
+        ),
         _ => false,
     }
 }
