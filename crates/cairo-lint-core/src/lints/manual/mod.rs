@@ -120,40 +120,6 @@ fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manua
     }
 }
 
-fn check_is_default(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
-    match expr {
-        Expr::FunctionCall(func_call) => {
-            let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
-            func_name == "Default::default" || func_name == "ArrayTrait::new"
-        }
-        Expr::False(expr_false) => !expr_false.boolean_value(),
-        Expr::String(expr_str) => {
-            if let Some(str) = expr_str.string_value(db) {
-                str.is_empty()
-            } else {
-                false
-            }
-        }
-        Expr::Block(expr_block) => {
-            let mut statements_check = false;
-            for statement in expr_block.statements(db).elements(db) {
-                statements_check = match statement {
-                    Statement::Expr(statement_expr) => check_is_default(db, &statement_expr.expr(db)),
-                    _ => false,
-                }
-            }
-            statements_check
-        }
-        Expr::InlineMacro(expr_macro) => expr_macro.as_syntax_node().get_text_without_trivia(db) == "array![]",
-        Expr::FixedSizeArray(expr_arr) => expr_arr.exprs(db).elements(db).iter().all(|expr| check_is_default(db, expr)),
-        Expr::Literal(expr_literal) => expr_literal.as_syntax_node().get_text_without_trivia(db) == "0",
-        Expr::Tuple(expr_tuple) => {
-            expr_tuple.expressions(db).elements(db).iter().all(|expr| check_is_default(db, expr))
-        }
-        _ => false,
-    }
-}
-
 pub fn check_manual_if(db: &dyn SyntaxGroup, expr: &ExprIf, manual_lint: ManualLint) -> bool {
     let found_option = if let Condition::Let(condition_let) = expr.condition(db) {
         match &condition_let.patterns(db).elements(db)[0] {
