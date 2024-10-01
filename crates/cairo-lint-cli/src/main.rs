@@ -141,7 +141,10 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 &metadata.packages,
             )?;
             update_crate_roots_from_project_config(&mut db, &config);
-            let crate_id = db.intern_crate(CrateLongId::Real(SmolStr::new(&compilation_unit.target.name)));
+            let crate_id = db.intern_crate(CrateLongId::Real {
+                name: SmolStr::new(&compilation_unit.target.name),
+                version: Some(package.version.clone()),
+            });
             // Get all the diagnostics
             let mut diags = Vec::new();
 
