@@ -1,0 +1,369 @@
+//! > loop with arithmetic condition
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 5;
+    loop {
+        if x * 2 >= 20 {
+            break;
+        }
+        x += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:4:5
+  |
+4 |       loop {
+  |  _____-
+5 | |         if x * 2 >= 20 {
+... |
+8 | |         x += 1;
+9 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 5;
+    while x * 2 < 20 {
+        x += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with arithmetic condition and else block
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 5;
+    loop {
+        if x * 2 >= 20 {
+            break;
+        } else {
+            x += 1;
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:4:5
+   |
+ 4 |       loop {
+   |  _____-
+ 5 | |         if x * 2 >= 20 {
+...  |
+ 9 | |         }
+10 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 5;
+    while x * 2 < 20 {
+        x += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with arithmetic condition and second increment
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 5;
+    loop {
+        if x * 2 >= 20 {
+            break;
+        } else {
+            x += 1;
+        }
+        x += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:4:5
+   |
+ 4 |       loop {
+   |  _____-
+ 5 | |         if x * 2 >= 20 {
+...  |
+10 | |         x += 1;
+11 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 5;
+    while x * 2 < 20 {
+        x += 1;
+        x += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with comparison condition
+
+//! > cairo_code
+fn main() {
+    let mut counter: u16 = 0;
+    loop {
+        if counter > 5 {
+            break;
+        }
+        counter += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:4:5
+  |
+4 |       loop {
+  |  _____-
+5 | |         if counter > 5 {
+... |
+8 | |         counter += 1;
+9 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let mut counter: u16 = 0;
+    while counter <= 5 {
+        counter += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with condition depending on external variable
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 0;
+    let limit: u16 = 15;
+    loop {
+        if x >= limit {
+            break;
+        }
+        x += 2;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:6:5
+   |
+ 6 |       loop {
+   |  _____-
+ 7 | |         if x >= limit {
+...  |
+10 | |         x += 2;
+11 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 0;
+    let limit: u16 = 15;
+    while x < limit {
+        x += 2;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with multiple condition inside if block
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 5;
+    loop {
+        if x * 2 >= 20 {
+            if x > 30 {
+                break;
+            }
+        } else {
+            x += 1;
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 5;
+    loop {
+        if x * 2 >= 20 {
+            if x > 30 {
+                break;
+            }
+        } else {
+            x += 1;
+        }
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with multiple conditions
+
+//! > cairo_code
+fn main() {
+    let mut a: u16 = 0;
+    let mut b: u16 = 0;
+    loop {
+        if a > 10 && b < 5 {
+            break;
+        }
+        a += 1;
+        b += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:6:5
+   |
+ 6 |       loop {
+   |  _____-
+ 7 | |         if a > 10 && b < 5 {
+...  |
+11 | |         b += 1;
+12 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut a: u16 = 0;
+    let mut b: u16 = 0;
+    while a <= 10 || b >= 5 {
+        a += 1;
+        b += 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with multiple increments and comparison
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 0;
+    let mut y: u16 = 10;
+    loop {
+        if x > 5 || y == 0 {
+            break;
+        }
+        x += 2;
+        y -= 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+  --> lib.cairo:6:5
+   |
+ 6 |       loop {
+   |  _____-
+ 7 | |         if x > 5 || y == 0 {
+...  |
+11 | |         y -= 1;
+12 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 0;
+    let mut y: u16 = 10;
+    while x <= 5 && y != 0 {
+        x += 2;
+        y -= 1;
+    }
+}
+
+//! > ==========================================================================
+
+//! > loop with negative condition
+
+//! > cairo_code
+fn main() {
+    let mut value: u16 = 100;
+    loop {
+        if value < 0 {
+            break;
+        }
+        value -= 10;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:4:5
+  |
+4 |       loop {
+  |  _____-
+5 | |         if value < 0 {
+... |
+8 | |         value -= 10;
+9 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let mut value: u16 = 100;
+    while value >= 0 {
+        value -= 10;
+    }
+}
+
+//! > ==========================================================================
+
+//! > simple loop with break
+
+//! > cairo_code
+fn main() {
+    let mut x: u16 = 0;
+    loop {
+        if x == 10 {
+            break;
+        }
+        x += 1;
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+ --> lib.cairo:4:5
+  |
+4 |       loop {
+  |  _____-
+5 | |         if x == 10 {
+... |
+8 | |         x += 1;
+9 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let mut x: u16 = 0;
+    while x != 10 {
+        x += 1;
+    }
+}

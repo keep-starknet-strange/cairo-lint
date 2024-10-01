@@ -1,0 +1,352 @@
+//! > test core::panic_with_felt252
+
+//! > cairo_code
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(x) => x,
+        Option::None => core::panic_with_felt252('err'),
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:4:16
+  |
+4 |       let _foo = match foo {
+  |  ________________-
+5 | |         Option::Some(x) => x,
+6 | |         Option::None => core::panic_with_felt252('err'),
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = foo.expect('err');
+}
+
+//! > ==========================================================================
+
+//! > test panic_with_felt252
+
+//! > cairo_code
+use core::panic_with_felt252;
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(x) => x,
+        Option::None => panic_with_felt252('err'),
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:6:16
+  |
+6 |       let _foo = match foo {
+  |  ________________-
+7 | |         Option::Some(x) => x,
+8 | |         Option::None => panic_with_felt252('err'),
+9 | |     };
+  | |_____-
+  |
+
+//! > fixed
+use core::panic_with_felt252;
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = foo.expect('err');
+}
+
+//! > ==========================================================================
+
+//! > test with enum error
+
+//! > cairo_code
+mod Error {
+    pub const Error: felt252 = 'this is an err';
+}
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(x) => x,
+        Option::None => core::panic_with_felt252(Error::Error),
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+  --> lib.cairo:10:16
+   |
+10 |       let _foo = match foo {
+   |  ________________-
+11 | |         Option::Some(x) => x,
+12 | |         Option::None => core::panic_with_felt252(Error::Error),
+13 | |     };
+   | |_____-
+   |
+
+//! > fixed
+mod Error {
+    pub const Error: felt252 = 'this is an err';
+}
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = foo.expect(Error::Error);
+}
+
+//! > ==========================================================================
+
+//! > test with comment in Some
+
+//! > cairo_code
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(x) => {
+            // do something
+            x
+        },
+        Option::None => core::panic_with_felt252('err'),
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(x) => {
+            // do something
+            x
+        },
+        Option::None => core::panic_with_felt252('err'),
+    };
+}
+
+//! > ==========================================================================
+
+//! > test with comment in None
+
+//! > cairo_code
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(x) => x,
+        Option::None => 
+        {
+            // do something
+            core::panic_with_felt252('err')
+        },
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(x) => x,
+        Option::None => 
+        {
+            // do something
+            core::panic_with_felt252('err')
+        },
+    };
+}
+
+//! > ==========================================================================
+
+//! > test match expression is a function
+
+//! > cairo_code
+fn foo(a: u256) -> Option<u256> {
+    Option::Some(a)
+} 
+fn main() {
+    let a: u256 = 0; 
+    let _a = match foo(a) {
+        Option::Some(value) => value,
+        Option::None => core::panic_with_felt252('err')
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+  --> lib.cairo:10:14
+   |
+10 |       let _a = match foo(a) {
+   |  ______________-
+11 | |         Option::Some(value) => value,
+12 | |         Option::None => core::panic_with_felt252('err')
+13 | |     };
+   | |_____-
+   |
+
+//! > fixed
+fn foo(a: u256) -> Option<u256> {
+    Option::Some(a)
+} 
+fn main() {
+    let a: u256 = 0; 
+    let _a = foo(a).expect('err');
+}
+
+//! > ==========================================================================
+
+//! > test manual if
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        val
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = if let Option::Some(val) = opt_val {
+  |  ______________-
+5 | |         val
+6 | |     } else {
+7 | |         core::panic_with_felt252('panic')
+8 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = opt_val.expect('panic');
+}
+
+//! > ==========================================================================
+
+//! > test manual if with additional instructions
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        let val = val + 1;
+        val
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(val) = opt_val {
+        let val = val + 1;
+        val
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > ==========================================================================
+
+//! > test manual result if
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = if let Result::Ok(x) = res_val {
+        x
+    } else {
+        core::panic_with_felt252('err')
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = if let Result::Ok(x) = res_val {
+  |  ______________-
+5 | |         x
+6 | |     } else {
+7 | |         core::panic_with_felt252('err')
+8 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.expect('err');
+}
+
+//! > ==========================================================================
+
+//! > test manual match result
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = match res_val {
+        Result::Ok(val) => val,
+        Result::Err(_) => core::panic_with_felt252('error')
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = match res_val {
+  |  ______________-
+5 | |         Result::Ok(val) => val,
+6 | |         Result::Err(_) => core::panic_with_felt252('error')
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.expect('error');
+}
+
+//! > ==========================================================================
+
+//! > test manual match result with unwrapped error
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = match res_val {
+        Result::Ok(val) => val,
+        Result::Err(err) => core::panic_with_felt252(err)
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = match res_val {
+        Result::Ok(val) => val,
+        Result::Err(err) => core::panic_with_felt252(err)
+    };
+}

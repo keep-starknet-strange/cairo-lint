@@ -4,10 +4,11 @@ use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::ast::{
-    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionPatternEnumInnerPattern,
-    Pattern, Statement,
+    BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
+    OptionPatternEnumInnerPattern, Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::debug;
@@ -19,6 +20,8 @@ use crate::plugin::{diagnostic_kind_from_message, CairoLintKind};
 
 mod import_fixes;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
+mod helper;
+use helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
@@ -180,6 +183,11 @@ impl Fixer {
             CairoLintKind::LoopMatchPopFront => {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
+            CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualExpect => self.fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -328,7 +336,7 @@ impl Fixer {
         else_clause.as_syntax_node().get_text(db)
     }
 
-    /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
+    /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
     pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
         let expr = Expr::from_syntax_node(db, node.clone());
 
@@ -378,4 +386,237 @@ impl Fixer {
             expr.if_block(db).as_syntax_node().get_text(db),
         )
     }
+
+    /// Converts a `loop` with a conditionally-breaking `if` statement into a `while` loop.
+    ///
+    /// This function transforms loops that have a conditional `if` statement
+    /// followed by a `break` into a `while` loop, which can simplify the logic
+    /// and improve readability.
+    ///
+    /// # Arguments
+    ///
+    /// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+    /// * `node` - The `SyntaxNode` representing the loop expression.
+    ///
+    /// # Returns
+    ///
+    /// A `String` containing the transformed loop as a `while` loop, preserving
+    /// the original formatting and indentation.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut x = 0;
+    /// loop {
+    ///     if x > 5 {
+    ///         break;
+    ///     }
+    ///     x += 1;
+    /// }
+    /// ```
+    ///
+    /// Would be converted to:
+    ///
+    /// ```
+    /// let mut x = 0;
+    /// while x <= 5 {
+    ///     x += 1;
+    /// }
+    /// ```
+    pub fn fix_loop_break(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        let loop_expr = ExprLoop::from_syntax_node(db, node.clone());
+        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+        let mut condition_text = String::new();
+        let mut loop_body = String::new();
+
+        if let Some(Statement::Expr(expr_statement)) = loop_expr.body(db).statements(db).elements(db).first() {
+            if let Expr::If(if_expr) = expr_statement.expr(db) {
+                condition_text = invert_condition(&if_expr.condition(db).as_syntax_node().get_text_without_trivia(db));
+
+                loop_body.push_str(&remove_break_from_block(db, if_expr.if_block(db), &indent));
+
+                if let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) {
+                    loop_body.push_str(&remove_break_from_else_clause(db, else_clause, &indent));
+                }
+            }
+        }
+
+        for statement in loop_expr.body(db).statements(db).elements(db).iter().skip(1) {
+            loop_body.push_str(&format!("{}    {}\n", indent, statement.as_syntax_node().get_text_without_trivia(db)));
+        }
+
+        format!("{}while {} {{\n{}{}}}\n", indent, condition_text, loop_body, indent)
+    }
+
+    /// Rewrites a manual implementation of ok_or
+    pub fn fix_manual_ok_or(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        match node.kind(db) {
+            SyntaxKind::ExprMatch => {
+                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+
+                let (option_var_name, none_arm_err) = expr_match_get_var_name_and_err(expr_match, db);
+
+                format!("{option_var_name}.ok_or({none_arm_err})")
+            }
+            SyntaxKind::ExprIf => {
+                let expr_if = ExprIf::from_syntax_node(db, node);
+
+                let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
+
+                format!("{option_var_name}.ok_or({err})")
+            }
+            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
+        }
+    }
+
+    /// Rewrites a manual implementation of is_some
+    pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        match node.kind(db) {
+            SyntaxKind::ExprMatch => {
+                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+
+                let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
+
+                format!("{option_var_name}.is_some()")
+            }
+            SyntaxKind::ExprIf => {
+                let expr_if = ExprIf::from_syntax_node(db, node.clone());
+
+                let var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
+                    condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
+                } else {
+                    panic!("Expected an ConditionLet condition")
+                };
+
+                format!("{var_name}.is_some()")
+            }
+            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
+        }
+    }
+
+    // Rewrites a manual implementation of is_none
+    pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        match node.kind(db) {
+            SyntaxKind::ExprMatch => {
+                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+
+                let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
+
+                format!("{option_var_name}.is_none()")
+            }
+            SyntaxKind::ExprIf => {
+                let expr_if = ExprIf::from_syntax_node(db, node.clone());
+
+                let var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
+                    condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
+                } else {
+                    panic!("Expected an ConditionLet condition")
+                };
+
+                format!("{var_name}.is_none()")
+            }
+            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
+        }
+    }
+
+    /// Rewrites a manual implementation of expect
+    pub fn fix_manual_expect(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        match node.kind(db) {
+            SyntaxKind::ExprMatch => {
+                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+
+                let (option_var_name, none_arm_err) = expr_match_get_var_name_and_err(expr_match, db);
+
+                format!("{option_var_name}.expect({none_arm_err})")
+            }
+            SyntaxKind::ExprIf => {
+                let expr_if = ExprIf::from_syntax_node(db, node);
+
+                let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
+
+                format!("{option_var_name}.expect({err})")
+            }
+            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
+        }
+    }
+}
+
+fn expr_match_get_var_name_and_err(expr_match: ExprMatch, db: &dyn SyntaxGroup) -> (String, String) {
+    let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
+
+    let arms = expr_match.arms(db).elements(db);
+    if arms.len() != 2 {
+        panic!("Expected exactly two arms in the match expression");
+    }
+
+    let second_arm = &arms[1];
+
+    let none_arm_err = match &second_arm.patterns(db).elements(db)[0] {
+        Pattern::Enum(enum_pattern) => {
+            let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
+
+            match enum_name.as_str() {
+                "Option::None" => match second_arm.expression(db) {
+                    Expr::FunctionCall(func_call) => {
+                        let args = func_call.arguments(db).arguments(db).elements(db);
+
+                        let arg = args.first().expect("Should have arg");
+
+                        arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                    }
+                    _ => panic!("Expected a function call expression"),
+                },
+                "Result::Err" => match second_arm.expression(db) {
+                    Expr::FunctionCall(func_call) => {
+                        let args = func_call.arguments(db).arguments(db).elements(db);
+                        let arg = args.first().expect("Should have arg");
+                        arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                    }
+                    _ => panic!("Expected a function call expression"),
+                },
+                _ => panic!("Expected Option::None enum pattern"),
+            }
+        }
+        _ => panic!("Expected an Option enum pattern"),
+    };
+    (option_var_name, none_arm_err)
+}
+
+fn expr_if_get_var_name_and_err(expr_if: ExprIf, db: &dyn SyntaxGroup) -> (String, String) {
+    let option_var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
+        condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
+    } else {
+        panic!("Expected an ConditionLet condition")
+    };
+
+    let err = match expr_if.else_clause(db) {
+        OptionElseClause::Empty(_) => panic!("Expected a non empty else clause"),
+        OptionElseClause::ElseClause(else_clase) => match else_clase.else_block_or_if(db) {
+            BlockOrIf::Block(expr_block) => {
+                let statement = expr_block.statements(db).elements(db)[0].clone();
+
+                match statement {
+                    Statement::Expr(statement_expr) => {
+                        let expr = statement_expr.expr(db);
+                        if let Expr::FunctionCall(func_call) = expr {
+                            let args = func_call.arguments(db).arguments(db).elements(db);
+
+                            let arg = args.first().expect("Should have arg");
+
+                            arg.as_syntax_node().get_text_without_trivia(db).to_string()
+                        } else {
+                            panic!("Expected a function call expression")
+                        }
+                    }
+                    _ => {
+                        panic!("Expected a StatementExpr statement")
+                    }
+                }
+            }
+            _ => {
+                panic!("Expected a BlockOrIf else clause")
+            }
+        },
+    };
+    (option_var_name, err)
 }

@@ -1,0 +1,192 @@
+//! > test basic is none
+
+//! > cairo_code
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(_) => false,
+        Option::None => true,
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+ --> lib.cairo:4:16
+  |
+4 |       let _foo = match foo {
+  |  ________________-
+5 | |         Option::Some(_) => false,
+6 | |         Option::None => true,
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = foo.is_none();
+}
+
+//! > ==========================================================================
+
+//! > test with comment in Some
+
+//! > cairo_code
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(_) => {
+            // do something
+            false
+        },
+        Option::None => true,
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    let _foo = match foo {
+        Option::Some(_) => {
+            // do something
+            false
+        },
+        Option::None => true,
+    };
+}
+
+//! > ==========================================================================
+
+//! > test with comment in None
+
+//! > cairo_code
+fn main() {
+  let foo: Option::<i32> = Option::None;
+  let _foo = match foo {
+      Option::Some(_) => false,
+      Option::None => {
+          // do something
+          true
+      },
+  };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+  let foo: Option::<i32> = Option::None;
+  let _foo = match foo {
+      Option::Some(_) => false,
+      Option::None => {
+          // do something
+          true
+      },
+  };
+}
+
+//! > ==========================================================================
+
+//! > test match expression is a function
+
+//! > cairo_code
+fn foo(a: u256) -> Option<u256> {
+    Option::Some(a)
+}
+fn main() {
+    let a: u256 = 0;
+    let _a = match foo(a) {
+        Option::Some(_) => false,
+        Option::None => true
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+  --> lib.cairo:10:14
+   |
+10 |       let _a = match foo(a) {
+   |  ______________-
+11 | |         Option::Some(_) => false,
+12 | |         Option::None => true
+13 | |     };
+   | |_____-
+   |
+
+//! > fixed
+fn foo(a: u256) -> Option<u256> {
+    Option::Some(a)
+}
+fn main() {
+    let a: u256 = 0;
+    let _a = foo(a).is_none();
+}
+
+//! > ==========================================================================
+
+//! > test manual if
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = if let Option::Some(_) = opt_val {
+        false
+    } else {
+        true
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = if let Option::Some(_) = opt_val {
+  |  ______________-
+5 | |         false
+6 | |     } else {
+7 | |         true
+8 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let _a = opt_val.is_none();
+}
+
+//! > ==========================================================================
+
+//! > test manual if with additional instructions
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let mut val = 1;
+    let _a = if let Option::Some(_) = opt_val {
+        val += 1;
+        false
+    } else {
+        true
+    };
+}
+
+//! > diagnostics
+
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let mut val = 1;
+    let _a = if let Option::Some(_) = opt_val {
+        val += 1;
+        false
+    } else {
+        true
+    };
+}
