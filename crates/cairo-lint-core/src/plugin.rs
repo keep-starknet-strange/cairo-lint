@@ -144,12 +144,14 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
-                    SyntaxKind::ExprInlineMacro => {invisible_characters::check_invisible_characters(
-                        &AstExpr::from_syntax_node(db.upcast(), node),
-                        db.upcast(),
-                            &mut diags,
+                    SyntaxKind::ExprInlineMacro => {
+                        invisible_characters::check_invisible_characters(
+                            &AstExpr::from_syntax_node(db.upcast(), node),  
+                            db.upcast(),                                    
+                            &mut diags                                      
                         );
                     }
+
                     _ => continue,
                 }
             }

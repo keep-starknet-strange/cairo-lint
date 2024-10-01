@@ -202,12 +202,10 @@ test_file!(manual, manual_is_some, "test basic is some", "test with comment in S
 test_file!(
     invisible_characters,
     invisible_characters,
-    "loop check invisible characters",
-    "loop check multiple invisible characters",
-    "loop check invisible characters in comments",
-    "loop check invisible characters in identifier",
-    "loop check invisible characters in URL",
-    "loop check invisible characters in filename",
-    "loop check invisible characters in number",
-    "loop check invisible characters in config"
+    "detect zero-width space",  
+    "detect zero-width joiner",
+    "detect byte order mark",
+    "detect paragraph separator",
+    "detect zero-width non-joiner",
+    "loop check for soft hyphen"
 );

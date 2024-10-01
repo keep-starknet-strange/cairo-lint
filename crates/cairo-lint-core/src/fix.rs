@@ -169,7 +169,7 @@ impl Fixer {
             CairoLintKind::DoubleComparison => {
                 self.fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
-            CairoLintKind::InvisibleCharacters => {
+            CairoLintKind::InvisibleCharacters => { 
                 self.fix_whitespace_issues(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
             CairoLintKind::EquatableIfLet => self.fix_equatable_if_let(db, plugin_diag.stable_ptr.lookup(db.upcast())),
@@ -506,11 +506,13 @@ impl Fixer {
         format!("{option_var_name}.is_some()")
     }
 
-    /// Removes all spaces from the given text.
+    /// Removes invisible characters from the given text.
     pub fn fix_whitespace_issues(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-    let text = node.get_text(db);
-    text.replace(" ", "")
-    
+        let text = node.get_text(db);
+        let invisible_chars = ['\u{200B}', '\u{00AD}', '\u{200C}', '\u{200D}', '\u{202C}', '\u{FEFF}'];
+
+
+        invisible_chars.iter().fold(text, |acc, &ch| acc.replace(ch, ""))
     }
 
 

@@ -6,7 +6,11 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const INVISIBLE_CHARACTER_DETECTED: &str = "Invisible character detected.";
 
-pub fn check_invisible_characters(expr: &Expr, db: &dyn SyntaxGroup, diagnostics: &mut Vec<PluginDiagnostic>) {
+pub fn check_invisible_characters(
+    expr: &Expr, 
+    db: &dyn SyntaxGroup, 
+    diagnostics: &mut Vec<PluginDiagnostic>
+) {
     let syntax_node = expr.as_syntax_node();
     let text = syntax_node.get_text(db);
    
