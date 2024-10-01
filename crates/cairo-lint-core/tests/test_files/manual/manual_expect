@@ -90,6 +90,94 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > test manual match result
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = match res_val {
+        Result::Ok(val) => val,
+        Result::Err(_) => core::panic_with_felt252('error')
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:3:14
+  |
+3 |       let _a = match res_val {
+  |  ______________-
+4 | |         Result::Ok(val) => val,
+5 | |         Result::Err(_) => core::panic_with_felt252('error')
+6 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.expect('error');
+}
+
+//! > ==========================================================================
+
+//! > test manual match result with unwrapped error
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = match res_val {
+        Result::Ok(val) => val,
+        Result::Err(err) => core::panic_with_felt252(err)
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = match res_val {
+        Result::Ok(val) => val,
+        Result::Err(err) => core::panic_with_felt252(err)
+    };
+}
+
+//! > ==========================================================================
+
+//! > test manual result if
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = if let Result::Ok(x) = res_val {
+        x
+    } else {
+        core::panic_with_felt252('err')
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:3:14
+  |
+3 |       let _a = if let Result::Ok(x) = res_val {
+  |  ______________-
+4 | |         x
+5 | |     } else {
+6 | |         core::panic_with_felt252('err')
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.expect('err');
+}
+
+//! > ==========================================================================
+
 //! > test match expression is a function
 
 //! > cairo_code
@@ -255,93 +343,4 @@ mod Error {
 fn main() {
     let foo: Option::<i32> = Option::None;
     let _foo = foo.expect(Error::Error);
-}
-
-//! > ==========================================================================
-
-//! > test manual result if
-
-//! > cairo_code
-fn main() {
-    let res_val: Result<i32> = Result::Err('err');
-    let _a = if let Result::Ok(x) = res_val {
-        x
-    } else {
-        core::panic_with_felt252('err')
-    };
-}
-
-//! > diagnostics
-
-warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
- --> lib.cairo:4:14
-  |
-4 |       let _a = if let Result::Ok(x) = res_val {
-  |  ______________-
-5 | |         x
-6 | |     } else {
-7 | |         core::panic_with_felt252('err')
-8 | |     };
-  | |_____-
-  |
-
-//! > fixed
-fn main() {
-    let res_val: Result<i32> = Result::Err('err');
-    let _a = res_val.expect('err');
-}
-
-//! > ==========================================================================
-
-//! > test manual match result
-
-//! > cairo_code
-fn main() {
-    let res_val: Result<i32> = Result::Err('err');
-    let _a = match res_val {
-        Result::Ok(val) => val,
-        Result::Err(_) => core::panic_with_felt252('error')
-    };
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
- --> lib.cairo:4:14
-  |
-4 |       let _a = match res_val {
-  |  ______________-
-5 | |         Result::Ok(val) => val,
-6 | |         Result::Err(_) => core::panic_with_felt252('error')
-7 | |     };
-  | |_____-
-  |
-
-//! > fixed
-fn main() {
-    let res_val: Result<i32> = Result::Err('err');
-    let _a = res_val.expect('error');
-}
-
-//! > ==========================================================================
-
-//! > test manual match result with unwrapped error
-
-//! > cairo_code
-fn main() {
-    let res_val: Result<i32> = Result::Err('err');
-    let _a = match res_val {
-        Result::Ok(val) => val,
-        Result::Err(err) => core::panic_with_felt252(err)
-    };
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let res_val: Result<i32> = Result::Err('err');
-    let _a = match res_val {
-        Result::Ok(val) => val,
-        Result::Err(err) => core::panic_with_felt252(err)
-    };
 }
