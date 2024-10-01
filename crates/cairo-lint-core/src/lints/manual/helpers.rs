@@ -53,9 +53,8 @@ pub fn pattern_check_enum_arg(pattern: &Pattern, db: &dyn SyntaxGroup, arg_name:
     }
 }
 
-/// Checks if the condition of the `ExprIf` expression is a `ConditionLet`, then checks that the
-/// pattern of the expression is an `Enum` and contains an inner pattern that is the same as the
-/// statement in the if block
+/// Checks that the condition expression contains an `Enum` that contains an inner pattern that is
+/// the same as the statement in the if block
 ///
 /// # Arguments
 /// * `expr` - The ExprIf expression to check.
