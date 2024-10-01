@@ -165,6 +165,19 @@ test_file!(
 );
 
 test_file!(
+    eq_op,
+    eq_op,
+    "simple eq op",
+    "simple neq op",
+    "simple lt op",
+    "simple gt op",
+    "simple bitwise op",
+    "simple sub op",
+    "simple divide op",
+    "op with method call"
+);
+
+test_file!(
     panic,
     panic,
     "Single Panic",
