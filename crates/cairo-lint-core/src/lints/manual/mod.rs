@@ -32,7 +32,7 @@ pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: M
         Pattern::Enum(enum_pattern) => {
             let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
             match enum_name.as_str() {
-                "Option::Some" => check_syntax_some_arm(first_arm, db, manual_lint.clone()),
+                "Option::Some" => check_syntax_some_arm(first_arm, db, manual_lint),
                 "Result::Ok" => check_syntax_ok_arm(first_arm, db, manual_lint),
                 _ => return false,
             }
@@ -44,7 +44,7 @@ pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: M
         Pattern::Enum(enum_pattern) => {
             let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
             match enum_name.as_str() {
-                "Option::None" => check_syntax_none_arm(second_arm.expression(db), db, manual_lint.clone()),
+                "Option::None" => check_syntax_none_arm(second_arm.expression(db), db, manual_lint),
                 "Result::Err" => check_syntax_err_arm(second_arm, db, manual_lint),
                 _ => return false,
             }
