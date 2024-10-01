@@ -12,6 +12,8 @@ use crate::lints::manual::*;
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, comparison_to_empty, double_comparison, double_parens,
     duplicate_underscore_args, eq_op, erasing_op, loop_for_while, loops, panic, single_match,
+    bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
+    eq_op, erasing_op, loop_for_while, loops, panic, single_match, comparison_to_empty
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
