@@ -182,6 +182,19 @@ test_file!(
 );
 
 test_file!(
+    eq_op,
+    eq_op,
+    "simple eq op",
+    "simple neq op",
+    "simple lt op",
+    "simple gt op",
+    "simple bitwise op",
+    "simple sub op",
+    "simple divide op",
+    "op with method call"
+);
+
+test_file!(
     panic,
     panic,
     "Single Panic",
@@ -264,5 +277,8 @@ test_file!(
     "test with comment in None",
     "test match expression is a function",
     "test manual if",
-    "test manual if with additional instructions"
+    "test manual if with additional instructions",
+    "test manual result if",
+    "test manual match result",
+    "test manual match result with unwrapped error"
 );
