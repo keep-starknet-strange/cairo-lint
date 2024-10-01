@@ -1,0 +1,167 @@
+//! > op with method call
+
+//! > cairo_code
+fn foo(a: Array<u256>) -> bool {
+    a.len() == a.len()
+}
+
+//! > diagnostics
+
+//! > fixed
+fn foo(a: Array<u256>) -> bool {
+    a.len() == a.len()
+}
+
+//! > ==========================================================================
+
+//! > simple bitwise op
+
+//! > cairo_code
+fn foo(a: u256) -> u256 {
+    a & a
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Logical operation with identical operands, this operation always results in the same value and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a & a
+  |     -----
+  |
+
+//! > fixed
+fn foo(a: u256) -> u256 {
+    a & a
+}
+
+//! > ==========================================================================
+
+//! > simple divide op
+
+//! > cairo_code
+fn foo(a: u256) -> u256 {
+    a / a
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Division with identical operands, this operation always results in one (except for zero) and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a / a
+  |     -----
+  |
+
+//! > fixed
+fn foo(a: u256) -> u256 {
+    a / a
+}
+
+//! > ==========================================================================
+
+//! > simple eq op
+
+//! > cairo_code
+fn foo(a: u256) -> bool {
+    a == a
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Comparison with identical operands, this operation always results in true and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a == a
+  |     ------
+  |
+
+//! > fixed
+fn foo(a: u256) -> bool {
+    a == a
+}
+
+//! > ==========================================================================
+
+//! > simple gt op
+
+//! > cairo_code
+fn foo(a: u256) -> bool {
+    a > a
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a > a
+  |     -----
+  |
+
+//! > fixed
+fn foo(a: u256) -> bool {
+    a > a
+}
+
+//! > ==========================================================================
+
+//! > simple lt op
+
+//! > cairo_code
+fn foo(a: u256) -> bool {
+    a < a
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a < a
+  |     -----
+  |
+
+//! > fixed
+fn foo(a: u256) -> bool {
+    a < a
+}
+
+//! > ==========================================================================
+
+//! > simple neq op
+
+//! > cairo_code
+fn foo(a: u256) -> bool {
+    a != a
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a != a
+  |     ------
+  |
+
+//! > fixed
+fn foo(a: u256) -> bool {
+    a != a
+}
+
+//! > ==========================================================================
+
+//! > simple sub op
+
+//! > cairo_code
+fn foo(a: u256) -> u256 {
+    a - a
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Subtraction with identical operands, this operation always results in zero and may indicate a logic error
+ --> lib.cairo:2:5
+  |
+2 |     a - a
+  |     -----
+  |
+
+//! > fixed
+fn foo(a: u256) -> u256 {
+    a - a
+}
