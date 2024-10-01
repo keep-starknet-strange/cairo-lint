@@ -29,12 +29,12 @@ fn main() {
 //! > Comparison with ArrayTrait::new() on LHS
 
 //! > cairo_code
-fn main() {
+fn main() { 
     let arr = ArrayTrait::new();
     if ArrayTrait::new() == arr {
         println!("arr is empty");
     }
-}
+}       
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using `.is_empty()` instead of comparing to an empty array.

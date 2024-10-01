@@ -261,3 +261,13 @@ test_file!(
     "test manual match result",
     "test manual match result with unwrapped error"
 );
+
+test_file!(
+    comparison_to_empty,
+    comparison_to_empty,
+    "test comparison with ArrayTrait::new()",
+    "test comparison with ArrayTrait::new() on LHS",
+    "test negated comparison with ArrayTrait::new()",
+    "test negated comparison with ArrayTrait::new() on LHS",
+    "test comparison with ArrayTrait::new() in complex expression"
+);
