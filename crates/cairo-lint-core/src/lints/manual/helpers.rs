@@ -163,7 +163,6 @@ pub fn get_else_expr_block(else_clause: OptionElseClause, db: &dyn SyntaxGroup) 
 ///
 /// # Returns
 /// * `true` if the expression is a default otherwise `false`.
-
 pub fn check_is_default(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
     match expr {
         Expr::FunctionCall(func_call) => {
