@@ -10,8 +10,8 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
-    bitwise_for_parity_check, bool_comparison, breaks, comparison_to_empty, double_comparison, double_parens,
-    duplicate_underscore_args, erasing_op, loop_for_while, loops, panic, single_match,
+    bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
+    eq_op, erasing_op, loop_for_while, loops, panic, single_match, comparison_to_empty
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -144,6 +144,7 @@ impl AnalyzerPlugin for CairoLint {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
+                        eq_op::check_eq_op(db.upcast(), &expr_binary, &mut diags);
                         bitwise_for_parity_check::check_bitwise_for_parity(db.upcast(), &expr_binary, &mut diags);
                         erasing_op::check_erasing_operation(db.upcast(), expr_binary, &mut diags);
                     }
