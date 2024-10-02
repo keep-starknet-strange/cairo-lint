@@ -6,23 +6,31 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
-pub const MANUAL_OK_OR: &str = "Manual match for Option<T> detected. Consider using ok_or instead";
+pub const MANUAL_UNWRAP_OR_DEFAULT: &str = "This can be done in one call with `.unwrap_or_default()`";
 
-pub fn check_manual_ok_or(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
-    if check_manual(db, expr_match, ManualLint::ManualOkOr) {
+pub fn check_manual_unwrap_or_default(
+    db: &dyn SyntaxGroup,
+    expr_match: &ExprMatch,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    if check_manual(db, expr_match, ManualLint::ManualUnwrapOrDefault) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_match.as_syntax_node().stable_ptr(),
-            message: MANUAL_OK_OR.to_owned(),
+            message: MANUAL_UNWRAP_OR_DEFAULT.to_owned(),
             severity: Severity::Warning,
         });
     }
 }
 
-pub fn check_manual_if_ok_or(db: &dyn SyntaxGroup, expr_if: &ExprIf, diagnostics: &mut Vec<PluginDiagnostic>) {
-    if check_manual_if(db, expr_if, ManualLint::ManualOkOr) {
+pub fn check_manual_if_unwrap_or_default(
+    db: &dyn SyntaxGroup,
+    expr_if: &ExprIf,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    if check_manual_if(db, expr_if, ManualLint::ManualUnwrapOrDefault) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_if.as_syntax_node().stable_ptr(),
-            message: MANUAL_OK_OR.to_owned(),
+            message: MANUAL_UNWRAP_OR_DEFAULT.to_owned(),
             severity: Severity::Warning,
         });
     }

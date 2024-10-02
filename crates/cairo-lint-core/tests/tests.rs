@@ -132,6 +132,7 @@ test_file!(
     "Negated comparison with false",
     "Negated comparison with false on LHS"
 );
+
 test_file!(
     erasing_operations,
     erasing_operations,
@@ -141,6 +142,7 @@ test_file!(
     "Multiple operations",
     "Multiple bitwise operations"
 );
+
 test_file!(
     duplicate_underscore_args,
     duplicate_underscore_args,
@@ -160,6 +162,19 @@ test_file!(
     "Multiple else if",
     "Else if with multiple statements",
     "Else if inside loop"
+);
+
+test_file!(
+    eq_op,
+    eq_op,
+    "simple eq op",
+    "simple neq op",
+    "simple lt op",
+    "simple gt op",
+    "simple bitwise op",
+    "simple sub op",
+    "simple divide op",
+    "op with method call"
 );
 
 test_file!(
@@ -194,7 +209,102 @@ test_file!(
     "test error str",
     "test error enum",
     "test with comment in None",
-    "test with comment in Some"
+    "test with comment in Some",
+    "test match expression not a variable",
+    "test manual if",
+    "test manual if with additional instructions"
+);
+
+test_file!(
+    bitwise_for_parity_check,
+    bitwise_for_parity_check,
+    "with single variable",
+    "with multiple variables",
+    "In a loop",
+    "with conditional logic"
+);
+
+test_file!(
+    manual,
+    manual_is_some,
+    "test basic is some",
+    "test with comment in Some",
+    "test with comment in None",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if with additional instructions"
+);
+
+test_file!(
+    manual,
+    manual_is_none,
+    "test basic is none",
+    "test with comment in Some",
+    "test with comment in None",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if with additional instructions"
+);
+
+test_file!(
+    manual,
+    manual_unwrap_or_default,
+    "manual unwrap or default for if let with default",
+    "manual unwrap or default for if let with empty string",
+    "manual unwrap or default for if let with new",
+    "manual unwrap or default for if let with zero integer",
+    "manual unwrap or default for if let with fixed array",
+    "manual unwrap or default for if let with tuple",
+    "manual unwrap or default for if let with array!",
+    "manual unwrap or default for if let with comments",
+    "manual unwrap or default for if let with tuple without trigger",
+    "manual unwrap or default for if let with different type not trigger",
+    "manual unwrap or default for if let without trigger",
+    "manual unwrap or default for match with tuple without trigger",
+    "manual unwrap or default for match with zero integer",
+    "manual unwrap or default for match with empty string",
+    "manual unwrap or default for match with default",
+    "manual unwrap or default for match with new",
+    "manual unwrap or default for match with fixed array",
+    "manual unwrap or default for match with tuple",
+    "manual unwrap or default for match with array!",
+    "manual unwrap or default for match with without trigger",
+    "manual unwrap or default for match with different type not trigger",
+    "manual unwrap or default for match with comments"
+);
+
+test_file!(
+    manual,
+    manual_expect,
+    "test core::panic_with_felt252",
+    "test panic_with_felt252",
+    "test with enum error",
+    "test with comment in Some",
+    "test with comment in None",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if with additional instructions",
+    "test manual result if",
+    "test manual match result",
+    "test manual match result with unwrapped error"
+);
+
+test_file!(
+    manual,
+    manual_is_ok,
+    "test basic is ok",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if expression is a function"
+);
+
+test_file!(
+    manual,
+    manual_is_err,
+    "test basic is err",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if expression is a function"
 );
 
 test_file!(

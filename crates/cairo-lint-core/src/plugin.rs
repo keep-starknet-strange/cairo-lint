@@ -10,8 +10,8 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use crate::lints::ifs::*;
 use crate::lints::manual::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, erasing_op, loop_for_while,
-    loops, panic, single_match,
+    bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
+    eq_op, erasing_op, loop_for_while, loops, panic, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -34,11 +34,18 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    ManualUnwrapOrDefault,
+    BitwiseForParityCheck,
     LoopForWhile,
     Unknown,
     Panic,
     ErasingOperation,
     ManualOkOr,
+    ManualIsSome,
+    ManualIsNone,
+    ManualIsOk,
+    ManualIsErr,
+    ManualExpect,
     DuplicateIfCondition,
 }
 
@@ -56,10 +63,17 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
         panic::PANIC_IN_CODE => CairoLintKind::Panic,
         loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
+        bitwise_for_parity_check::BITWISE_FOR_PARITY => CairoLintKind::BitwiseForParityCheck,
+        manual_is::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
+        manual_is::MANUAL_IS_NONE => CairoLintKind::ManualIsNone,
+        manual_is::MANUAL_IS_OK => CairoLintKind::ManualIsOk,
+        manual_is::MANUAL_IS_ERR => CairoLintKind::ManualIsErr,
+        manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
         ifs_same_cond::DUPLICATE_IF_CONDITION => CairoLintKind::DuplicateIfCondition,
         _ => CairoLintKind::Unknown,
     }
@@ -106,14 +120,43 @@ impl AnalyzerPlugin for CairoLint {
                     ),
                     SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     SyntaxKind::ExprIf => {
-                        let expr_if = ExprIf::from_syntax_node(db.upcast(), node);
-                        equatable_if_let::check_equatable_if_let(db.upcast(), &expr_if, &mut diags);
-                        ifs_same_cond::check_duplicate_if_condition(db.upcast(), &expr_if, &mut diags);
+                        equatable_if_let::check_equatable_if_let(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_is::check_manual_if_is(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_expect::check_manual_if_expect(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_ok_or::check_manual_if_ok_or(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_unwrap_or_default::check_manual_if_unwrap_or_default(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        ifs_same_cond::check_duplicate_if_condition(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
                     }
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
+                        eq_op::check_eq_op(db.upcast(), &expr_binary, &mut diags);
+                        bitwise_for_parity_check::check_bitwise_for_parity(db.upcast(), &expr_binary, &mut diags);
                         erasing_op::check_erasing_operation(db.upcast(), expr_binary, &mut diags);
                     }
                     SyntaxKind::ElseClause => {
@@ -133,7 +176,22 @@ impl AnalyzerPlugin for CairoLint {
                     SyntaxKind::ExprMatch => {
                         manual_ok_or::check_manual_ok_or(
                             db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_is::check_manual_is(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_expect::check_manual_expect(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_unwrap_or_default::check_manual_unwrap_or_default(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
                     }
@@ -155,7 +213,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
     for (_expression_id, expression) in &function_body.arenas.exprs {
         match &expression {
             Expr::Match(expr_match) => {
-                single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas)
+                single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas);
             }
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
