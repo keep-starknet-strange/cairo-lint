@@ -201,39 +201,32 @@ pub fn expr_check_condition_enum_inner_pattern_is_if_block_enum_inner_pattern(
     db: &dyn SyntaxGroup,
     enum_name: String,
 ) -> bool {
-    if let Condition::Let(condition_let) = expr.condition(db) {
-        match &condition_let.patterns(db).elements(db)[0] {
-            Pattern::Enum(enum_pattern) => {
-                let enum_arg = enum_pattern.pattern(db);
-                match enum_arg {
-                    OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                        match expr.if_block(db).statements(db).elements(db)[0].clone() {
-                            Statement::Expr(statement_expr) => {
-                                let expr = statement_expr.expr(db);
-                                if let Expr::FunctionCall(func_call) = expr {
-                                    if func_call.path(db).as_syntax_node().get_text_without_trivia(db) == enum_name {
-                                        inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                                            == func_call.arguments(db).arguments(db).elements(db)[0]
-                                                .as_syntax_node()
-                                                .get_text_without_trivia(db)
-                                    } else {
-                                        false
-                                    }
-                                } else {
-                                    false
-                                }
-                            }
-                            _ => false,
-                        }
-                    }
-                    OptionPatternEnumInnerPattern::Empty(_) => false,
-                }
-            }
-            _ => false,
-        }
-    } else {
-        false
+    let Condition::Let(condition_let) = expr.condition(db) else {
+        return false;
+    };
+
+    let Pattern::Enum(enum_pattern) = &condition_let.patterns(db).elements(db)[0] else {
+        return false;
+    };
+
+    let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) = enum_pattern.pattern(db) else {
+        return false;
+    };
+
+    let Statement::Expr(statement_expr) = expr.if_block(db).statements(db).elements(db)[0].clone() else {
+        return false;
+    };
+
+    let Expr::FunctionCall(func_call) = statement_expr.expr(db) else {
+        return false;
+    };
+
+    if func_call.path(db).as_syntax_node().get_text_without_trivia(db) != enum_name {
+        return false;
     }
+
+    func_call.arguments(db).arguments(db).elements(db)[0].as_syntax_node().get_text_without_trivia(db)
+        == inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
 }
 
 /// Checks if the input `Expr` is a default of the expr kind.
