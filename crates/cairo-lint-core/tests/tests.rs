@@ -212,7 +212,9 @@ test_file!(
     "test with comment in Some",
     "test match expression not a variable",
     "test manual if",
-    "test manual if with additional instructions"
+    "test manual if with additional instructions",
+    "test other var",
+    "test if other var"
 );
 
 test_file!(
@@ -306,3 +308,7 @@ test_file!(
     "test manual if",
     "test manual if expression is a function"
 );
+
+test_file!(manual, manual_ok, "test basic ok", "test basic if ok", "test other var", "test if other var");
+
+test_file!(manual, manual_err, "test basic err", "test basic if err", "test other err", "test if other err");

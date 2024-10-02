@@ -41,6 +41,8 @@ pub enum CairoLintKind {
     Panic,
     ErasingOperation,
     ManualOkOr,
+    ManualOk,
+    ManualErr,
     ManualIsSome,
     ManualIsNone,
     ManualIsOk,
@@ -67,6 +69,8 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
+        manual_ok::MANUAL_OK => CairoLintKind::ManualOk,
+        manual_err::MANUAL_ERR => CairoLintKind::ManualErr,
         bitwise_for_parity_check::BITWISE_FOR_PARITY => CairoLintKind::BitwiseForParityCheck,
         manual_is::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
         manual_is::MANUAL_IS_NONE => CairoLintKind::ManualIsNone,
@@ -138,6 +142,16 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
+                        manual_ok::check_manual_if_ok(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_err::check_manual_if_err(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
                         manual_unwrap_or_default::check_manual_if_unwrap_or_default(
                             db.upcast(),
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
@@ -168,6 +182,16 @@ impl AnalyzerPlugin for CairoLint {
                     }
                     SyntaxKind::ExprMatch => {
                         manual_ok_or::check_manual_ok_or(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_ok::check_manual_ok(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_err::check_manual_err(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,

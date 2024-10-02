@@ -53,6 +53,39 @@ pub fn pattern_check_enum_arg(pattern: &Pattern, db: &dyn SyntaxGroup, arg_name:
     }
 }
 
+/// Checks if the given `Expr::FunctionCall` expression matches the input `enum_name` and
+/// verifies that the first argument of the function call corresponds to pattern enum arg.
+///
+/// # Arguments
+/// * `expr` - The expression to check, expected to be a function call.
+/// * `pattern` - The pattern to match against the function's first argument.
+/// * `db` - Reference to the `SyntaxGroup` for accessing the syntax tree.
+/// * `enum_name` - The name of the enum to match against the function call.
+///
+/// # Returns
+/// * `true` if the expression is a the input `enum_name` enum and the first argument matches the
+///   input pattern enum arg, otherwise `false`.
+pub fn pattern_check_enum_arg_is_expression(
+    expr: Expr,
+    pattern: Pattern,
+    db: &dyn SyntaxGroup,
+    enum_name: String,
+) -> bool {
+    if let Expr::FunctionCall(func_call) = expr {
+        if func_call.path(db).as_syntax_node().get_text(db) == enum_name {
+            pattern_check_enum_arg(
+                &pattern,
+                db,
+                func_call.arguments(db).arguments(db).elements(db)[0].as_syntax_node().get_text(db),
+            )
+        } else {
+            false
+        }
+    } else {
+        false
+    }
+}
+
 /// Checks if the inner_pattern in the input `Pattern::Enum` matches the given expr
 ///
 /// # Arguments
@@ -142,6 +175,64 @@ pub fn get_else_expr_block(else_clause: OptionElseClause, db: &dyn SyntaxGroup) 
             BlockOrIf::Block(expr_block) => Some(expr_block),
             _ => None,
         },
+    }
+}
+
+/// Checks if the condition of the input `ExprIf` expression contains an enum pattern and contains
+/// an inner pattern that matches the inner pattern of the enum in the if block.
+///
+/// # Arguments
+/// * `expr` - The `ExprIf` expression containing the condition and the if block to check.
+/// * `db` - Reference to the `SyntaxGroup` for accessing the syntax tree.
+/// * `enum_name` - The name of the enum to match against the function call in the if block.
+///
+/// # Example
+/// for :
+/// if let Enum(x) = res_val {
+///     EnumName(x)
+/// }
+/// checks that x == x
+///
+/// # Returns
+/// * `true` if the inner pattern of the enum in the condition matches the first argument of the
+///   enum `enume_name` in the statement of the if block, otherwise `false`.
+pub fn expr_check_condition_enum_inner_pattern_is_if_block_enum_inner_pattern(
+    expr: &ExprIf,
+    db: &dyn SyntaxGroup,
+    enum_name: String,
+) -> bool {
+    if let Condition::Let(condition_let) = expr.condition(db) {
+        match &condition_let.patterns(db).elements(db)[0] {
+            Pattern::Enum(enum_pattern) => {
+                let enum_arg = enum_pattern.pattern(db);
+                match enum_arg {
+                    OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
+                        match expr.if_block(db).statements(db).elements(db)[0].clone() {
+                            Statement::Expr(statement_expr) => {
+                                let expr = statement_expr.expr(db);
+                                if let Expr::FunctionCall(func_call) = expr {
+                                    if func_call.path(db).as_syntax_node().get_text_without_trivia(db) == enum_name {
+                                        inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
+                                            == func_call.arguments(db).arguments(db).elements(db)[0]
+                                                .as_syntax_node()
+                                                .get_text_without_trivia(db)
+                                    } else {
+                                        false
+                                    }
+                                } else {
+                                    false
+                                }
+                            }
+                            _ => false,
+                        }
+                    }
+                    OptionPatternEnumInnerPattern::Empty(_) => false,
+                }
+            }
+            _ => false,
+        }
+    } else {
+        false
     }
 }
 
