@@ -2,7 +2,6 @@ use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition, Expr, ExprBlock, ExprIf, OptionElseClause, OptionPatternEnumInnerPattern, Pattern, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
 /// Checks if the input statement is a `FunctionCall` then checks if the function name is one of the
@@ -64,31 +63,22 @@ pub fn pattern_check_enum_arg(pattern: &Pattern, db: &dyn SyntaxGroup, arg_name:
 /// # Returns
 /// * `true` if the expr matches, otherwise `false`.
 pub fn pattern_check_enum_expr(pattern: &Pattern, db: &dyn SyntaxGroup, expr: &Expr) -> bool {
-    match pattern {
-        Pattern::Enum(enum_pattern) => {
-            let enum_arg = enum_pattern.pattern(db);
-            match enum_arg {
-                OptionPatternEnumInnerPattern::PatternEnumInnerPattern(x) => match expr.as_syntax_node().kind(db) {
-                    SyntaxKind::ExprBlock => {
-                        if let Expr::Block(expr_block) = expr {
-                            let statement = expr_block.statements(db).elements(db)[0].clone();
-                            statement.as_syntax_node().get_text_without_trivia(db)
-                                == x.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                        } else {
-                            false
-                        }
-                    }
-                    SyntaxKind::ExprPath => {
-                        x.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                            == expr.as_syntax_node().get_text_without_trivia(db)
-                    }
-                    _ => false,
-                },
-                OptionPatternEnumInnerPattern::Empty(_) => false,
-            }
+    if let Pattern::Enum(enum_pattern) = pattern {
+        if let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(x) = enum_pattern.pattern(db) {
+            let pattern_text = x.pattern(db).as_syntax_node().get_text_without_trivia(db);
+
+            return match expr {
+                Expr::Block(expr_block) => {
+                    expr_block.statements(db).elements(db).first().map_or(false, |statement| {
+                        statement.as_syntax_node().get_text_without_trivia(db) == pattern_text
+                    })
+                }
+                Expr::Path(_) => expr.as_syntax_node().get_text_without_trivia(db) == pattern_text,
+                _ => false,
+            };
         }
-        _ => false,
     }
+    false
 }
 
 /// Checks that the condition expression contains an `Enum` that contains an inner pattern that is
