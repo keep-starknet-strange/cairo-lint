@@ -34,14 +34,19 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    ManualUnwrapOrDefault,
     BitwiseForParityCheck,
     LoopForWhile,
     Unknown,
     Panic,
     ErasingOperation,
     ManualOkOr,
+    ManualOk,
+    ManualErr,
     ManualIsSome,
     ManualIsNone,
+    ManualIsOk,
+    ManualIsErr,
     ManualExpect,
 }
 
@@ -59,13 +64,18 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
         panic::PANIC_IN_CODE => CairoLintKind::Panic,
         loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
         manual_ok_or::MANUAL_OK_OR => CairoLintKind::ManualOkOr,
+        manual_ok::MANUAL_OK => CairoLintKind::ManualOk,
+        manual_err::MANUAL_ERR => CairoLintKind::ManualErr,
         bitwise_for_parity_check::BITWISE_FOR_PARITY => CairoLintKind::BitwiseForParityCheck,
-        manual_is_some::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
-        manual_is_none::MANUAL_IS_NONE => CairoLintKind::ManualIsNone,
+        manual_is::MANUAL_IS_SOME => CairoLintKind::ManualIsSome,
+        manual_is::MANUAL_IS_NONE => CairoLintKind::ManualIsNone,
+        manual_is::MANUAL_IS_OK => CairoLintKind::ManualIsOk,
+        manual_is::MANUAL_IS_ERR => CairoLintKind::ManualIsErr,
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
         _ => CairoLintKind::Unknown,
     }
@@ -117,12 +127,7 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
-                        manual_is_some::check_manual_if_is_some(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_is_none::check_manual_if_is_none(
+                        manual_is::check_manual_if_is(
                             db.upcast(),
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
@@ -133,6 +138,21 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                         manual_ok_or::check_manual_if_ok_or(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_ok::check_manual_if_ok(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_err::check_manual_if_err(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_unwrap_or_default::check_manual_if_unwrap_or_default(
                             db.upcast(),
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
@@ -166,17 +186,27 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
-                        manual_is_some::check_manual_is_some(
+                        manual_ok::check_manual_ok(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
-                        manual_is_none::check_manual_is_none(
+                        manual_err::check_manual_err(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_is::check_manual_is(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
                         manual_expect::check_manual_expect(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_unwrap_or_default::check_manual_unwrap_or_default(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
@@ -200,7 +230,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
     for (_expression_id, expression) in &function_body.arenas.exprs {
         match &expression {
             Expr::Match(expr_match) => {
-                single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas)
+                single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas);
             }
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
