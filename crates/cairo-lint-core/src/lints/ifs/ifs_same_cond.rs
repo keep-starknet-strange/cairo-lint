@@ -1,6 +1,6 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::ast::{BinaryOperator, BlockOrIf, Condition, Expr, ExprIf, OptionElseClause};
+use cairo_lang_syntax::node::ast::{BlockOrIf, Condition, Expr, ExprIf, OptionElseClause};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
