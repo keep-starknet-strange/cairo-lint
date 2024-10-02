@@ -288,3 +288,21 @@ test_file!(
     "test manual match result",
     "test manual match result with unwrapped error"
 );
+
+test_file!(
+    manual,
+    manual_is_ok,
+    "test basic is ok",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if expression is a function"
+);
+
+test_file!(
+    manual,
+    manual_is_err,
+    "test basic is err",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if expression is a function"
+);
