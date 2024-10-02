@@ -191,6 +191,8 @@ impl Fixer {
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualExpect => self.fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualIsOk => self.fix_manual_is_ok(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualIsErr => self.fix_manual_is_err(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             _ => return None,
         };
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
@@ -502,52 +504,22 @@ impl Fixer {
 
     /// Rewrites a manual implementation of is_some
     pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
-            SyntaxKind::ExprMatch => {
-                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
-
-                let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
-
-                format!("{option_var_name}.is_some()")
-            }
-            SyntaxKind::ExprIf => {
-                let expr_if = ExprIf::from_syntax_node(db, node.clone());
-
-                let var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
-                    condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
-                } else {
-                    panic!("Expected an ConditionLet condition")
-                };
-
-                format!("{var_name}.is_some()")
-            }
-            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+        fix_manual_is("is_some", db, node)
     }
 
     // Rewrites a manual implementation of is_none
     pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
-            SyntaxKind::ExprMatch => {
-                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+        fix_manual_is("is_none", db, node)
+    }
 
-                let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
+    /// Rewrites a manual implementation of is_ok
+    pub fn fix_manual_is_ok(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        fix_manual_is("is_ok", db, node)
+    }
 
-                format!("{option_var_name}.is_none()")
-            }
-            SyntaxKind::ExprIf => {
-                let expr_if = ExprIf::from_syntax_node(db, node.clone());
-
-                let var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
-                    condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
-                } else {
-                    panic!("Expected an ConditionLet condition")
-                };
-
-                format!("{var_name}.is_none()")
-            }
-            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+    /// Rewrites a manual implementation of is_err
+    pub fn fix_manual_is_err(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        fix_manual_is("is_err", db, node)
     }
 
     /// Rewrites a manual implementation of expect
@@ -650,4 +622,28 @@ fn expr_if_get_var_name_and_err(expr_if: ExprIf, db: &dyn SyntaxGroup) -> (Strin
         },
     };
     (option_var_name, err)
+}
+
+pub fn fix_manual_is(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    match node.kind(db) {
+        SyntaxKind::ExprMatch => {
+            let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+
+            let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
+
+            format!("{option_var_name}.{func_name}()")
+        }
+        SyntaxKind::ExprIf => {
+            let expr_if = ExprIf::from_syntax_node(db, node.clone());
+
+            let var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
+                condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
+            } else {
+                panic!("Expected an ConditionLet condition")
+            };
+
+            format!("{var_name}.{func_name}()")
+        }
+        _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
+    }
 }

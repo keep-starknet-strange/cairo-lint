@@ -1,7 +1,6 @@
 pub mod helpers;
 pub mod manual_expect;
-pub mod manual_is_none;
-pub mod manual_is_some;
+pub mod manual_is;
 pub mod manual_ok_or;
 pub mod manual_unwrap_or_default;
 
@@ -17,6 +16,8 @@ pub enum ManualLint {
     ManualIsNone,
     ManualExpect,
     ManualUnwrapOrDefault,
+    ManualIsOk,
+    ManualIsErr,
     ManualOptExpect,
     ManualResExpect,
 }
@@ -77,6 +78,8 @@ fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manu
 
 fn check_syntax_ok_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
+        ManualLint::ManualIsOk => arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "true",
+        ManualLint::ManualIsErr => arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "false",
         ManualLint::ManualResExpect => pattern_check_enum_arg(
             &arm.patterns(db).elements(db)[0],
             db,
@@ -107,6 +110,8 @@ fn check_syntax_none_arm(arm_expression: Expr, db: &dyn SyntaxGroup, manual_lint
 
 fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
+        ManualLint::ManualIsOk => arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "false",
+        ManualLint::ManualIsErr => arm.expression(db).as_syntax_node().get_text_without_trivia(db) == "true",
         ManualLint::ManualResExpect => {
             if let Expr::FunctionCall(func_call) = arm.expression(db) {
                 let func_name = func_call.path(db).as_syntax_node().get_text(db);
@@ -185,6 +190,12 @@ fn check_syntax_opt_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualL
 
 fn check_syntax_res_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualLint) -> bool {
     match manual_lint {
+        ManualLint::ManualIsOk => {
+            expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "true"
+        }
+        ManualLint::ManualIsErr => {
+            expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "false"
+        }
         ManualLint::ManualResExpect => expr_check_inner_pattern_is_if_block_statement(expr, db),
         _ => false,
     }
@@ -220,6 +231,8 @@ fn check_syntax_res_else(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: Manua
         None => return false,
     };
     match manual_lint {
+        ManualLint::ManualIsOk => expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "false",
+        ManualLint::ManualIsErr => expr_block.statements(db).as_syntax_node().get_text_without_trivia(db) == "true",
         ManualLint::ManualResExpect => statement_check_func_name(
             expr_block.statements(db).elements(db)[0].clone(),
             db,
