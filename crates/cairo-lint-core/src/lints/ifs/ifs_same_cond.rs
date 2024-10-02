@@ -16,6 +16,7 @@ pub fn check_duplicate_if_condition(db: &dyn SyntaxGroup, if_expr: &ExprIf, diag
 
     let mut current_block = if_expr.else_clause(db);
     let mut condition_found = false;
+    let if_condition_text = get_condition_text(db, &if_condition);
 
     while let OptionElseClause::ElseClause(ref else_clause) = current_block {
         if let BlockOrIf::If(else_if_block) = else_clause.else_block_or_if(db) {
@@ -28,7 +29,6 @@ pub fn check_duplicate_if_condition(db: &dyn SyntaxGroup, if_expr: &ExprIf, diag
                 continue;
             }
 
-            let if_condition_text = get_condition_text(db, &if_condition);
             let else_if_condition_text = get_condition_text(db, &else_if_condition);
 
             if !condition_found
