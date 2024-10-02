@@ -188,6 +188,8 @@ impl Fixer {
             }
             CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualOk => self.fix_manual_ok(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualErr => self.fix_manual_err(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualExpect => self.fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
@@ -504,22 +506,32 @@ impl Fixer {
 
     /// Rewrites a manual implementation of is_some
     pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        fix_manual_is("is_some", db, node)
+        fix_manual("is_some", db, node)
     }
 
     // Rewrites a manual implementation of is_none
     pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        fix_manual_is("is_none", db, node)
+        fix_manual("is_none", db, node)
     }
 
     /// Rewrites a manual implementation of is_ok
     pub fn fix_manual_is_ok(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        fix_manual_is("is_ok", db, node)
+        fix_manual("is_ok", db, node)
     }
 
     /// Rewrites a manual implementation of is_err
     pub fn fix_manual_is_err(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        fix_manual_is("is_err", db, node)
+        fix_manual("is_err", db, node)
+    }
+
+    /// Rewrites a manual implementation of ok
+    pub fn fix_manual_ok(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        fix_manual("ok", db, node)
+    }
+
+    /// Rewrites a manual implementation of err
+    pub fn fix_manual_err(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        fix_manual("err", db, node)
     }
 
     /// Rewrites a manual implementation of expect
@@ -624,7 +636,7 @@ fn expr_if_get_var_name_and_err(expr_if: ExprIf, db: &dyn SyntaxGroup) -> (Strin
     (option_var_name, err)
 }
 
-pub fn fix_manual_is(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
     match node.kind(db) {
         SyntaxKind::ExprMatch => {
             let expr_match = ExprMatch::from_syntax_node(db, node.clone());
