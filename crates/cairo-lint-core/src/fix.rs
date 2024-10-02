@@ -506,72 +506,32 @@ impl Fixer {
 
     /// Rewrites a manual implementation of is_some
     pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        fix_manual_is("is_some", db, node)
+        fix_manual("is_some", db, node)
     }
 
     // Rewrites a manual implementation of is_none
     pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        fix_manual_is("is_none", db, node)
+        fix_manual("is_none", db, node)
     }
 
     /// Rewrites a manual implementation of is_ok
     pub fn fix_manual_is_ok(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        fix_manual_is("is_ok", db, node)
+        fix_manual("is_ok", db, node)
     }
 
     /// Rewrites a manual implementation of is_err
     pub fn fix_manual_is_err(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        fix_manual_is("is_err", db, node)
+        fix_manual("is_err", db, node)
     }
 
     /// Rewrites a manual implementation of ok
     pub fn fix_manual_ok(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
-            SyntaxKind::ExprMatch => {
-                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
-
-                let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
-
-                format!("{option_var_name}.ok()")
-            }
-            SyntaxKind::ExprIf => {
-                let expr_if = ExprIf::from_syntax_node(db, node.clone());
-
-                let var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
-                    condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
-                } else {
-                    panic!("Expected an ConditionLet condition")
-                };
-
-                format!("{var_name}.ok()")
-            }
-            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+        fix_manual("ok", db, node)
     }
 
     /// Rewrites a manual implementation of err
     pub fn fix_manual_err(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
-            SyntaxKind::ExprMatch => {
-                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
-
-                let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
-
-                format!("{option_var_name}.err()")
-            }
-            SyntaxKind::ExprIf => {
-                let expr_if = ExprIf::from_syntax_node(db, node.clone());
-
-                let var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
-                    condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
-                } else {
-                    panic!("Expected an ConditionLet condition")
-                };
-
-                format!("{var_name}.err()")
-            }
-            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+        fix_manual("err", db, node)
     }
 
     /// Rewrites a manual implementation of expect
@@ -676,7 +636,7 @@ fn expr_if_get_var_name_and_err(expr_if: ExprIf, db: &dyn SyntaxGroup) -> (Strin
     (option_var_name, err)
 }
 
-pub fn fix_manual_is(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
     match node.kind(db) {
         SyntaxKind::ExprMatch => {
             let expr_match = ExprMatch::from_syntax_node(db, node.clone());
