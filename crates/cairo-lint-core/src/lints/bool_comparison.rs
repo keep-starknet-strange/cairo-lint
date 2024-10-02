@@ -8,6 +8,9 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 
 pub const BOOL_COMPARISON: &str = "Unnecessary comparison with a boolean value. Use the variable directly.";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "bool_comparison";
+
 pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: &str, node: ExprBinary) -> String {
     let op_kind = node.op(db).as_syntax_node().kind(db);
     let lhs = lhs.trim();
@@ -32,7 +35,7 @@ pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: 
 
 pub fn check_bool_comparison(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
     if let Some(node) = node.as_syntax_node().parent()
-        && node.has_attr_with_arg(db, "allow", "bool_comparison")
+        && node.has_attr_with_arg(db, "allow", LINT_NAME)
     {
         return;
     }

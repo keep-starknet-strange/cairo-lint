@@ -10,6 +10,8 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const PANIC_IN_CODE: &str = "Leaving `panic!` in the code is discouraged.";
 const PANIC: &str = "\"panic\"";
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "panic";
 
 pub fn check_panic_usage(
     db: &dyn SemanticGroup,
@@ -28,7 +30,7 @@ pub fn check_panic_usage(
         if initial_file_id == file_id {
             let node = expr_function_call.stable_ptr.lookup(db.upcast()).as_syntax_node();
             if let Some(node) = node.parent()
-                && node.has_attr_with_arg(db.upcast(), "allow", "panic")
+                && node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME)
             {
                 return;
             }

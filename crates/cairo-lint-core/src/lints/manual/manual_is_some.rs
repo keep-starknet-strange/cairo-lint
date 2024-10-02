@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
 pub const MANUAL_IS_SOME: &str = "Manual match for `is_some` detected. Consider using `is_some()` instead";
+pub(super) const LINT_NAME: &str = "manual_is_some";
 
 pub fn check_manual_is_some(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
     if let Some(node) = expr_match.as_syntax_node().parent()

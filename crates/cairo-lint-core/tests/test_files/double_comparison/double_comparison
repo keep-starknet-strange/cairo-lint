@@ -100,13 +100,13 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > double comparison equal or greater than allowed
+//! > simplifiable comparison allowed
 
 //! > cairo_code
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(double_comparison)]
+    #[allow(simplifiable_comparison)]
     if x == y || x > y {
         true
     } else {
@@ -120,8 +120,68 @@ fn main() -> bool {
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(double_comparison)]
+    #[allow(simplifiable_comparison)]
     if x == y || x > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > contradictory comparison allowed
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(contradictory_comparison)]
+    if x == y && x != y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(contradictory_comparison)]
+    if x == y && x != y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > redundant comparison allowed
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(redundant_comparison)]
+    if x == y && x >= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(redundant_comparison)]
+    if x == y && x >= y {
         true
     } else {
         false
@@ -438,7 +498,7 @@ fn main() -> bool {
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(double_comparison)]
+    #[allow(simplifiable_comparison)]
     x == y || x > y 
 }
 
@@ -448,7 +508,7 @@ fn main() -> bool {
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(double_comparison)]
+    #[allow(simplifiable_comparison)]
     x == y || x > y 
 }
 
@@ -460,7 +520,7 @@ fn main() -> bool {
 fn main() {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(double_comparison)]
+    #[allow(simplifiable_comparison)]
      let _cond = x == y || x > y;
 }
 
@@ -470,6 +530,6 @@ fn main() {
 fn main() {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(double_comparison)]
+    #[allow(simplifiable_comparison)]
      let _cond = x == y || x > y;
 }

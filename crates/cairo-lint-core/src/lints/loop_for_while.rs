@@ -8,6 +8,9 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 pub const LOOP_FOR_WHILE: &str = "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
                                   loop for clarity and conciseness";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "loop_for_while";
+
 pub fn check_loop_for_while(db: &dyn SyntaxGroup, loop_expr: &ExprLoop, diagnostics: &mut Vec<PluginDiagnostic>) {
     if let Some(node) = loop_expr.as_syntax_node().parent()
         && node.has_attr_with_arg(db, "allow", "loop_for_while")

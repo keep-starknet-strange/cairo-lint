@@ -7,6 +7,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
 pub const MANUAL_IS_NONE: &str = "Manual match for `is_none` detected. Consider using `is_none()` instead";
+pub(super) const LINT_NAME: &str = "manual_is_none";
 
 pub fn check_manual_is_none(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
     if check_manual(db, expr_match, ManualLint::ManualIsNone) {

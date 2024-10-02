@@ -18,6 +18,9 @@ pub enum ManualLint {
     ManualResExpect,
 }
 
+pub const ALLOWED: [&str; 4] =
+    [manual_is_some::LINT_NAME, manual_is_none::LINT_NAME, manual_ok_or::LINT_NAME, manual_expect::LINT_NAME];
+
 pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: ManualLint) -> bool {
     let arms = expr_match.arms(db).elements(db);
 

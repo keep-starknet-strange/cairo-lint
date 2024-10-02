@@ -7,6 +7,9 @@ use cairo_lang_semantic::Parameter;
 pub const DUPLICATE_UNDERSCORE_ARGS: &str = "duplicate arguments, having another argument having almost the same name \
                                              makes code comprehension and documentation more difficult";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "duplicate_underscore_args";
+
 pub fn check_duplicate_underscore_args(params: Vec<Parameter>, diagnostics: &mut Vec<PluginDiagnostic>) {
     let mut registered_names: HashSet<String> = HashSet::new();
 

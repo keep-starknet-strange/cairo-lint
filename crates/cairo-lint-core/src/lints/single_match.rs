@@ -11,6 +11,9 @@ pub const DESTRUCT_MATCH: &str =
     "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
 pub const MATCH_FOR_EQUALITY: &str = "you seem to be trying to use `match` for an equality check. Consider using `if`";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "single_match";
+
 fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn SyntaxGroup) -> bool {
     expr.expressions(db).elements(db).is_empty()
 }
@@ -49,7 +52,7 @@ pub fn check_single_match(
     arenas: &Arenas,
 ) {
     if let Some(node) = match_expr.stable_ptr.lookup(db.upcast()).as_syntax_node().parent()
-        && node.has_attr_with_arg(db.upcast(), "allow", "single_match")
+        && node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME)
     {
         return;
     }

@@ -17,6 +17,9 @@ const EQ_BITWISE_OP: &str = "Bitwise operation with identical operands, this ope
 const EQ_LOGICAL_OP: &str = "Logical operation with identical operands, this operation always results in the same \
                              value and may indicate a logic error";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "eq_op";
+
 pub fn check_eq_op(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
     let lhs = node.lhs(db);
     let op = node.op(db);

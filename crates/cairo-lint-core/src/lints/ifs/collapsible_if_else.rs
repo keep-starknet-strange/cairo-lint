@@ -6,6 +6,7 @@ use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
+pub(super) const LINT_NAME: &str = "collapsible_if_else";
 
 pub fn is_only_statement_if(db: &dyn SyntaxGroup, block_expr: &ExprBlock) -> bool {
     let statements = block_expr.statements(db).elements(db);

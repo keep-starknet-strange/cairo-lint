@@ -7,6 +7,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 
 pub const EQUATABLE_IF_LET: &str =
     "`if let` pattern used for equatable value. Consider using a simple comparison `==` instead";
+pub(super) const LINT_NAME: &str = "equatable_if_let";
 
 pub fn check_equatable_if_let(db: &dyn SyntaxGroup, expr: &ExprIf, diagnostics: &mut Vec<PluginDiagnostic>) {
     if let Some(node) = expr.as_syntax_node().parent()

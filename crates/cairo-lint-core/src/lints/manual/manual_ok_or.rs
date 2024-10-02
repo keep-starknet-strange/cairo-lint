@@ -8,10 +8,11 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
 pub const MANUAL_OK_OR: &str = "Manual match for Option<T> detected. Consider using ok_or instead";
+pub(super) const LINT_NAME: &str = "manual_ok_or";
 
 pub fn check_manual_ok_or(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
     if let Some(node) = expr_match.as_syntax_node().parent()
-        && node.has_attr_with_arg(db, "allow", "manual_ok_or")
+        && node.has_attr_with_arg(db, "allow", LINT_NAME)
     {
         return;
     }

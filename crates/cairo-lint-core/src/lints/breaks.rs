@@ -6,9 +6,12 @@ use cairo_lang_syntax::node::SyntaxNode;
 
 pub const BREAK_UNIT: &str = "unnecessary double parentheses found after break. Consider removing them.";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "break_unit";
+
 pub fn check_break(db: &dyn SyntaxGroup, node: SyntaxNode, diagnostics: &mut Vec<PluginDiagnostic>) {
     if let Some(node) = node.parent()
-        && node.has_attr_with_arg(db, "allow", "break_unit")
+        && node.has_attr_with_arg(db, "allow", LINT_NAME)
     {
         return;
     }

@@ -8,6 +8,9 @@ use cairo_lang_syntax::node::{Terminal, TypedSyntaxNode};
 pub const ERASING_OPERATION: &str = "This operation results in the value being erased (e.g., multiplication by 0). \
                                      Consider replacing the entire expression with 0.";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "erasing_op";
+
 pub fn check_erasing_operation(db: &dyn SyntaxGroup, node: ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
     if let Some(node) = node.as_syntax_node().parent()
         && node.has_attr_with_arg(db, "allow", "erasing_op")
