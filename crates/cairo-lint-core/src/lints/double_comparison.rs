@@ -80,8 +80,6 @@ fn is_simplifiable_double_comparison(
             | (BinaryOperator::EqEq(_), BinaryOperator::OrOr(_), BinaryOperator::LT(_))
             | (BinaryOperator::GT(_), BinaryOperator::OrOr(_), BinaryOperator::EqEq(_))
             | (BinaryOperator::EqEq(_), BinaryOperator::OrOr(_), BinaryOperator::GT(_))
-            | (BinaryOperator::LT(_), BinaryOperator::OrOr(_), BinaryOperator::GT(_))
-            | (BinaryOperator::GT(_), BinaryOperator::OrOr(_), BinaryOperator::LT(_))
     )
 }
 
@@ -94,9 +92,10 @@ fn is_redundant_double_comparison(
         (lhs_op, middle_op, rhs_op),
         (BinaryOperator::LE(_), BinaryOperator::OrOr(_), BinaryOperator::GE(_))
             | (BinaryOperator::GE(_), BinaryOperator::OrOr(_), BinaryOperator::LE(_))
+            | (BinaryOperator::LT(_), BinaryOperator::OrOr(_), BinaryOperator::GT(_))
+            | (BinaryOperator::GT(_), BinaryOperator::OrOr(_), BinaryOperator::LT(_))
     )
 }
-
 
 fn is_contradictory_double_comparison(
     lhs_op: &BinaryOperator,
@@ -115,7 +114,6 @@ fn is_contradictory_double_comparison(
             | (BinaryOperator::LE(_), BinaryOperator::AndAnd(_), BinaryOperator::GT(_))
     )
 }
-
 
 pub fn operator_to_replace(lhs_op: BinaryOperator) -> Option<&'static str> {
     match lhs_op {
@@ -151,5 +149,9 @@ pub fn determine_simplified_operator(
 }
 
 pub fn extract_binary_operator_expr(expr: &Expr, db: &dyn SyntaxGroup) -> Option<BinaryOperator> {
-    if let Expr::Binary(binary_op) = expr { Some(binary_op.op(db)) } else { None }
+    if let Expr::Binary(binary_op) = expr {
+        Some(binary_op.op(db))
+    } else {
+        None
+    }
 }

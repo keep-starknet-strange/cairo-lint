@@ -216,7 +216,7 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: This double comparison can be simplified.
+warning: Plugin diagnostic: Redundant double comparison found. Consider simplifying to a single comparison.
  --> lib.cairo:6:8
   |
 6 |     if x > y || x < y {
@@ -318,7 +318,7 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: This double comparison can be simplified.
+warning: Plugin diagnostic: Redundant double comparison found. Consider simplifying to a single comparison.
  --> lib.cairo:6:8
   |
 6 |     if x < y || x > y {
