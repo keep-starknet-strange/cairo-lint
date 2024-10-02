@@ -248,6 +248,33 @@ test_file!(
 
 test_file!(
     manual,
+    manual_unwrap_or_default,
+    "manual unwrap or default for if let with default",
+    "manual unwrap or default for if let with empty string",
+    "manual unwrap or default for if let with new",
+    "manual unwrap or default for if let with zero integer",
+    "manual unwrap or default for if let with fixed array",
+    "manual unwrap or default for if let with tuple",
+    "manual unwrap or default for if let with array!",
+    "manual unwrap or default for if let with comments",
+    "manual unwrap or default for if let with tuple without trigger",
+    "manual unwrap or default for if let with different type not trigger",
+    "manual unwrap or default for if let without trigger",
+    "manual unwrap or default for match with tuple without trigger",
+    "manual unwrap or default for match with zero integer",
+    "manual unwrap or default for match with empty string",
+    "manual unwrap or default for match with default",
+    "manual unwrap or default for match with new",
+    "manual unwrap or default for match with fixed array",
+    "manual unwrap or default for match with tuple",
+    "manual unwrap or default for match with array!",
+    "manual unwrap or default for match with without trigger",
+    "manual unwrap or default for match with different type not trigger",
+    "manual unwrap or default for match with comments"
+);
+
+test_file!(
+    manual,
     manual_expect,
     "test core::panic_with_felt252",
     "test panic_with_felt252",

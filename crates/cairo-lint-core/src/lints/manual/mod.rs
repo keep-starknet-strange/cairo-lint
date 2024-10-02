@@ -3,8 +3,9 @@ pub mod manual_expect;
 pub mod manual_is_none;
 pub mod manual_is_some;
 pub mod manual_ok_or;
+pub mod manual_unwrap_or_default;
 
-use cairo_lang_syntax::node::ast::{Condition, Expr, ExprIf, ExprMatch, MatchArm, Pattern};
+use cairo_lang_syntax::node::ast::{Condition, Expr, ExprIf, ExprMatch, MatchArm, Pattern, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use helpers::*;
@@ -14,6 +15,8 @@ pub enum ManualLint {
     ManualOkOr,
     ManualIsSome,
     ManualIsNone,
+    ManualExpect,
+    ManualUnwrapOrDefault,
     ManualOptExpect,
     ManualResExpect,
 }
@@ -65,6 +68,9 @@ fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manu
             db,
             arm.expression(db).as_syntax_node().get_text_without_trivia(db),
         ),
+        ManualLint::ManualUnwrapOrDefault => {
+            pattern_check_enum_expr(&arm.patterns(db).elements(db)[0], db, &arm.expression(db))
+        }
         _ => false,
     }
 }
@@ -94,6 +100,7 @@ fn check_syntax_none_arm(arm_expression: Expr, db: &dyn SyntaxGroup, manual_lint
                 false
             }
         }
+        ManualLint::ManualUnwrapOrDefault => check_is_default(db, &arm_expression),
         _ => false,
     }
 }
@@ -103,9 +110,7 @@ fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manua
         ManualLint::ManualResExpect => {
             if let Expr::FunctionCall(func_call) = arm.expression(db) {
                 let func_name = func_call.path(db).as_syntax_node().get_text(db);
-
                 let func_arg = pattern_check_enum_arg(&arm.patterns(db).elements(db)[0], db, "_".to_string());
-
                 (func_name == "core::panic_with_felt252" || func_name == "panic_with_felt252") && func_arg
             } else {
                 false
@@ -173,6 +178,7 @@ fn check_syntax_opt_if(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: ManualL
             expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db) == "false"
         }
         ManualLint::ManualOptExpect => expr_check_inner_pattern_is_if_block_statement(expr, db),
+        ManualLint::ManualUnwrapOrDefault => expr_check_inner_pattern_is_if_block_statement(expr, db),
         _ => false,
     }
 }
@@ -200,6 +206,10 @@ fn check_syntax_opt_else(expr: &ExprIf, db: &dyn SyntaxGroup, manual_lint: Manua
             db,
             &["core::panic_with_felt252", "panic_with_felt252"],
         ),
+        ManualLint::ManualUnwrapOrDefault => match expr_block.statements(db).elements(db)[0].clone() {
+            Statement::Expr(statement_expr) => check_is_default(db, &statement_expr.expr(db)),
+            _ => false,
+        },
         _ => false,
     }
 }

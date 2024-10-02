@@ -183,6 +183,9 @@ impl Fixer {
             CairoLintKind::LoopMatchPopFront => {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
             }
+            CairoLintKind::ManualUnwrapOrDefault => {
+                self.fix_manual_unwrap_or_default(db, plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             CairoLintKind::LoopForWhile => self.fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualOkOr => self.fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
@@ -386,7 +389,35 @@ impl Fixer {
             expr.if_block(db).as_syntax_node().get_text(db),
         )
     }
+    /// Rewrites manual unwrap or default to use unwrap_or_default
+    pub fn fix_manual_unwrap_or_default(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        // Check if the node is a general expression
+        let expr = Expr::from_syntax_node(db, node.clone());
 
+        let matched_expr = match expr {
+            // Handle the case where the expression is a match expression
+            Expr::Match(expr_match) => expr_match.expr(db).as_syntax_node(),
+
+            // Handle the case where the expression is an if-let expression
+            Expr::If(expr_if) => {
+                // Extract the condition from the if-let expression
+                let condition = expr_if.condition(db);
+
+                match condition {
+                    Condition::Let(condition_let) => {
+                        // Extract and return the syntax node for the matched expression
+                        condition_let.expr(db).as_syntax_node()
+                    }
+                    _ => panic!("Expected an `if let` expression."),
+                }
+            }
+            // Handle unsupported expressions
+            _ => panic!("The expression cannot be simplified to `.unwrap_or_default()`."),
+        };
+
+        let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
+        format!("{indent}{}.unwrap_or_default()", matched_expr.get_text_without_trivia(db))
+    }
     /// Converts a `loop` with a conditionally-breaking `if` statement into a `while` loop.
     ///
     /// This function transforms loops that have a conditional `if` statement

@@ -34,6 +34,7 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    ManualUnwrapOrDefault,
     BitwiseForParityCheck,
     LoopForWhile,
     Unknown,
@@ -59,6 +60,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
         panic::PANIC_IN_CODE => CairoLintKind::Panic,
         loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
         erasing_op::ERASING_OPERATION => CairoLintKind::ErasingOperation,
@@ -137,6 +139,11 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
+                        manual_unwrap_or_default::check_manual_if_unwrap_or_default(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
                     }
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
@@ -181,6 +188,11 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
+                        manual_unwrap_or_default::check_manual_unwrap_or_default(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
                     }
                     _ => continue,
                 }
@@ -200,7 +212,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
     for (_expression_id, expression) in &function_body.arenas.exprs {
         match &expression {
             Expr::Match(expr_match) => {
-                single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas)
+                single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas);
             }
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
