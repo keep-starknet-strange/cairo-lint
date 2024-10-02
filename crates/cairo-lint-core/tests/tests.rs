@@ -207,5 +207,8 @@ test_file!(
     "Same condition with multiple if else",
     "Similar conditions",
     "Combined conditions with different if",
-    "if with functions"
+    "if with functions",
+    "Same conditions with literals",
+    "Greater lesser comparison",
+    "Same conditions with literals and vars"
 );

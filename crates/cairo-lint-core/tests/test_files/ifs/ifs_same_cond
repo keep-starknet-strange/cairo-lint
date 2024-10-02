@@ -45,6 +45,45 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > Greater lesser comparison
+
+//! > cairo_code
+fn main(){
+    let a:u32 = 3;
+
+    if a > 3 {
+        println!("a == 3");
+    } else if 3 < a {
+        println!("3 == a");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:6:5
+   |
+ 6 |       if a > 3 {
+   |  _____-
+ 7 | |         println!("a == 3");
+ 8 | |     } else if 3 < a {
+ 9 | |         println!("3 == a");
+10 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main(){
+    let a:u32 = 3;
+
+    if a > 3 {
+        println!("a == 3");
+    } else if 3 < a {
+        println!("3 == a");
+    }
+}
+
+//! > ==========================================================================
+
 //! > Same condition with boolean
 
 //! > cairo_code
@@ -303,6 +342,80 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > Same conditions with literals
+
+//! > cairo_code
+fn main(){
+    if 1 == 1 {
+        println!("is 1")
+    } else if 1 == 1 {
+        println!("is 1")
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+ --> lib.cairo:2:5
+  |
+2 |       if 1 == 1 {
+  |  _____-
+3 | |         println!("is 1")
+4 | |     } else if 1 == 1 {
+5 | |         println!("is 1")
+6 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main(){
+    if 1 == 1 {
+        println!("is 1")
+    } else if 1 == 1 {
+        println!("is 1")
+    }
+}
+
+//! > ==========================================================================
+
+//! > Same conditions with literals and vars
+
+//! > cairo_code
+fn main(){
+    let a = 3;
+
+    if a == 3 {
+        println!("a == 3");
+    } else if 3 == a {
+        println!("3 == a");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:6:5
+   |
+ 6 |       if a == 3 {
+   |  _____-
+ 7 | |         println!("a == 3");
+ 8 | |     } else if 3 == a {
+ 9 | |         println!("3 == a");
+10 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main(){
+    let a = 3;
+
+    if a == 3 {
+        println!("a == 3");
+    } else if 3 == a {
+        println!("3 == a");
+    }
+}
+
+//! > ==========================================================================
+
 //! > Similar conditions
 
 //! > cairo_code
@@ -348,7 +461,7 @@ fn foo() -> bool{
 fn main(){
    if foo() {
         println!("foo");
-    } else if foo() { // not linted
+    } else if foo() { 
         println!("foo");
     }
 }
@@ -364,7 +477,7 @@ fn foo() -> bool{
 fn main(){
    if foo() {
         println!("foo");
-    } else if foo() { // not linted
+    } else if foo() { 
         println!("foo");
     }
 }
