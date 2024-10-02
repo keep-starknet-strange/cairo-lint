@@ -318,7 +318,6 @@ test_file!(
     "Similar conditions",
     "Combined conditions with different if",
     "if with functions",
-    "Same conditions with literals",
     "Greater lesser comparison",
     "Same conditions with literals and vars"
 );

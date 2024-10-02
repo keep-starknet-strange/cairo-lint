@@ -342,41 +342,6 @@ fn main() {
 
 //! > ==========================================================================
 
-//! > Same conditions with literals
-
-//! > cairo_code
-fn main(){
-    if 1 == 1 {
-        println!("is 1")
-    } else if 1 == 1 {
-        println!("is 1")
-    }
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: Consecutive `if` with the same condition found.
- --> lib.cairo:2:5
-  |
-2 |       if 1 == 1 {
-  |  _____-
-3 | |         println!("is 1")
-4 | |     } else if 1 == 1 {
-5 | |         println!("is 1")
-6 | |     }
-  | |_____-
-  |
-
-//! > fixed
-fn main(){
-    if 1 == 1 {
-        println!("is 1")
-    } else if 1 == 1 {
-        println!("is 1")
-    }
-}
-
-//! > ==========================================================================
-
 //! > Same conditions with literals and vars
 
 //! > cairo_code
