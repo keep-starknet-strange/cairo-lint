@@ -49,6 +49,7 @@ pub enum CairoLintKind {
     ManualIsOk,
     ManualIsErr,
     ManualExpect,
+    ManualExpectErr,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -79,6 +80,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         manual_is::MANUAL_IS_OK => CairoLintKind::ManualIsOk,
         manual_is::MANUAL_IS_ERR => CairoLintKind::ManualIsErr,
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
+        manual_expect_err::MANUAL_EXPECT_ERR => CairoLintKind::ManualExpectErr,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -159,6 +161,11 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
+                        manual_expect_err::check_manual_if_expect_err(
+                            db.upcast(),
+                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
                         manual_unwrap_or_default::check_manual_if_unwrap_or_default(
                             db.upcast(),
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
@@ -209,6 +216,11 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                         manual_expect::check_manual_expect(
+                            db.upcast(),
+                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
+                            &mut diags,
+                        );
+                        manual_expect_err::check_manual_expect_err(
                             db.upcast(),
                             &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,

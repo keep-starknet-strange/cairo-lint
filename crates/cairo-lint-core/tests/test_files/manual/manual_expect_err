@@ -1,0 +1,193 @@
+//! > test basic match expect err
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let err = 'this is an err';
+    let _foo = match foo {
+        Result::Ok(_) => core::panic_with_felt252(err),
+        Result::Err(x) => x,
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+ --> lib.cairo:6:16
+  |
+6 |       let _foo = match foo {
+  |  ________________-
+7 | |         Result::Ok(_) => core::panic_with_felt252(err),
+8 | |         Result::Err(x) => x,
+9 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let err = 'this is an err';
+    let _foo = foo.expect_err(err);
+}
+
+//! > ==========================================================================
+
+//! > test basic if expect err
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let _a = if let Result::Err(err) = foo {
+        err
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = if let Result::Err(err) = foo {
+  |  ______________-
+5 | |         err
+6 | |     } else {
+7 | |         core::panic_with_felt252('panic')
+8 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let _a = foo.expect_err('panic');
+}
+
+//! > ==========================================================================
+
+//! > test match with other err
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let other_err = 'this is an err';
+    let _foo = match foo {
+        Result::Ok(_) => core::panic_with_felt252('error'),
+        Result::Err(_) => other_err,
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let other_err = 'this is an err';
+    let _foo = match foo {
+        Result::Ok(_) => core::panic_with_felt252('error'),
+        Result::Err(_) => other_err,
+    };
+}
+
+//! > ==========================================================================
+
+//! > test if with other err
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let other_err = 'other err';
+    let _a = if let Result::Err(_) = foo {
+        other_err
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let other_err = 'other err';
+    let _a = if let Result::Err(_) = foo {
+        other_err
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > ==========================================================================
+
+//! > test match with function
+
+//! > cairo_code
+fn foo(x : i32) -> Result<i32, felt252> {
+    Result::Ok('i32')
+} 
+fn main() {
+    let _foo = match foo(0) {
+        Result::Ok(_) => core::panic_with_felt252('error'),
+        Result::Err(err) => err,
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+  --> lib.cairo:8:16
+   |
+ 8 |       let _foo = match foo(0) {
+   |  ________________-
+ 9 | |         Result::Ok(_) => core::panic_with_felt252('error'),
+10 | |         Result::Err(err) => err,
+11 | |     };
+   | |_____-
+   |
+
+//! > fixed
+fn foo(x : i32) -> Result<i32, felt252> {
+    Result::Ok('i32')
+} 
+fn main() {
+    let _foo = foo(0).expect_err('error');
+}
+
+//! > ==========================================================================
+
+//! > test if with function
+
+//! > cairo_code
+fn foo(x : i32) -> Result<i32, felt252> {
+    Result::Ok('i32')
+} 
+fn main() {
+    let _a = if let Result::Err(err) = foo(0) {
+        err
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+  --> lib.cairo:8:14
+   |
+ 8 |       let _a = if let Result::Err(err) = foo(0) {
+   |  ______________-
+ 9 | |         err
+10 | |     } else {
+11 | |         core::panic_with_felt252('panic')
+12 | |     };
+   | |_____-
+   |
+
+//! > fixed
+fn foo(x : i32) -> Result<i32, felt252> {
+    Result::Ok('i32')
+} 
+fn main() {
+    let _a = foo(0).expect_err('panic');
+}

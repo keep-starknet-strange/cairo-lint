@@ -193,6 +193,9 @@ impl Fixer {
             CairoLintKind::ManualErr => self.fix_manual_err(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualExpect => self.fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::ManualExpectErr => {
+                self.fix_manual_expect_err(db, plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsOk => self.fix_manual_is_ok(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsErr => self.fix_manual_is_err(db, plugin_diag.stable_ptr.lookup(db.upcast())),
@@ -490,7 +493,7 @@ impl Fixer {
             SyntaxKind::ExprMatch => {
                 let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
-                let (option_var_name, none_arm_err) = expr_match_get_var_name_and_err(expr_match, db);
+                let (option_var_name, none_arm_err) = expr_match_get_var_name_and_err(expr_match, db, 1);
 
                 format!("{option_var_name}.ok_or({none_arm_err})")
             }
@@ -541,7 +544,7 @@ impl Fixer {
             SyntaxKind::ExprMatch => {
                 let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
-                let (option_var_name, none_arm_err) = expr_match_get_var_name_and_err(expr_match, db);
+                let (option_var_name, none_arm_err) = expr_match_get_var_name_and_err(expr_match, db, 1);
 
                 format!("{option_var_name}.expect({none_arm_err})")
             }
@@ -608,9 +611,30 @@ impl Fixer {
         }
         node.get_text(db)
     }
+
+    /// Rewrites a manual implementation of expect err
+    pub fn fix_manual_expect_err(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+        match node.kind(db) {
+            SyntaxKind::ExprMatch => {
+                let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+
+                let (option_var_name, none_arm_err) = expr_match_get_var_name_and_err(expr_match, db, 0);
+
+                format!("{option_var_name}.expect_err({none_arm_err})")
+            }
+            SyntaxKind::ExprIf => {
+                let expr_if = ExprIf::from_syntax_node(db, node);
+
+                let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
+
+                format!("{option_var_name}.expect_err({err})")
+            }
+            _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
+        }
+    }
 }
 
-fn expr_match_get_var_name_and_err(expr_match: ExprMatch, db: &dyn SyntaxGroup) -> (String, String) {
+fn expr_match_get_var_name_and_err(expr_match: ExprMatch, db: &dyn SyntaxGroup, arm_index: usize) -> (String, String) {
     let option_var_name = expr_match.expr(db).as_syntax_node().get_text_without_trivia(db);
 
     let arms = expr_match.arms(db).elements(db);
@@ -618,75 +642,48 @@ fn expr_match_get_var_name_and_err(expr_match: ExprMatch, db: &dyn SyntaxGroup) 
         panic!("Expected exactly two arms in the match expression");
     }
 
-    let second_arm = &arms[1];
+    if arm_index > 1 {
+        panic!("Invalid arm index. Expected 0 for first arm or 1 for second arm.");
+    }
 
-    let none_arm_err = match &second_arm.patterns(db).elements(db)[0] {
-        Pattern::Enum(enum_pattern) => {
-            let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);
-
-            match enum_name.as_str() {
-                "Option::None" => match second_arm.expression(db) {
-                    Expr::FunctionCall(func_call) => {
-                        let args = func_call.arguments(db).arguments(db).elements(db);
-
-                        let arg = args.first().expect("Should have arg");
-
-                        arg.as_syntax_node().get_text_without_trivia(db).to_string()
-                    }
-                    _ => panic!("Expected a function call expression"),
-                },
-                "Result::Err" => match second_arm.expression(db) {
-                    Expr::FunctionCall(func_call) => {
-                        let args = func_call.arguments(db).arguments(db).elements(db);
-                        let arg = args.first().expect("Should have arg");
-                        arg.as_syntax_node().get_text_without_trivia(db).to_string()
-                    }
-                    _ => panic!("Expected a function call expression"),
-                },
-                _ => panic!("Expected Option::None enum pattern"),
-            }
-        }
-        _ => panic!("Expected an Option enum pattern"),
+    let Expr::FunctionCall(func_call) = &arms[arm_index].expression(db) else {
+        panic!("Expected a function call expression");
     };
+
+    let args = func_call.arguments(db).arguments(db).elements(db);
+    let arg = args.first().expect("Should have arg");
+
+    let none_arm_err = arg.as_syntax_node().get_text_without_trivia(db).to_string();
+
     (option_var_name, none_arm_err)
 }
 
 fn expr_if_get_var_name_and_err(expr_if: ExprIf, db: &dyn SyntaxGroup) -> (String, String) {
-    let option_var_name = if let Condition::Let(condition_let) = expr_if.condition(db) {
-        condition_let.expr(db).as_syntax_node().get_text_without_trivia(db)
-    } else {
-        panic!("Expected an ConditionLet condition")
+    let Condition::Let(condition_let) = expr_if.condition(db) else {
+        panic!("Expected a ConditionLet condition");
+    };
+    let option_var_name = condition_let.expr(db).as_syntax_node().get_text_without_trivia(db);
+
+    let OptionElseClause::ElseClause(else_clause) = expr_if.else_clause(db) else {
+        panic!("Expected a non-empty else clause");
     };
 
-    let err = match expr_if.else_clause(db) {
-        OptionElseClause::Empty(_) => panic!("Expected a non empty else clause"),
-        OptionElseClause::ElseClause(else_clase) => match else_clase.else_block_or_if(db) {
-            BlockOrIf::Block(expr_block) => {
-                let statement = expr_block.statements(db).elements(db)[0].clone();
-
-                match statement {
-                    Statement::Expr(statement_expr) => {
-                        let expr = statement_expr.expr(db);
-                        if let Expr::FunctionCall(func_call) = expr {
-                            let args = func_call.arguments(db).arguments(db).elements(db);
-
-                            let arg = args.first().expect("Should have arg");
-
-                            arg.as_syntax_node().get_text_without_trivia(db).to_string()
-                        } else {
-                            panic!("Expected a function call expression")
-                        }
-                    }
-                    _ => {
-                        panic!("Expected a StatementExpr statement")
-                    }
-                }
-            }
-            _ => {
-                panic!("Expected a BlockOrIf else clause")
-            }
-        },
+    let BlockOrIf::Block(expr_block) = else_clause.else_block_or_if(db) else {
+        panic!("Expected a BlockOrIf block in else clause");
     };
+
+    let Statement::Expr(statement_expr) = expr_block.statements(db).elements(db)[0].clone() else {
+        panic!("Expected a StatementExpr statement");
+    };
+
+    let Expr::FunctionCall(func_call) = statement_expr.expr(db) else {
+        panic!("Expected a function call expression");
+    };
+
+    let args = func_call.arguments(db).arguments(db).elements(db);
+    let arg = args.first().expect("Should have arg");
+    let err = arg.as_syntax_node().get_text_without_trivia(db).to_string();
+
     (option_var_name, err)
 }
 
