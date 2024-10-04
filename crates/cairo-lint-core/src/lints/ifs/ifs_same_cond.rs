@@ -6,8 +6,13 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 
 pub const DUPLICATE_IF_CONDITION: &str = "Consecutive `if` with the same condition found.";
 
-pub fn check_duplicate_if_condition(db: &dyn SyntaxGroup, if_expr: &ExprIf, diagnostics: &mut Vec<PluginDiagnostic>) {
+pub fn check_duplicate_if_condition(
+    db: &dyn SyntaxGroup,
+    if_expr: &ExprIf,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
     let if_condition = if_expr.condition(db);
+
     if matches!(&if_condition, Condition::Expr(expr) if matches!(expr.expr(db), Expr::FunctionCall(_)))
         || matches!(&if_condition, Condition::Let(condition_let) if matches!(condition_let.expr(db), Expr::FunctionCall(_)))
     {
@@ -50,6 +55,7 @@ pub fn check_duplicate_if_condition(db: &dyn SyntaxGroup, if_expr: &ExprIf, diag
 fn get_condition_text(db: &dyn SyntaxGroup, condition: &Condition) -> String {
     match condition {
         Condition::Expr(expr) => expr.as_syntax_node().get_text(db).to_string(),
+
         Condition::Let(condition_let) => condition_let.expr(db).as_syntax_node().get_text(db).to_string(),
     }
 }
