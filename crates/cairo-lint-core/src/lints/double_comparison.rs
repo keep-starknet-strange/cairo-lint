@@ -1,15 +1,15 @@
 use std::collections::HashSet;
 
-use cairo_lang_defs::ids::{FunctionWithBodyId, TopLevelLanguageElementId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprLogicalOperator, FunctionId, LogicalOperator};
+use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprLogicalOperator, LogicalOperator};
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr as AstExpr};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
+use super::function_trait_name_from_fn_id;
 use crate::lints::{EQ, GE, GT, LE, LT};
 
 pub const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
@@ -139,20 +139,6 @@ pub fn check_double_comparison(
             severity: Severity::Error,
         });
     }
-}
-pub(crate) fn function_trait_name_from_fn_id(db: &dyn SemanticGroup, function: &FunctionId) -> String {
-    let Ok(Some(func_id)) = function.get_concrete(db).body(db) else {
-        return String::new();
-    };
-    // Get the trait function id of the function (if there's none it means it cannot be a call to
-    // a corelib trait)
-    let trait_fn_id = match func_id.function_with_body_id(db) {
-        FunctionWithBodyId::Impl(func) => db.impl_function_trait_function(func).unwrap(),
-        FunctionWithBodyId::Trait(func) => func,
-        _ => return String::new(),
-    };
-    // From the trait function id get the trait name and check if it's the corelib `BitAnd`
-    trait_fn_id.full_path(db.upcast())
 }
 
 fn is_simplifiable_double_comparison(lhs_op: &str, rhs_op: &str, middle_op: &LogicalOperator) -> bool {

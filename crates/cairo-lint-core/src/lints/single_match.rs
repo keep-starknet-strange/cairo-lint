@@ -14,6 +14,20 @@ pub const MATCH_FOR_EQUALITY: &str = "you seem to be trying to use `match` for a
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "single_match";
 
+/// Checks for matches that do something only in 1 arm and can be rewrote as an `if let`
+/// ```ignore
+/// let var = Option::Some(1_u32);
+/// match var {
+///     Option::Some(val) => do_smth(val),
+///     _ => (),
+/// }
+/// ```
+/// Which can be rewritten as
+/// ```ignore
+/// if let Option::Some(val) = var {
+///     do_smth(val),
+/// }
+/// ```
 pub fn check_single_match(
     db: &dyn SemanticGroup,
     match_expr: &ExprMatch,

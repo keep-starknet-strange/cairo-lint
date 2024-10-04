@@ -6,8 +6,7 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
-use super::double_comparison::function_trait_name_from_fn_id;
-use super::{AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
+use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
 
 const DIV_EQ_OP: &str = "Division with identical operands, this operation always results in one (except for zero) and \
                          may indicate a logic error";

@@ -4,7 +4,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::attribute::SemanticQueryAttrs;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::{Expr, Statement};
-use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary, ExprIf, ExprMatch};
+use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprIf, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
@@ -185,10 +185,6 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
-                    SyntaxKind::ExprBinary => {
-                        let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
-                        erasing_op::check_erasing_operation(db.upcast(), expr_binary, &mut diags);
-                    }
                     SyntaxKind::ExprMatch => {
                         manual_ok_or::check_manual_ok_or(
                             db.upcast(),
@@ -257,6 +253,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                 bool_comparison::check_bool_comparison(db, expr_func, &function_body.arenas, diagnostics);
                 bitwise_for_parity_check::check_bitwise_for_parity(db, expr_func, &function_body.arenas, diagnostics);
                 eq_op::check_eq_op(db, expr_func, &function_body.arenas, diagnostics);
+                erasing_op::check_erasing_operation(db, expr_func, &function_body.arenas, diagnostics);
             }
 
             Expr::LogicalOperator(expr_logical) => {
