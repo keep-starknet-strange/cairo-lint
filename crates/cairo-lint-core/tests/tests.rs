@@ -92,7 +92,9 @@ test_file!(
     "not redundant double comparison equal or greater than",
     "contradictory less than and greater than",
     "contradictory equal and less than",
-    "redundant greater than or equal and less than or equal"
+    "redundant greater than or equal and less than or equal",
+    "impossible comparison",
+    "every impossible comparison"
 );
 
 test_file!(
@@ -212,7 +214,9 @@ test_file!(
     "test with comment in Some",
     "test match expression not a variable",
     "test manual if",
-    "test manual if with additional instructions"
+    "test manual if with additional instructions",
+    "test other var",
+    "test if other var"
 );
 
 test_file!(
@@ -248,6 +252,33 @@ test_file!(
 
 test_file!(
     manual,
+    manual_unwrap_or_default,
+    "manual unwrap or default for if let with default",
+    "manual unwrap or default for if let with empty string",
+    "manual unwrap or default for if let with new",
+    "manual unwrap or default for if let with zero integer",
+    "manual unwrap or default for if let with fixed array",
+    "manual unwrap or default for if let with tuple",
+    "manual unwrap or default for if let with array!",
+    "manual unwrap or default for if let with comments",
+    "manual unwrap or default for if let with tuple without trigger",
+    "manual unwrap or default for if let with different type not trigger",
+    "manual unwrap or default for if let without trigger",
+    "manual unwrap or default for match with tuple without trigger",
+    "manual unwrap or default for match with zero integer",
+    "manual unwrap or default for match with empty string",
+    "manual unwrap or default for match with default",
+    "manual unwrap or default for match with new",
+    "manual unwrap or default for match with fixed array",
+    "manual unwrap or default for match with tuple",
+    "manual unwrap or default for match with array!",
+    "manual unwrap or default for match with without trigger",
+    "manual unwrap or default for match with different type not trigger",
+    "manual unwrap or default for match with comments"
+);
+
+test_file!(
+    manual,
     manual_expect,
     "test core::panic_with_felt252",
     "test panic_with_felt252",
@@ -270,4 +301,39 @@ test_file!(
     "while loop exit condition greater than",
     "while loop exit condition greater than or equal",
     "while loop exit condition nested"
+);
+
+test_file!(
+    manual,
+    manual_is_ok,
+    "test basic is ok",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if expression is a function"
+);
+
+test_file!(
+    manual,
+    manual_is_err,
+    "test basic is err",
+    "test match expression is a function",
+    "test manual if",
+    "test manual if expression is a function"
+);
+
+test_file!(manual, manual_ok, "test basic ok", "test basic if ok", "test other var", "test if other var");
+
+test_file!(manual, manual_err, "test basic err", "test basic if err", "test other err", "test if other err");
+
+test_file!(
+    collapsible_if,
+    collapsible_if,
+    "collapsible if in boolean conditions",
+    "collapsible if with combinable conditions",
+    "collapsible if in conditions with complex expressions",
+    "collapsible if with function calls",
+    "collapsible if with simple numerical conditions",
+    "collapsible if with else clause",
+    "collapsible if with independent statement",
+    "collapsible if with else on outer if"
 );
