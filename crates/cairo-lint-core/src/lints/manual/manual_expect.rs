@@ -11,7 +11,7 @@ pub const MANUAL_EXPECT: &str = "Manual match for expect detected. Consider usin
 pub(super) const LINT_NAME: &str = "manual_expect";
 
 pub fn check_manual_expect(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnostics: &mut Vec<PluginDiagnostic>) {
-    if check_manual(db, expr_match, ManualLint::ManualOptExpect) {
+    if check_manual(db, expr_match, ManualLint::ManualOptExpect, LINT_NAME) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_match.as_syntax_node().stable_ptr(),
             message: MANUAL_EXPECT.to_owned(),
@@ -19,7 +19,7 @@ pub fn check_manual_expect(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnos
         });
     }
 
-    if check_manual(db, expr_match, ManualLint::ManualResExpect) {
+    if check_manual(db, expr_match, ManualLint::ManualResExpect, LINT_NAME) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_match.as_syntax_node().stable_ptr(),
             message: MANUAL_EXPECT.to_owned(),
@@ -29,7 +29,7 @@ pub fn check_manual_expect(db: &dyn SyntaxGroup, expr_match: &ExprMatch, diagnos
 }
 
 pub fn check_manual_if_expect(db: &dyn SyntaxGroup, expr_if: &ExprIf, diagnostics: &mut Vec<PluginDiagnostic>) {
-    if check_manual_if(db, expr_if, ManualLint::ManualOptExpect) {
+    if check_manual_if(db, expr_if, ManualLint::ManualOptExpect, LINT_NAME) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_if.as_syntax_node().stable_ptr(),
             message: MANUAL_EXPECT.to_owned(),
@@ -37,7 +37,7 @@ pub fn check_manual_if_expect(db: &dyn SyntaxGroup, expr_if: &ExprIf, diagnostic
         });
     }
 
-    if check_manual_if(db, expr_if, ManualLint::ManualResExpect) {
+    if check_manual_if(db, expr_if, ManualLint::ManualResExpect, LINT_NAME) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_if.as_syntax_node().stable_ptr(),
             message: MANUAL_EXPECT.to_owned(),

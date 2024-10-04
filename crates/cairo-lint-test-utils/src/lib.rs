@@ -57,9 +57,9 @@ macro_rules! test_file {
 
             $(#[test_case($test_name; $test_name)])*
             fn [<$lint_group _ $file_path>](test_name: &str) {
-                let test = & [<PARSED_TEST_FILE_ $file_path:upper>][test_name];
+                let test =  [<PARSED_TEST_FILE_ $file_path:upper>].get(test_name).expect("Couldn't get test");
                 let is_fix_mode = std::env::var("FIX_TESTS") == Ok("1".into());
-                let mut file = test.attributes["cairo_code"].clone();
+                let mut file = test.attributes.get("cairo_code").expect("Couldn't get cairo code").clone();
                 let mut db = RootDatabase::builder()
                     .with_plugin_suite(get_default_plugin_suite())
                     .with_plugin_suite(test_plugin_suite())

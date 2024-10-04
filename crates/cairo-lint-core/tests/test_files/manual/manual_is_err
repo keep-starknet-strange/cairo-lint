@@ -1,0 +1,133 @@
+//! > test basic is err
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = match res_val {
+        Result::Ok(_) => false,
+        Result::Err(_) => true
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead
+ --> lib.cairo:3:14
+  |
+3 |       let _a = match res_val {
+  |  ______________-
+4 | |         Result::Ok(_) => false,
+5 | |         Result::Err(_) => true
+6 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.is_err();
+}
+
+//! > ==========================================================================
+
+//! > test manual if
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = if let Result::Ok(_) = res_val {
+        false
+    } else {
+        true
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead
+ --> lib.cairo:3:14
+  |
+3 |       let _a = if let Result::Ok(_) = res_val {
+  |  ______________-
+4 | |         false
+5 | |     } else {
+6 | |         true
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.is_err();
+}
+
+//! > ==========================================================================
+
+//! > test manual if expression is a function
+
+//! > cairo_code
+fn foo(a: i32) -> Result<i32,felt252> {
+    Result::Err('err')
+}
+fn main() {
+    let _a = if let Result::Ok(_) = foo(0) {
+        false
+    } else {
+        true
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead
+ --> lib.cairo:5:14
+  |
+5 |       let _a = if let Result::Ok(_) = foo(0) {
+  |  ______________-
+6 | |         false
+7 | |     } else {
+8 | |         true
+9 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn foo(a: i32) -> Result<i32,felt252> {
+    Result::Err('err')
+}
+fn main() {
+    let _a = foo(0).is_err();
+}
+
+//! > ==========================================================================
+
+//! > test match expression is a function
+
+//! > cairo_code
+fn foo(a: i32) -> Result<i32,felt252> {
+    Result::Err('err')
+}
+fn main() {
+    let _a = match foo(0) {
+        Result::Ok(_) => false,
+        Result::Err(_) => true
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead
+ --> lib.cairo:5:14
+  |
+5 |       let _a = match foo(0) {
+  |  ______________-
+6 | |         Result::Ok(_) => false,
+7 | |         Result::Err(_) => true
+8 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn foo(a: i32) -> Result<i32,felt252> {
+    Result::Err('err')
+}
+fn main() {
+    let _a = foo(0).is_err();
+}

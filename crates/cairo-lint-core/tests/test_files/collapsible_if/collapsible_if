@@ -1,0 +1,306 @@
+//! > collapsible if in boolean conditions
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+  --> lib.cairo:6:5
+   |
+ 6 |       if x || z {
+   |  _____-
+ 7 | |         if y && z {
+ 8 | |             println!("Hello");
+ 9 | |         }
+10 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+    if (x || z) && (y && z) {
+        println!("Hello");
+    }
+}
+
+//! > ==========================================================================
+
+//! > collapsible if in conditions with complex expressions
+
+//! > cairo_code
+fn main() {
+    let x = 3_u32;
+    let y = 4_u32;
+    let z = 5_u32;
+    let a = 5_u32;
+    let b = 2_u32;
+    let c = 10_u32;
+
+    if x + y > a {
+        if z * b < c {
+            println!("Complex conditions");
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+  --> lib.cairo:9:5
+   |
+ 9 |       if x + y > a {
+   |  _____-
+10 | |         if z * b < c {
+11 | |             println!("Complex conditions");
+12 | |         }
+13 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let x = 3_u32;
+    let y = 4_u32;
+    let z = 5_u32;
+    let a = 5_u32;
+    let b = 2_u32;
+    let c = 10_u32;
+    if (x + y > a) && (z * b < c) {
+        println!("Complex conditions");
+    }
+}
+
+//! > ==========================================================================
+
+//! > collapsible if with combinable conditions
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    let z = true;
+
+    if x {
+        if z {
+            println!("No fix here");
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+ --> lib.cairo:5:5
+  |
+5 |       if x {
+  |  _____-
+6 | |         if z {
+7 | |             println!("No fix here");
+8 | |         }
+9 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let x = true;
+    let z = true;
+    if (x) && (z) {
+        println!("No fix here");
+    }
+}
+
+//! > ==========================================================================
+
+//! > collapsible if with else clause
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        } else {
+            println!("World");
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        } else {
+            println!("World");
+        }
+    }
+}
+
+//! > ==========================================================================
+
+//! > collapsible if with else on outer if
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        } 
+    } else {
+        println!("World");
+    }
+}
+
+//! > fixed
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        } 
+    } else {
+        println!("World");
+    }
+}
+
+//! > diagnostics
+
+//! > ==========================================================================
+
+//! > collapsible if with function calls
+
+//! > cairo_code
+fn is_valid(_a: bool) -> bool { true } 
+fn is_ready(_b: bool) -> bool { true } 
+
+fn main() {
+    if is_valid(true) {
+        if is_ready(true) {
+            println!("Function calls in conditions");
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+ --> lib.cairo:5:5
+  |
+5 |       if is_valid(true) {
+  |  _____-
+6 | |         if is_ready(true) {
+7 | |             println!("Function calls in conditions");
+8 | |         }
+9 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn is_valid(_a: bool) -> bool { true } 
+fn is_ready(_b: bool) -> bool { true } 
+
+fn main() {
+    if (is_valid(true)) && (is_ready(true)) {
+        println!("Function calls in conditions");
+    }
+}
+
+//! > ==========================================================================
+
+//! > collapsible if with independent statement
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
+        println!("World");
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
+        println!("World");
+    }
+}
+
+//! > ==========================================================================
+
+//! > collapsible if with simple numerical conditions
+
+//! > cairo_code
+fn main() {
+    let a = 10_u32;
+    let b = 20_u32;
+    let c = 5_u32;
+
+    if a > b {
+        if c < b {
+            println!("Simple numerical conditions");
+        }
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+  --> lib.cairo:6:5
+   |
+ 6 |       if a > b {
+   |  _____-
+ 7 | |         if c < b {
+ 8 | |             println!("Simple numerical conditions");
+ 9 | |         }
+10 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let a = 10_u32;
+    let b = 20_u32;
+    let c = 5_u32;
+    if (a > b) && (c < b) {
+        println!("Simple numerical conditions");
+    }
+}

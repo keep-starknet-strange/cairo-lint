@@ -92,6 +92,34 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > test if other var
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let other_val = 0;
+    let _a = if let Option::Some(_) = opt_val {
+        Result::Ok(other_val)
+    } else {
+        Result::Err('err')
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    let other_val = 0;
+    let _a = if let Option::Some(_) = opt_val {
+        Result::Ok(other_val)
+    } else {
+        Result::Err('err')
+    };
+}
+
+//! > ==========================================================================
+
 //! > test manual if
 
 //! > cairo_code
@@ -188,6 +216,32 @@ enum Error {
 fn main() {
     let self: u256 = 0; 
     let _self_result: Result<u8, Error> = self.try_into().ok_or(Error::Error);
+}
+
+//! > ==========================================================================
+
+//! > test other var
+
+//! > cairo_code
+fn main() {
+    let foo: Option<i32> = Option::None;
+    let other_val = 0;
+    let _foo = match foo {
+        Option::Some(_) => Result::Ok(other_val),
+        Option::None => Result::Err('this is an err'),
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Option<i32> = Option::None;
+    let other_val = 0;
+    let _foo = match foo {
+        Option::Some(_) => Result::Ok(other_val),
+        Option::None => Result::Err('this is an err'),
+    };
 }
 
 //! > ==========================================================================

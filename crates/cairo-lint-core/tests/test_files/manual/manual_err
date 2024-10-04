@@ -1,0 +1,115 @@
+//! > test basic err
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(x) => Option::Some(x),
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
+ --> lib.cairo:3:16
+  |
+3 |       let _foo = match foo {
+  |  ________________-
+4 | |         Result::Ok(_) => Option::None,
+5 | |         Result::Err(x) => Option::Some(x),
+6 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let _foo = foo.err();
+}
+
+//! > ==========================================================================
+
+//! > test basic if err
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = if let Result::Err(x) = res_val {
+        Option::Some(x)
+    } else {
+        Option::None
+    };
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
+ --> lib.cairo:3:14
+  |
+3 |       let _a = if let Result::Err(x) = res_val {
+  |  ______________-
+4 | |         Option::Some(x)
+5 | |     } else {
+6 | |         Option::None
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.err();
+}
+
+//! > ==========================================================================
+
+//! > test if other err
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let other_err = 'err';
+    let _a = if let Result::Err(_) = res_val {
+        Option::Some(other_err)
+    } else {
+        Option::None
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let other_err = 'err';
+    let _a = if let Result::Err(_) = res_val {
+        Option::Some(other_err)
+    } else {
+        Option::None
+    };
+}
+
+//! > ==========================================================================
+
+//! > test other err
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let other_err = 'other err';
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(_) => Option::Some(other_err),
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let other_err = 'other err';
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(_) => Option::Some(other_err),
+    };
+}

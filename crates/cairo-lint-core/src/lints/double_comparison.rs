@@ -126,8 +126,6 @@ fn is_simplifiable_double_comparison(
             | (BinaryOperator::EqEq(_), BinaryOperator::OrOr(_), BinaryOperator::LT(_))
             | (BinaryOperator::GT(_), BinaryOperator::OrOr(_), BinaryOperator::EqEq(_))
             | (BinaryOperator::EqEq(_), BinaryOperator::OrOr(_), BinaryOperator::GT(_))
-            | (BinaryOperator::LT(_), BinaryOperator::OrOr(_), BinaryOperator::GT(_))
-            | (BinaryOperator::GT(_), BinaryOperator::OrOr(_), BinaryOperator::LT(_))
     )
 }
 
@@ -140,6 +138,8 @@ fn is_redundant_double_comparison(
         (lhs_op, middle_op, rhs_op),
         (BinaryOperator::LE(_), BinaryOperator::OrOr(_), BinaryOperator::GE(_))
             | (BinaryOperator::GE(_), BinaryOperator::OrOr(_), BinaryOperator::LE(_))
+            | (BinaryOperator::LT(_), BinaryOperator::OrOr(_), BinaryOperator::GT(_))
+            | (BinaryOperator::GT(_), BinaryOperator::OrOr(_), BinaryOperator::LT(_))
     )
 }
 
@@ -156,6 +156,8 @@ fn is_contradictory_double_comparison(
             | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::EqEq(_))
             | (BinaryOperator::LT(_), BinaryOperator::AndAnd(_), BinaryOperator::GT(_))
             | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::LT(_))
+            | (BinaryOperator::GT(_), BinaryOperator::AndAnd(_), BinaryOperator::GE(_))
+            | (BinaryOperator::LE(_), BinaryOperator::AndAnd(_), BinaryOperator::GT(_))
     )
 }
 
