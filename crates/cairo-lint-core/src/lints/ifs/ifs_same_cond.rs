@@ -49,11 +49,7 @@ pub fn check_duplicate_if_condition(db: &dyn SyntaxGroup, if_expr: &ExprIf, diag
 
 fn get_condition_text(db: &dyn SyntaxGroup, condition: &Condition) -> String {
     match condition {
-        Condition::Expr(expr) => {
-            return expr.as_syntax_node().get_text(db).to_string();
-        }
-        Condition::Let(condition_let) => {
-            return condition_let.expr(db).as_syntax_node().get_text(db).to_string();
-        }
+        Condition::Expr(expr) => expr.as_syntax_node().get_text(db).to_string(),
+        Condition::Let(condition_let) => condition_let.expr(db).as_syntax_node().get_text(db).to_string(),
     }
 }
