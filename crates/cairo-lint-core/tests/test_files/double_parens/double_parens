@@ -2,20 +2,20 @@
 
 //! > cairo_code
 fn main() {
-    assert!(((4)) == 4);
+    assert!(((5)) == 4);
 }
 
 //! > diagnostics
 warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
  --> lib.cairo:2:13
   |
-2 |     assert!(((4)) == 4);
+2 |     assert!(((5)) == 4);
   |             -----
   |
 
 //! > fixed
 fn main() {
-    assert!(4== 4);
+    assert!(5== 4);
 }
 
 //! > ==========================================================================

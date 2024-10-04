@@ -208,6 +208,7 @@ test_file!(
     "Empty Panic",
     "Empty Panic allowed",
     "Empty Panic function allowed",
+    "Empty Panic function",
     "No Panic",
     "Panic inside function"
 );

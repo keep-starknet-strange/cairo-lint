@@ -13,3 +13,16 @@ pub mod loops;
 pub mod manual;
 pub mod panic;
 pub mod single_match;
+
+pub(crate) const LE: &str = "core::traits::PartialOrd::le";
+pub(crate) const GE: &str = "core::traits::PartialOrd::ge";
+pub(crate) const LT: &str = "core::traits::PartialOrd::lt";
+pub(crate) const GT: &str = "core::traits::PartialOrd::gt";
+pub(crate) const EQ: &str = "core::traits::PartialEq::eq";
+pub(crate) const NE: &str = "core::traits::PartialEq::ne";
+pub(crate) const AND: &str = "core::traits::BitAnd::bitand";
+pub(crate) const OR: &str = "core::traits::BitOr::bitor";
+pub(crate) const XOR: &str = "core::traits::BitXor::bitxor";
+pub(crate) const NOT: &str = "core::traits::BitNot::bitnot";
+pub(crate) const DIV: &str = "core::traits::Div::div";
+pub(crate) const SUB: &str = "core::traits::Sub::sub";

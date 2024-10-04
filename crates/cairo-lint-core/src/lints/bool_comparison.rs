@@ -14,6 +14,7 @@ pub const BOOL_COMPARISON: &str = "Unnecessary comparison with a boolean value. 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "bool_comparison";
 
+/// Generates the fixed boolean for a boolean comparison. It will transform `x == false` to `!x`
 pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: &str, node: ExprBinary) -> String {
     let op_kind = node.op(db).as_syntax_node().kind(db);
     let lhs = lhs.trim();
@@ -36,12 +37,14 @@ pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: 
     }
 }
 
+/// Checks for ` a == true`. Bool comparisons are useless and can be rewritten more clearly.
 pub fn check_bool_comparison(
     db: &dyn SemanticGroup,
     expr_func: &ExprFunctionCall,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
+    // Checks if the lint is allowed in an upper scope
     let mut current_node = expr_func.stable_ptr.lookup(db.upcast()).as_syntax_node();
     while let Some(node) = current_node.parent() {
         if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
@@ -49,9 +52,12 @@ pub fn check_bool_comparison(
         }
         current_node = node;
     }
+    // Check if the function call is the bool partial eq function (==).
     if !expr_func.function.full_name(db).contains("core::BoolPartialEq::") {
         return;
     }
+    // Extract the args of the function call. This function expects snapshots hence we need to
+    // destructure that. Also the boolean type in cairo is an enum hence the enum ctor.
     for arg in &expr_func.args {
         if let ExprFunctionCallArg::Value(expr) = arg
             && let Expr::Snapshot(snap) = &arenas.exprs[*expr]

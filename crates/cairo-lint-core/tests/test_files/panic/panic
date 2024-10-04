@@ -6,13 +6,13 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:2:3
   |
 2 |   panic!("");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:2:3
   |
 2 |   panic!("");
@@ -44,6 +44,28 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > Empty Panic function
+
+//! > cairo_code
+fn main() {
+    panic(array![]);
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
+ --> lib.cairo:2:5
+  |
+2 |     panic(array![]);
+  |     ---------------
+  |
+
+//! > fixed
+fn main() {
+    panic(array![]);
+}
+
+//! > ==========================================================================
+
 //! > Empty Panic function allowed
 
 //! > cairo_code
@@ -71,25 +93,25 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:2:3
   |
 2 |   panic!("panic");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:2:3
   |
 2 |   panic!("panic");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:3:3
   |
 3 |   panic!("panic 2");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:3:3
   |
 3 |   panic!("panic 2");
@@ -114,25 +136,25 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:2:3
   |
 2 |   panic!("panic");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:2:3
   |
 2 |   panic!("panic");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:3:3
   |
 3 |   panic!("panic 2");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:3:3
   |
 3 |   panic!("panic 2");
@@ -177,13 +199,13 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:3:3
   |
 3 |   panic!("panic Alan");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:3:3
   |
 3 |   panic!("panic Alan");
@@ -210,13 +232,13 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:2:3
   |
 2 |   panic!("panic");
   |   -----
   |
-warning: Plugin diagnostic: Leaving `panic!` in the code is discouraged.
+warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
  --> lib.cairo:2:3
   |
 2 |   panic!("panic");

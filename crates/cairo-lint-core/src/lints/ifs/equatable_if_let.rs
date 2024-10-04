@@ -9,6 +9,18 @@ pub const EQUATABLE_IF_LET: &str =
     "`if let` pattern used for equatable value. Consider using a simple comparison `==` instead";
 pub(super) const LINT_NAME: &str = "equatable_if_let";
 
+/// Checks for
+/// ```ignore
+/// if let Some(2) = a {
+///     ...
+/// }
+/// ```
+/// Which can be replaced by
+/// ```ignore
+/// if a == Some(2) {
+///    ...
+/// }
+/// ````
 pub fn check_equatable_if_let(
     db: &dyn SemanticGroup,
     expr: &ExprIf,
@@ -24,7 +36,9 @@ pub fn check_equatable_if_let(
     }
 
     if let Condition::Let(condition_let, patterns) = &expr.condition {
-        let expr_is_simple = is_simple_equality_expr(&arenas.exprs[*condition_let]);
+        // Simple literals and variables
+        let expr_is_simple =
+            matches!(arenas.exprs[*condition_let], Expr::Literal(_) | Expr::StringLiteral(_) | Expr::Var(_));
         let condition_is_simple = is_simple_equality_condition(patterns, arenas);
 
         if expr_is_simple && condition_is_simple {
@@ -34,14 +48,6 @@ pub fn check_equatable_if_let(
                 severity: Severity::Warning,
             });
         }
-    }
-}
-
-fn is_simple_equality_expr(expr: &Expr) -> bool {
-    match expr {
-        // Simple literals and variables
-        Expr::Literal(_) | Expr::StringLiteral(_) | Expr::Var(_) => true,
-        _ => false,
     }
 }
 

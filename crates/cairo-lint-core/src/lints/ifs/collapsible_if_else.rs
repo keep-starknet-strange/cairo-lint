@@ -8,22 +8,24 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
 pub(super) const LINT_NAME: &str = "collapsible_if_else";
 
-pub fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
-    if block_expr.statements.len() == 1 && block_expr.tail.is_none() {
-        if let Statement::Expr(statement_expr) = &arenas.statements[block_expr.statements[0]]
-            && matches!(arenas.exprs[statement_expr.expr], Expr::If(_))
-        {
-            true
-        } else {
-            false
-        }
-    } else if let Some(tail) = block_expr.tail {
-        matches!(arenas.exprs[tail], Expr::If(_))
-    } else {
-        false
-    }
-}
-
+/// Checks for
+/// ```ignore
+/// if cond {
+///     ...
+/// } else {
+///     if second_cond {
+///         ...
+///     }
+/// }
+/// ```
+/// This can be collapsed to:
+/// ```ignore
+/// if cond {
+///     ...
+/// } else if second_cond {
+///     ...
+/// }
+/// ```
 pub fn check_collapsible_if_else(
     db: &dyn SemanticGroup,
     expr_if: &ExprIf,
@@ -54,5 +56,23 @@ pub fn check_collapsible_if_else(
             message: COLLAPSIBLE_IF_ELSE.to_string(),
             severity: Severity::Warning,
         });
+    }
+}
+
+fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
+    if block_expr.statements.len() == 1 && block_expr.tail.is_none() {
+        if let Statement::Expr(statement_expr) = &arenas.statements[block_expr.statements[0]]
+            && matches!(arenas.exprs[statement_expr.expr], Expr::If(_))
+        {
+            true
+        } else {
+            false
+        }
+    } else if let Some(tail) = block_expr.tail
+        && block_expr.statements.is_empty()
+    {
+        matches!(arenas.exprs[tail], Expr::If(_))
+    } else {
+        false
     }
 }

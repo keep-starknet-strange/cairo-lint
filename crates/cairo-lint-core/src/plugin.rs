@@ -184,16 +184,9 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
-                        collapsible_if::check_collapsible_if(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node),
-                            &mut diags,
-                        );
                     }
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
-                        double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
-                        eq_op::check_eq_op(db.upcast(), &expr_binary, &mut diags);
                         erasing_op::check_erasing_operation(db.upcast(), expr_binary, &mut diags);
                     }
                     SyntaxKind::ExprMatch => {
@@ -262,25 +255,24 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
             Expr::FunctionCall(expr_func) => {
                 panic::check_panic_usage(db, expr_func, diagnostics);
                 bool_comparison::check_bool_comparison(db, expr_func, &function_body.arenas, diagnostics);
-                bitwise_for_parity_check::check_bitwise_for_parity(
-                    db.upcast(),
-                    expr_func,
-                    &function_body.arenas,
-                    diagnostics,
-                );
+                bitwise_for_parity_check::check_bitwise_for_parity(db, expr_func, &function_body.arenas, diagnostics);
+                eq_op::check_eq_op(db, expr_func, &function_body.arenas, diagnostics);
             }
 
+            Expr::LogicalOperator(expr_logical) => {
+                double_comparison::check_double_comparison(db, expr_logical, &function_body.arenas, diagnostics);
+            }
             Expr::If(expr_if) => {
                 equatable_if_let::check_equatable_if_let(db, expr_if, &function_body.arenas, diagnostics);
                 collapsible_if_else::check_collapsible_if_else(db, expr_if, &function_body.arenas, diagnostics);
+                collapsible_if::check_collapsible_if(db, expr_if, &function_body.arenas, diagnostics);
             }
             _ => (),
         };
     }
     for (_stmt_id, stmt) in &function_body.arenas.statements {
-        match &stmt {
-            Statement::Break(stmt_break) => breaks::check_break(db, stmt_break, &function_body.arenas, diagnostics),
-            _ => (),
+        if let Statement::Break(stmt_break) = &stmt {
+            breaks::check_break(db, stmt_break, &function_body.arenas, diagnostics)
         }
     }
 }
