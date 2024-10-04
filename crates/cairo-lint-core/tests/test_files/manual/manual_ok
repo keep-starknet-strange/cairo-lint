@@ -1,0 +1,118 @@
+//! > test basic ok
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = match res_val {
+        Result::Ok(x) => Option::Some(x),
+        Result::Err(_) => Option::None,
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = match res_val {
+  |  ______________-
+5 | |         Result::Ok(x) => Option::Some(x),
+6 | |         Result::Err(_) => Option::None,
+7 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.ok();
+}
+
+//! > ==========================================================================
+
+//! > test basic if ok
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = if let Result::Ok(x) = res_val {
+        Option::Some(x)
+    } else {
+        Option::None
+    };
+}
+
+//! > diagnostics
+
+warning: Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead
+ --> lib.cairo:4:14
+  |
+4 |       let _a = if let Result::Ok(x) = res_val {
+  |  ______________-
+5 | |         Option::Some(x)
+6 | |     } else {
+7 | |         Option::None
+8 | |     };
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let _a = res_val.ok();
+}
+
+//! > ==========================================================================
+
+//! > test other var
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let other_val = 0;
+    let _a = match res_val {
+        Result::Ok(_) => Option::Some(other_val),
+        Result::Err(_) => Option::None,
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let other_val = 0;
+    let _a = match res_val {
+        Result::Ok(_) => Option::Some(other_val),
+        Result::Err(_) => Option::None,
+    };
+}
+
+//! > ==========================================================================
+
+//! > test if other var
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let other_val = 0;
+    let _a = if let Result::Ok(_) = res_val {
+        Option::Some(other_val)
+    } else {
+        Option::None
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    let other_val = 0;
+    let _a = if let Result::Ok(_) = res_val {
+        Option::Some(other_val)
+    } else {
+        Option::None
+    };
+}
+
