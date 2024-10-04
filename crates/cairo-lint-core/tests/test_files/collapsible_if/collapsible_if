@@ -37,6 +37,39 @@ fn main() {
 }
 
 //! > ==========================================================================
+//! > collapsible if in boolean conditions allowed
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    #[allow(collapsible_if)]
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    #[allow(collapsible_if)]
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
+    }
+}
+
+//! > ==========================================================================
 
 //! > collapsible if in conditions with complex expressions
 

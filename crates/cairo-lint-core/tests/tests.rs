@@ -258,6 +258,7 @@ test_file!(
     manual,
     manual_is_some,
     "test basic is some",
+    "test basic is some allowed",
     "test with comment in Some",
     "test with comment in None",
     "test match expression is a function",
@@ -269,6 +270,7 @@ test_file!(
     manual,
     manual_is_none,
     "test basic is none",
+    "test basic is none allowed",
     "test with comment in Some",
     "test with comment in None",
     "test match expression is a function",
@@ -313,6 +315,7 @@ test_file!(
     "test with comment in None",
     "test match expression is a function",
     "test manual if",
+    "test manual if allowed",
     "test manual if with additional instructions",
     "test manual result if",
     "test manual match result",
@@ -323,6 +326,7 @@ test_file!(
     manual,
     manual_expect_err,
     "test basic match expect err",
+    "test basic match expect err allowed",
     "test basic if expect err",
     "test match with other err",
     "test if with other err",
@@ -334,6 +338,7 @@ test_file!(
     manual,
     manual_is_ok,
     "test basic is ok",
+    "test basic is ok allowed",
     "test match expression is a function",
     "test manual if",
     "test manual if expression is a function"
@@ -345,7 +350,8 @@ test_file!(
     "test basic is err",
     "test match expression is a function",
     "test manual if",
-    "test manual if expression is a function"
+    "test manual if expression is a function",
+    "test manual if expression is a function allowed"
 );
 
 test_file!(
@@ -358,12 +364,21 @@ test_file!(
     "test if other var"
 );
 
-test_file!(manual, manual_err, "test basic err", "test basic if err", "test other err", "test if other err");
+test_file!(
+    manual,
+    manual_err,
+    "test basic err",
+    "test basic err allowed",
+    "test basic if err",
+    "test other err",
+    "test if other err"
+);
 
 test_file!(
     collapsible_if,
     collapsible_if,
     "collapsible if in boolean conditions",
+    "collapsible if in boolean conditions allowed",
     "collapsible if with combinable conditions",
     "collapsible if in conditions with complex expressions",
     "collapsible if with function calls",

@@ -26,6 +26,30 @@ fn main() {
     let foo: Option::<i32> = Option::None;
     let _foo = foo.is_none();
 }
+//! > ==========================================================================
+//! > test basic is none allowed
+
+//! > cairo_code
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    #[allow(manual_is_none)]
+    let _foo = match foo {
+        Option::Some(_) => false,
+        Option::None => true,
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Option::<i32> = Option::None;
+    #[allow(manual_is_none)]
+    let _foo = match foo {
+        Option::Some(_) => false,
+        Option::None => true,
+    };
+}
 
 //! > ==========================================================================
 

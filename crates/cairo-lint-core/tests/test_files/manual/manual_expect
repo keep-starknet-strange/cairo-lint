@@ -59,6 +59,33 @@ fn main() {
     let opt_val: Option<i32> = Option::None;
     let _a = opt_val.expect('panic');
 }
+//! > ==========================================================================
+
+//! > test manual if allowed
+
+//! > cairo_code
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    #[allow(manual_expect)]
+    let _a = if let Option::Some(val) = opt_val {
+        val
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let opt_val: Option<i32> = Option::None;
+    #[allow(manual_expect)]
+    let _a = if let Option::Some(val) = opt_val {
+        val
+    } else {
+        core::panic_with_felt252('panic')
+    };
+}
 
 //! > ==========================================================================
 

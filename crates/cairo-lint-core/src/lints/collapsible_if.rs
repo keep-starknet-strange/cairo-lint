@@ -2,12 +2,21 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{Expr, ExprIf, OptionElseClause, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const COLLAPSIBLE_IF: &str =
     "Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.";
+pub(super) const LINT_NAME: &str = "collapsible_if";
 
 pub fn check_collapsible_if(db: &dyn SyntaxGroup, expr_if: &ExprIf, diagnostics: &mut Vec<PluginDiagnostic>) {
+    let mut current_node = expr_if.as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db, "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
+    }
     let if_block = expr_if.if_block(db);
 
     let statements = if_block.statements(db).elements(db);

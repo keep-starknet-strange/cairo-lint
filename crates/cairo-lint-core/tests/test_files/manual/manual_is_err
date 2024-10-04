@@ -99,6 +99,38 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > test manual if expression is a function allowed
+
+//! > cairo_code
+fn foo(a: i32) -> Result<i32,felt252> {
+    Result::Err('err')
+}
+fn main() {
+    #[allow(manual_is_err)]
+    let _a = if let Result::Ok(_) = foo(0) {
+        false
+    } else {
+        true
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn foo(a: i32) -> Result<i32,felt252> {
+    Result::Err('err')
+}
+fn main() {
+    #[allow(manual_is_err)]
+    let _a = if let Result::Ok(_) = foo(0) {
+        false
+    } else {
+        true
+    };
+}
+
+//! > ==========================================================================
+
 //! > test match expression is a function
 
 //! > cairo_code

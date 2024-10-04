@@ -634,8 +634,8 @@ impl Fixer {
     }
 
     /// Rewrites a manual implementation of expect err
-    pub fn fix_manual_expect_err(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
+    pub fn fix_manual_expect_err(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        let fix = match node.kind(db) {
             SyntaxKind::ExprMatch => {
                 let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
@@ -644,14 +644,15 @@ impl Fixer {
                 format!("{option_var_name}.expect_err({none_arm_err})")
             }
             SyntaxKind::ExprIf => {
-                let expr_if = ExprIf::from_syntax_node(db, node);
+                let expr_if = ExprIf::from_syntax_node(db, node.clone());
 
                 let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
 
                 format!("{option_var_name}.expect_err({err})")
             }
             _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+        };
+        Some((node, fix))
     }
 }
 

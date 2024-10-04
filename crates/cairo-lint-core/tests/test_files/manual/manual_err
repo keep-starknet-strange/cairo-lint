@@ -26,6 +26,30 @@ fn main() {
     let foo: Result<i32> = Result::Err('err');
     let _foo = foo.err();
 }
+//! > ==========================================================================
+//! > test basic err allowed
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    #[allow(manual_err)]
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(x) => Option::Some(x),
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    #[allow(manual_err)]
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(x) => Option::Some(x),
+    };
+}
 
 //! > ==========================================================================
 

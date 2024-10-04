@@ -29,7 +29,7 @@ pub enum ManualLint {
     ManualExpectErr,
 }
 
-pub const ALLOWED: [&str; 9] = [
+pub const ALLOWED: [&str; 10] = [
     manual_is::some::LINT_NAME,
     manual_is::none::LINT_NAME,
     manual_is::ok::LINT_NAME,
@@ -39,6 +39,7 @@ pub const ALLOWED: [&str; 9] = [
     manual_unwrap_or_default::LINT_NAME,
     manual_ok::LINT_NAME,
     manual_err::LINT_NAME,
+    manual_expect_err::LINT_NAME,
 ];
 
 pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: ManualLint, lint_name: &str) -> bool {
@@ -185,7 +186,6 @@ fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manua
     }
 }
 
-
 pub fn check_manual_if(db: &dyn SyntaxGroup, expr: &ExprIf, manual_lint: ManualLint, lint_name: &str) -> bool {
     let mut current_node = expr.as_syntax_node();
     while let Some(node) = current_node.parent() {
@@ -195,7 +195,6 @@ pub fn check_manual_if(db: &dyn SyntaxGroup, expr: &ExprIf, manual_lint: ManualL
         current_node = node;
     }
     if let Condition::Let(condition_let) = expr.condition(db) {
-
         match &condition_let.patterns(db).elements(db)[0] {
             Pattern::Enum(enum_pattern) => {
                 let enum_name = enum_pattern.path(db).as_syntax_node().get_text_without_trivia(db);

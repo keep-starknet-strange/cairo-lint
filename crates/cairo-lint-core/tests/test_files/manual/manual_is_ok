@@ -28,6 +28,31 @@ fn main() {
 }
 
 //! > ==========================================================================
+//! > test basic is ok allowed
+
+//! > cairo_code
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    #[allow(manual_is_ok)]
+    let _a = match res_val {
+        Result::Ok(_) => true,
+        Result::Err(_) => false
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    #[allow(manual_is_ok)]
+    let _a = match res_val {
+        Result::Ok(_) => true,
+        Result::Err(_) => false
+    };
+}
+
+//! > ==========================================================================
 
 //! > test manual if
 
