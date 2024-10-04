@@ -92,7 +92,9 @@ test_file!(
     "not redundant double comparison equal or greater than",
     "contradictory less than and greater than",
     "contradictory equal and less than",
-    "redundant greater than or equal and less than or equal"
+    "redundant greater than or equal and less than or equal",
+    "impossible comparison",
+    "every impossible comparison"
 );
 
 test_file!(
