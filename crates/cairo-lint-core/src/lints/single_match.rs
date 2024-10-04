@@ -51,10 +51,12 @@ pub fn check_single_match(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
-    if let Some(node) = match_expr.stable_ptr.lookup(db.upcast()).as_syntax_node().parent()
-        && node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME)
-    {
-        return;
+    let mut current_node = match_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
     }
     let arms = &match_expr.arms;
     let mut is_single_armed = false;

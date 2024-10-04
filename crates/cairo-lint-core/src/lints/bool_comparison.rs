@@ -1,10 +1,13 @@
+use cairo_lang_defs::ids::TopLevelLanguageElementId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
+use cairo_lang_syntax::node::ast::ExprBinary;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const BOOL_COMPARISON: &str = "Unnecessary comparison with a boolean value. Use the variable directly.";
 
@@ -33,27 +36,33 @@ pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: 
     }
 }
 
-pub fn check_bool_comparison(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
-    if let Some(node) = node.as_syntax_node().parent()
-        && node.has_attr_with_arg(db, "allow", LINT_NAME)
-    {
+pub fn check_bool_comparison(
+    db: &dyn SemanticGroup,
+    expr_func: &ExprFunctionCall,
+    arenas: &Arenas,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let mut current_node = expr_func.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
+    }
+    if !expr_func.function.full_name(db).contains("core::BoolPartialEq::") {
         return;
     }
-    let lhs = node.lhs(db);
-    let op = node.op(db);
-    let rhs = node.rhs(db);
-
-    let is_comparison_operator = matches!(op, BinaryOperator::EqEq(_) | BinaryOperator::Neq(_));
-
-    fn is_bool_literal(expr: &Expr) -> bool {
-        matches!(expr, Expr::True(_) | Expr::False(_))
-    }
-
-    if is_comparison_operator && (is_bool_literal(&lhs) || is_bool_literal(&rhs)) {
-        diagnostics.push(PluginDiagnostic {
-            stable_ptr: node.as_syntax_node().stable_ptr(),
-            message: BOOL_COMPARISON.to_string(),
-            severity: Severity::Warning,
-        });
+    for arg in &expr_func.args {
+        if let ExprFunctionCallArg::Value(expr) = arg
+            && let Expr::Snapshot(snap) = &arenas.exprs[*expr]
+            && let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[snap.inner]
+            && enum_var.variant.concrete_enum_id.enum_id(db).full_path(db.upcast()) == "core::bool"
+        {
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: expr_func.stable_ptr.untyped(),
+                message: BOOL_COMPARISON.to_string(),
+                severity: Severity::Warning,
+            });
+        }
     }
 }

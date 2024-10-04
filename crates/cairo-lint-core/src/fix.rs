@@ -109,7 +109,7 @@ impl Fixer {
     /// # Panics
     ///
     /// Panics if the diagnostic is incorrect (i.e., the match doesn't have the expected structure).
-    pub fn fix_destruct_match(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_destruct_match(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         let match_expr = ExprMatch::from_syntax_node(db, node.clone());
         let arms = match_expr.arms(db).elements(db);
         let first_arm = &arms[0];
@@ -133,15 +133,18 @@ impl Fixer {
         pattern_span.end = pattern.span_start_without_trivia(db);
         let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
         let trivia = pattern.clone().get_text_of_span(db, pattern_span);
-        indent_snippet(
-            &format!(
-                "{trivia}{indent}if let {} = {} {{\n{}\n}}",
-                pattern.get_text_without_trivia(db),
-                match_expr.expr(db).as_syntax_node().get_text_without_trivia(db),
-                first_expr.expression(db).as_syntax_node().get_text_without_trivia(db),
+        Some((
+            node,
+            indent_snippet(
+                &format!(
+                    "{trivia}{indent}if let {} = {} {{\n{}\n}}",
+                    pattern.get_text_without_trivia(db),
+                    match_expr.expr(db).as_syntax_node().get_text_without_trivia(db),
+                    first_expr.expression(db).as_syntax_node().get_text_without_trivia(db),
+                ),
+                indent.len() / 4,
             ),
-            indent.len() / 4,
-        )
+        ))
     }
 
     /// Fixes a plugin diagnostic by delegating to the appropriate Fixer method.
@@ -162,7 +165,7 @@ impl Fixer {
         semantic_diag: &SemanticDiagnostic,
         plugin_diag: &PluginDiagnostic,
     ) -> Option<(SyntaxNode, String)> {
-        let new_text = match diagnostic_kind_from_message(&plugin_diag.message) {
+        match diagnostic_kind_from_message(&plugin_diag.message) {
             CairoLintKind::DoubleParens => {
                 self.fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
             }
@@ -178,7 +181,7 @@ impl Fixer {
             ),
             CairoLintKind::CollapsibleIfElse => self.fix_collapsible_if_else(
                 db,
-                &ElseClause::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+                &ExprIf::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
             CairoLintKind::LoopMatchPopFront => {
                 self.fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
@@ -188,24 +191,23 @@ impl Fixer {
             CairoLintKind::ManualIsSome => self.fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualExpect => self.fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-            _ => return None,
-        };
-        Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
+            _ => None,
+        }
     }
 
     /// Rewrites `break ();` as `break;` given the node text contains it.
-    pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        node.get_text(db).replace("break ();", "break;").to_string()
+    pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        Some((node.clone(), node.get_text(db).replace("break ();", "break;").to_string()))
     }
 
     /// Rewrites a bool comparison to a simple bool. Ex: `some_bool == false` would be rewritten to
     /// `!some_bool`
-    pub fn fix_bool_comparison(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> String {
+    pub fn fix_bool_comparison(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> Option<(SyntaxNode, String)> {
         let lhs = node.lhs(db).as_syntax_node().get_text(db);
         let rhs = node.rhs(db).as_syntax_node().get_text(db);
 
         let result = generate_fixed_text_for_comparison(db, lhs.as_str(), rhs.as_str(), node.clone());
-        result
+        Some((node.as_syntax_node(), result))
     }
 
     /// Rewrites this:
@@ -224,7 +226,7 @@ impl Fixer {
     ///     do_smth(val);
     /// };
     /// ```
-    pub fn fix_loop_match_pop_front(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_loop_match_pop_front(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         let expr_loop = ExprLoop::from_syntax_node(db, node.clone());
         let body = expr_loop.body(db);
         let Statement::Expr(expr) = &body.statements(db).elements(db)[0] else {
@@ -263,7 +265,10 @@ impl Fixer {
                 }
             }
         }
-        indent_snippet(&format!("{trivia}for {elt_name} in {span_name} {{\n{some_arm}\n}};\n"), indent.len() / 4)
+        Some((
+            node,
+            indent_snippet(&format!("{trivia}for {elt_name} in {span_name} {{\n{some_arm}\n}};\n"), indent.len() / 4),
+        ))
     }
 
     /// Removes unnecessary double parentheses from a syntax node.
@@ -284,17 +289,20 @@ impl Fixer {
     ///
     /// Input: `((x + y))`
     /// Output: `x + y`
-    pub fn fix_double_parens(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_double_parens(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         let mut expr = Expr::from_syntax_node(db, node.clone());
 
         while let Expr::Parenthesized(inner_expr) = expr {
             expr = inner_expr.expr(db);
         }
 
-        indent_snippet(
-            &expr.as_syntax_node().get_text_without_trivia(db),
-            node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>().len() / 4,
-        )
+        Some((
+            node.clone(),
+            indent_snippet(
+                &expr.as_syntax_node().get_text_without_trivia(db),
+                node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>().len() / 4,
+            ),
+        ))
     }
 
     /// Transforms nested `if-else` statements into a more compact `if-else if` format.
@@ -310,7 +318,10 @@ impl Fixer {
     /// # Returns
     ///
     /// A `String` with the refactored `if-else` structure.
-    pub fn fix_collapsible_if_else(&self, db: &dyn SyntaxGroup, else_clause: &ElseClause) -> String {
+    pub fn fix_collapsible_if_else(&self, db: &dyn SyntaxGroup, if_expr: &ExprIf) -> Option<(SyntaxNode, String)> {
+        let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) else {
+            return None;
+        };
         if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db) {
             if let Some(Statement::Expr(statement_expr)) = block_expr.statements(db).elements(db).first() {
                 if let Expr::If(if_expr) = statement_expr.expr(db) {
@@ -327,17 +338,20 @@ impl Fixer {
                         .take_while(|c| c.is_whitespace())
                         .collect::<String>();
 
-                    return format!("{}else if {} {} {}", original_indent, condition, if_body, else_body);
+                    return Some((
+                        else_clause.as_syntax_node(),
+                        format!("{}else if {} {} {}", original_indent, condition, if_body, else_body),
+                    ));
                 }
             }
         }
 
         // If we can't transform it, return the original text
-        else_clause.as_syntax_node().get_text(db)
+        None
     }
 
     /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
-    pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_double_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         let expr = Expr::from_syntax_node(db, node.clone());
 
         if let Expr::Binary(binary_op) = expr {
@@ -354,17 +368,17 @@ impl Fixer {
                 if let Some(simplified_op) = simplified_op {
                     if let Some(operator_to_replace) = double_comparison::operator_to_replace(lhs_op) {
                         let lhs_text = lhs.as_syntax_node().get_text(db).replace(operator_to_replace, simplified_op);
-                        return lhs_text.to_string();
+                        return Some((node, lhs_text.to_string()));
                     }
                 }
             }
         }
 
-        node.get_text(db).to_string()
+        None
     }
 
     /// Rewrites a useless `if let` to a simple `if`
-    pub fn fix_equatable_if_let(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_equatable_if_let(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         let expr = ExprIf::from_syntax_node(db, node.clone());
         let condition = expr.condition(db);
 
@@ -379,12 +393,15 @@ impl Fixer {
             _ => panic!("Incorrect diagnostic"),
         };
 
-        format!(
-            "{}{}{}",
-            expr.if_kw(db).as_syntax_node().get_text(db),
-            fixed_condition,
-            expr.if_block(db).as_syntax_node().get_text(db),
-        )
+        Some((
+            node,
+            format!(
+                "{}{}{}",
+                expr.if_kw(db).as_syntax_node().get_text(db),
+                fixed_condition,
+                expr.if_block(db).as_syntax_node().get_text(db),
+            ),
+        ))
     }
 
     /// Converts a `loop` with a conditionally-breaking `if` statement into a `while` loop.
@@ -423,7 +440,7 @@ impl Fixer {
     ///     x += 1;
     /// }
     /// ```
-    pub fn fix_loop_break(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+    pub fn fix_loop_break(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         let loop_expr = ExprLoop::from_syntax_node(db, node.clone());
         let indent = node.get_text(db).chars().take_while(|c| c.is_whitespace()).collect::<String>();
         let mut condition_text = String::new();
@@ -445,12 +462,12 @@ impl Fixer {
             loop_body.push_str(&format!("{}    {}\n", indent, statement.as_syntax_node().get_text_without_trivia(db)));
         }
 
-        format!("{}while {} {{\n{}{}}}\n", indent, condition_text, loop_body, indent)
+        Some((node, format!("{}while {} {{\n{}{}}}\n", indent, condition_text, loop_body, indent)))
     }
 
     /// Rewrites a manual implementation of ok_or
-    pub fn fix_manual_ok_or(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
+    pub fn fix_manual_ok_or(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        let fix = match node.kind(db) {
             SyntaxKind::ExprMatch => {
                 let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
@@ -459,19 +476,20 @@ impl Fixer {
                 format!("{option_var_name}.ok_or({none_arm_err})")
             }
             SyntaxKind::ExprIf => {
-                let expr_if = ExprIf::from_syntax_node(db, node);
+                let expr_if = ExprIf::from_syntax_node(db, node.clone());
 
                 let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
 
                 format!("{option_var_name}.ok_or({err})")
             }
             _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+        };
+        Some((node, fix))
     }
 
     /// Rewrites a manual implementation of is_some
-    pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
+    pub fn fix_manual_is_some(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        let fix = match node.kind(db) {
             SyntaxKind::ExprMatch => {
                 let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
@@ -491,12 +509,13 @@ impl Fixer {
                 format!("{var_name}.is_some()")
             }
             _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+        };
+        Some((node, fix))
     }
 
     // Rewrites a manual implementation of is_none
-    pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
+    pub fn fix_manual_is_none(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        let fix = match node.kind(db) {
             SyntaxKind::ExprMatch => {
                 let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
@@ -516,12 +535,13 @@ impl Fixer {
                 format!("{var_name}.is_none()")
             }
             _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+        };
+        Some((node, fix))
     }
 
     /// Rewrites a manual implementation of expect
-    pub fn fix_manual_expect(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        match node.kind(db) {
+    pub fn fix_manual_expect(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        let fix = match node.kind(db) {
             SyntaxKind::ExprMatch => {
                 let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
@@ -530,14 +550,15 @@ impl Fixer {
                 format!("{option_var_name}.expect({none_arm_err})")
             }
             SyntaxKind::ExprIf => {
-                let expr_if = ExprIf::from_syntax_node(db, node);
+                let expr_if = ExprIf::from_syntax_node(db, node.clone());
 
                 let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
 
                 format!("{option_var_name}.expect({err})")
             }
             _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
-        }
+        };
+        Some((node, fix))
     }
 }
 

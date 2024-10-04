@@ -22,10 +22,12 @@ pub fn check_loop_match_pop_front(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
-    if let Some(node) = loop_expr.stable_ptr.lookup(db.upcast()).as_syntax_node().parent()
-        && node.has_attr_with_arg(db.upcast(), "allow", "loop_match_pop_front")
-    {
-        return;
+    let mut current_node = loop_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
     }
 
     if !loop_expr.ty.is_unit(db) {

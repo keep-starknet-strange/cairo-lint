@@ -191,6 +191,7 @@ test_file!(
     "simple lt op",
     "simple gt op",
     "simple bitwise op",
+    "simple bitwise op allowed",
     "simple sub op",
     "simple divide op",
     "op with method call"
@@ -243,8 +244,10 @@ test_file!(
     bitwise_for_parity_check,
     "with single variable",
     "with multiple variables",
+    "with multiple variables allowed",
     "In a loop",
-    "with conditional logic"
+    "with conditional logic",
+    "with conditional logic allowed"
 );
 
 test_file!(

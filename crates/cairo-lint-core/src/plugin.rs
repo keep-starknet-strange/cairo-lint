@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::attribute::SemanticQueryAttrs;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
-use cairo_lang_semantic::Expr;
+use cairo_lang_semantic::{Expr, Statement};
 use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf, ExprLoop, ExprMatch};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
@@ -134,13 +134,7 @@ impl AnalyzerPlugin for CairoLint {
                         &AstExpr::from_syntax_node(db.upcast(), node),
                         &mut diags,
                     ),
-                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
                     SyntaxKind::ExprIf => {
-                        equatable_if_let::check_equatable_if_let(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
                         manual_is_some::check_manual_if_is_some(
                             db.upcast(),
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
@@ -164,26 +158,11 @@ impl AnalyzerPlugin for CairoLint {
                     }
                     SyntaxKind::ExprBinary => {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
-                        bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
                         eq_op::check_eq_op(db.upcast(), &expr_binary, &mut diags);
-                        bitwise_for_parity_check::check_bitwise_for_parity(db.upcast(), &expr_binary, &mut diags);
                         erasing_op::check_erasing_operation(db.upcast(), expr_binary, &mut diags);
                     }
-                    SyntaxKind::ElseClause => {
-                        collapsible_if_else::check_collapsible_if_else(
-                            db.upcast(),
-                            &ElseClause::from_syntax_node(db.upcast(), node),
-                            &mut diags,
-                        );
-                    }
-                    SyntaxKind::ExprLoop => {
-                        loop_for_while::check_loop_for_while(
-                            db.upcast(),
-                            &ExprLoop::from_syntax_node(db.upcast(), node),
-                            &mut diags,
-                        );
-                    }
+                    SyntaxKind::ExprLoop => {}
                     SyntaxKind::ExprMatch => {
                         manual_ok_or::check_manual_ok_or(
                             db.upcast(),
@@ -229,10 +208,31 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                 single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas)
             }
             Expr::Loop(expr_loop) => {
-                loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
+                loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas);
+                loop_for_while::check_loop_for_while(db, expr_loop, &function_body.arenas, diagnostics);
             }
-            Expr::FunctionCall(expr_func) => panic::check_panic_usage(db, expr_func, diagnostics),
+            Expr::FunctionCall(expr_func) => {
+                panic::check_panic_usage(db, expr_func, diagnostics);
+                bool_comparison::check_bool_comparison(db, expr_func, &function_body.arenas, diagnostics);
+                bitwise_for_parity_check::check_bitwise_for_parity(
+                    db.upcast(),
+                    expr_func,
+                    &function_body.arenas,
+                    diagnostics,
+                );
+            }
+
+            Expr::If(expr_if) => {
+                equatable_if_let::check_equatable_if_let(db, expr_if, &function_body.arenas, diagnostics);
+                collapsible_if_else::check_collapsible_if_else(db, expr_if, &function_body.arenas, diagnostics);
+            }
             _ => (),
         };
+    }
+    for (_stmt_id, stmt) in &function_body.arenas.statements {
+        match &stmt {
+            Statement::Break(stmt_break) => breaks::check_break(db, stmt_break, &function_body.arenas, diagnostics),
+            _ => (),
+        }
     }
 }

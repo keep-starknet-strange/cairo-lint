@@ -2,6 +2,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 
 const DIV_EQ_OP: &str = "Division with identical operands, this operation always results in one (except for zero) and \
@@ -21,6 +22,11 @@ pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "eq_op";
 
 pub fn check_eq_op(db: &dyn SyntaxGroup, node: &ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
+    if let Some(node) = node.as_syntax_node().parent()
+        && node.has_attr_with_arg(db, "allow", LINT_NAME)
+    {
+        return;
+    }
     let lhs = node.lhs(db);
     let op = node.op(db);
     let rhs = node.rhs(db);

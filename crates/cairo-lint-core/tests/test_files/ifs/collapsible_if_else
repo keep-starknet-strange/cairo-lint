@@ -19,11 +19,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:6:11
+  --> lib.cairo:4:9
    |
- 6 |           } else {
-   |  ___________-
- 7 | |             if a == 15 {
+ 4 |           if a == 10 {
+   |  _________-
+ 5 | |             a += 1;
 ...  |
 12 | |             }
 13 | |         }
@@ -68,11 +68,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:6:5
+  --> lib.cairo:3:5
    |
- 6 |       else {
+ 3 |       if x {
    |  _____-
- 7 | |         if !x {
+ 4 | |         println!("x is true");
 ...  |
 13 | |         }
 14 | |     }
@@ -116,11 +116,11 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:6:5
+  --> lib.cairo:3:5
    |
- 6 |       else {
+ 3 |       if x {
    |  _____-
- 7 | |         if !x {
+ 4 | |         println!("x is true");
 ...  |
 12 | |         }
 13 | |     }
@@ -160,12 +160,12 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:6:5
+  --> lib.cairo:3:5
    |
- 6 |       else {
+ 3 |       if x {
    |  _____-
- 7 | |         if !x {
- 8 | |             println!("x is false");
+ 4 | |         println!("x is true");
+...  |
  9 | |         }
 10 | |     }
    | |_____-
@@ -234,12 +234,12 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
- --> lib.cairo:5:7
+ --> lib.cairo:3:5
   |
-5 |       } else {
-  |  _______-
-6 | |         if !x {
-7 | |             println!("x is false");
+3 |       if x {
+  |  _____-
+4 | |         println!("x is true");
+... |
 8 | |         }
 9 | |     }
   | |_____-

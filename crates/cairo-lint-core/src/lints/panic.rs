@@ -18,6 +18,13 @@ pub fn check_panic_usage(
     expr_function_call: &ExprFunctionCall,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
+    let mut current_node = expr_function_call.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
+    }
     let function_id = expr_function_call.function;
 
     if function_id.name(db) == PANIC {
