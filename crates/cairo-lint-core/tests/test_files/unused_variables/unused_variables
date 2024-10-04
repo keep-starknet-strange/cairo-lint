@@ -24,92 +24,94 @@ fn main() {
 
 //! > cairo_code
 fn main() {
-    let used: Option<felt252> = Option::Some(1);
-    let b = 1;
-    {
-        let c = 1_u32;
-    }
-    if true {
-        if false {
-            let d = 3_u32;
-        } else {
-            let e = false;
-        }
-        let f: Array<u32> = array![];
-    } else {
-        let g: Option<u32> = Option::None;
-        match used {
-            Option::Some(not_used) => 1_u32,
-            Option::None => 2_u32,
-        };
-    }
+  let used: Option<felt252> = Option::Some(1);
+  let b = 1;
+  {
+      let c = 1_u32;
+  }
+  if true {
+      let _avoid_collapsible = 1_u32;
+      if false {
+          let d = 3_u32;
+      } else {
+          let e = false;
+      }
+      let f: Array<u32> = array![];
+  } else {
+      let g: Option<u32> = Option::None;
+      match used {
+          Option::Some(not_used) => 1_u32,
+          Option::None => 2_u32,
+      };
+  }
 }
 
 //! > diagnostics
 warning: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:8:13
+ --> lib.cairo:8:11
   |
-8 |         let c = 1_u32;
-  |             -
+8 |       let c = 1_u32;
+  |           -
   |
 warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:16:17
+  --> lib.cairo:18:15
    |
-16 |             let d = 3_u32;
-   |                 -
-   |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:20:17
-   |
-20 |             let e = false;
-   |                 -
+18 |           let d = 3_u32;
+   |               -
    |
 warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:24:13
+  --> lib.cairo:22:15
    |
-24 |         let f: Array<u32> = array![];
-   |             -
-   |
-warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:32:26
-   |
-32 |             Option::Some(not_used) => 1_u32,
-   |                          --------
+22 |           let e = false;
+   |               -
    |
 warning: Unused variable. Consider ignoring by prefixing with `_`.
-  --> lib.cairo:28:13
+  --> lib.cairo:26:11
    |
-28 |         let g: Option<u32> = Option::None;
-   |             -
+26 |       let f: Array<u32> = array![];
+   |           -
    |
 warning: Unused variable. Consider ignoring by prefixing with `_`.
- --> lib.cairo:4:9
+  --> lib.cairo:34:24
+   |
+34 |           Option::Some(not_used) => 1_u32,
+   |                        --------
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+  --> lib.cairo:30:11
+   |
+30 |       let g: Option<u32> = Option::None;
+   |           -
+   |
+warning: Unused variable. Consider ignoring by prefixing with `_`.
+ --> lib.cairo:4:7
   |
-4 |     let b = 1;
-  |         -
+4 |   let b = 1;
+  |       -
   |
 
 //! > fixed
 fn main() {
-    let used: Option<felt252> = Option::Some(1);
-    let b = 1;
-    {
-        let c = 1_u32;
-    }
-    if true {
-        if false {
-            let d = 3_u32;
-        } else {
-            let e = false;
-        }
-        let f: Array<u32> = array![];
-    } else {
-        let g: Option<u32> = Option::None;
-        match used {
-            Option::Some(not_used) => 1_u32,
-            Option::None => 2_u32,
-        };
-    }
+  let used: Option<felt252> = Option::Some(1);
+  let b = 1;
+  {
+      let c = 1_u32;
+  }
+  if true {
+      let _avoid_collapsible = 1_u32;
+      if false {
+          let d = 3_u32;
+      } else {
+          let e = false;
+      }
+      let f: Array<u32> = array![];
+  } else {
+      let g: Option<u32> = Option::None;
+      match used {
+          Option::Some(not_used) => 1_u32,
+          Option::None => 2_u32,
+      };
+  }
 }
 
 //! > ==========================================================================

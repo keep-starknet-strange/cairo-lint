@@ -122,6 +122,7 @@ fn main() {
     let x = Option::Some(1_felt252);
     let y = Option::Some(1_felt252);
     if let (Option::Some(a), Option::Some(b)) = (x, y) {
+        let _avoid_collapsible = 1_u32;
         if a == b {
             println!("{a}");
         }
@@ -135,6 +136,7 @@ fn main() {
     let x = Option::Some(1_felt252);
     let y = Option::Some(1_felt252);
     if let (Option::Some(a), Option::Some(b)) = (x, y) {
+        let _avoid_collapsible = 1_u32;
         if a == b {
             println!("{a}");
         }

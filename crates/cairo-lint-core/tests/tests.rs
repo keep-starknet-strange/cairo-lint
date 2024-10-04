@@ -92,7 +92,9 @@ test_file!(
     "not redundant double comparison equal or greater than",
     "contradictory less than and greater than",
     "contradictory equal and less than",
-    "redundant greater than or equal and less than or equal"
+    "redundant greater than or equal and less than or equal",
+    "impossible comparison",
+    "every impossible comparison"
 );
 
 test_file!(
@@ -293,6 +295,17 @@ test_file!(
 
 test_file!(
     manual,
+    manual_expect_err,
+    "test basic match expect err",
+    "test basic if expect err",
+    "test match with other err",
+    "test if with other err",
+    "test match with function",
+    "test if with function"
+);
+
+test_file!(
+    manual,
     manual_is_ok,
     "test basic is ok",
     "test match expression is a function",
@@ -312,6 +325,19 @@ test_file!(
 test_file!(manual, manual_ok, "test basic ok", "test basic if ok", "test other var", "test if other var");
 
 test_file!(manual, manual_err, "test basic err", "test basic if err", "test other err", "test if other err");
+
+test_file!(
+    collapsible_if,
+    collapsible_if,
+    "collapsible if in boolean conditions",
+    "collapsible if with combinable conditions",
+    "collapsible if in conditions with complex expressions",
+    "collapsible if with function calls",
+    "collapsible if with simple numerical conditions",
+    "collapsible if with else clause",
+    "collapsible if with independent statement",
+    "collapsible if with else on outer if"
+);
 
 test_file!(
     ifs,
