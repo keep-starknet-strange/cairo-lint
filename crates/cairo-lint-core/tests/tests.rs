@@ -153,3 +153,9 @@ test_file!(
     "Else if with multiple statements",
     "Else if inside loop"
 );
+
+
+test_file!(
+    int_plus_one, int_plus_one, 
+    "simple int_plus_one fix"
+);

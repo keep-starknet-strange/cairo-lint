@@ -1,0 +1,28 @@
+//! > simple int_plus_one fix
+
+//! > cairo_code
+fn main() {
+    let x: u16 = 5;
+    let y: u16 = 3;
+    if x >= y + 1 {
+        // Do something
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Inefficient comparison: Consider using 'x > y' instead of 'x >= y + 1' or similar.
+ --> lib.cairo:6:8
+  |
+6 |     if x >= y + 1 {
+  |        ----------
+  |
+
+//! > fixed
+fn main() {
+    let x: u16 = 5;
+    let y: u16 = 3;
+    if x >= y + 1 {
+        // Do something
+    }
+}
+

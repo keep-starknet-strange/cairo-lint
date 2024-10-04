@@ -9,7 +9,8 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::*;
 use crate::lints::{
-    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, loops, single_match,
+    bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args, int_plus_one, loops,
+    single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -32,6 +33,7 @@ pub enum CairoLintKind {
     CollapsibleIfElse,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
+    IntPlusOne,
     Unknown,
 }
 
@@ -49,6 +51,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        int_plus_one::INT_PLUS_ONE => CairoLintKind::IntPlusOne,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -65,6 +68,7 @@ impl AnalyzerPlugin for CairoLint {
                 ModuleItemId::Constant(constant_id) => {
                     constant_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
                 }
+
                 ModuleItemId::FreeFunction(free_function_id) => {
                     let func_id = FunctionWithBodyId::Free(*free_function_id);
                     check_function(db, func_id, &mut diags);
@@ -102,6 +106,7 @@ impl AnalyzerPlugin for CairoLint {
                         let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
                         bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
                         double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
+                        int_plus_one::check_int_plus_one(db.upcast(), &expr_binary, &mut diags);
                     }
                     SyntaxKind::ElseClause => {
                         collapsible_if_else::check_collapsible_if_else(
