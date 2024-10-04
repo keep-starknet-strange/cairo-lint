@@ -295,6 +295,17 @@ test_file!(
 
 test_file!(
     manual,
+    manual_expect_err,
+    "test basic match expect err",
+    "test basic if expect err",
+    "test match with other err",
+    "test if with other err",
+    "test match with function",
+    "test if with function"
+);
+
+test_file!(
+    manual,
     manual_is_ok,
     "test basic is ok",
     "test match expression is a function",
