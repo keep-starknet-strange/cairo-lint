@@ -124,6 +124,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             )?;
             // Get the package path.
             let package_path = package.root.clone().into();
+            // Get if we should lint panics or not
             let cairo_lint_config = package.tool_metadata("cairo-lint");
             let should_lint_panics = if let Some(config) = cairo_lint_config {
                 config["nopanic"].as_bool().unwrap_or_default()
@@ -208,6 +209,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                     if fixes.len() <= 1 {
                         fixable_diagnostics = fixes;
                     } else {
+                        // Check if we have nested diagnostics. If so it's a nightmare to fix hence just ignore it
                         for i in 0..fixes.len() - 1 {
                             let first = fixes[i].span;
                             let second = fixes[i + 1].span;
@@ -219,6 +221,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                             }
                         }
                     }
+                    // Get all the files that need to be fixed
                     let mut files: HashMap<FileId, String> = HashMap::default();
                     files.insert(
                         file_id,
@@ -226,12 +229,14 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                             .ok_or(anyhow!("{} not found", file_id.file_name(db.upcast())))?
                             .to_string(),
                     );
+                    // Fix the files
                     for fix in fixable_diagnostics {
                         // Can't fail we just set the file value.
                         files
                             .entry(file_id)
                             .and_modify(|file| file.replace_range(fix.span.to_str_range(), &fix.suggestion));
                     }
+                    // Dump them in place
                     std::fs::write(file_id.full_path(db.upcast()), files.get(&file_id).unwrap())?
                 }
             }

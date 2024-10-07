@@ -9,10 +9,11 @@ use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::lints::ifs::{self, *};
+use crate::lints::loops::{loop_for_while, loop_match_pop_front};
 use crate::lints::manual::{self, *};
 use crate::lints::{
-    bitwise_for_parity_check, bool_comparison, breaks, collapsible_if, double_comparison, double_parens,
-    duplicate_underscore_args, eq_op, erasing_op, loop_for_while, loops, panic, single_match,
+    bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
+    eq_op, erasing_op, loops, panic, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -68,7 +69,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         collapsible_if::COLLAPSIBLE_IF => CairoLintKind::CollapsibleIf,
-        loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        loop_match_pop_front::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
         panic::PANIC_IN_CODE => CairoLintKind::Panic,
         loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
@@ -247,7 +248,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                 single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas);
             }
             Expr::Loop(expr_loop) => {
-                loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas);
+                loop_match_pop_front::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas);
                 loop_for_while::check_loop_for_while(db, expr_loop, &function_body.arenas, diagnostics);
             }
             Expr::FunctionCall(expr_func) => {

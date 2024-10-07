@@ -214,7 +214,7 @@ test_file!(
 );
 
 test_file!(
-    loop_for_while,
+    loops,
     loop_for_while,
     "simple loop with break",
     "loop with comparison condition",
@@ -376,7 +376,7 @@ test_file!(
 );
 
 test_file!(
-    collapsible_if,
+    ifs,
     collapsible_if,
     "collapsible if in boolean conditions",
     "collapsible if in boolean conditions allowed",

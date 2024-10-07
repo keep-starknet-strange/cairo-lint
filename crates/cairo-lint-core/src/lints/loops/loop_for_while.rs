@@ -9,7 +9,7 @@ pub const LOOP_FOR_WHILE: &str = "you seem to be trying to use `loop`. Consider 
                                   loop for clarity and conciseness";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "loop_for_while";
+pub(super) const LINT_NAME: &str = "loop_for_while";
 
 /// Checks for
 /// ```ignore
