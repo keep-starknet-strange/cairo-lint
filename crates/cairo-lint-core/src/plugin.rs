@@ -38,7 +38,6 @@ pub enum CairoLintKind {
     ManualUnwrapOrDefault,
     BitwiseForParityCheck,
     LoopForWhile,
-    MinMax,
     Unknown,
     Panic,
     ErasingOperation,
@@ -51,6 +50,7 @@ pub enum CairoLintKind {
     ManualIsErr,
     ManualExpect,
     ManualExpectErr,
+    MinMax,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -233,9 +233,6 @@ impl AnalyzerPlugin for CairoLint {
                             &mut diags,
                         );
                     }
-                    SyntaxKind::ExprFunctionCall => {
-                        min_max::check_min_max(db.upcast(), node, &mut diags);
-                    }
                     _ => continue,
                 }
             }
@@ -259,7 +256,10 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
             Expr::Loop(expr_loop) => {
                 loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
             }
-            Expr::FunctionCall(expr_func) => panic::check_panic_usage(db, expr_func, diagnostics),
+            Expr::FunctionCall(expr_func) => {
+                min_max::check_min_max(db, expr_func, diagnostics);
+                panic::check_panic_usage(db, expr_func, diagnostics);
+            }
             _ => (),
         };
     }

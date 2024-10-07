@@ -1,8 +1,10 @@
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::span::TextSpan;
+use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
+use cairo_lang_semantic::ExprFunctionCall;
 use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition, ElseClause, Expr, ExprBinary, ExprIf, ExprLoop, ExprMatch, OptionElseClause,
     OptionPatternEnumInnerPattern, Pattern, Statement,
@@ -206,24 +208,28 @@ impl Fixer {
         Some((semantic_diag.stable_location.syntax_node(db.upcast()), new_text))
     }
 
-    /// Fixes incorrect usage of min or max by swapping the arguments if they are in the wrong order.
-    pub fn fix_min_max(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
-        let children = db.get_children(node.clone());
+    pub fn fix_min_max(
+        &self,
+        db: &dyn SemanticGroup,
+        node: &ExprFunctionCall
+    ) -> String {
+        let function_id = node.function;
+        let func_name_text = function_id.name(db).as_str();
 
-        if let Some(func_name_node) = children.first() {
-            if let Some(func_name) = func_name_node.text(db) {
-                if let [arg1, arg2] = &children[1..] {
-                    let arg1_text = arg1.get_text(db);
-                    let arg2_text = arg2.get_text(db);
-
-                    if (func_name == "min" && arg1_text > arg2_text) || (func_name == "max" && arg1_text < arg2_text) {
-                        return format!("{}({}, {})", func_name, arg2_text, arg1_text);
-                    }
-                }
+        let args = &node.args;
+    
+        if args.len() == 2 {
+            let arg1 = &args[0];
+            let arg2 = &args[1];
+    
+            if (func_name_text == "min" && arg1 > arg2) || 
+               (func_name_text == "max" && arg1 < arg2) {
+                return format!("{}({}, {})", func_name_text, arg2, arg1);
             }
         }
-        node.get_text(db)
     }
+    
+    
 
     /// Rewrites `break ();` as `break;` given the node text contains it.
     pub fn fix_break_unit(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {

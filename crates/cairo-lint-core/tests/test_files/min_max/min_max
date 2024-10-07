@@ -1,4 +1,4 @@
-//! > Min and max functions are used incorrectly
+//! > min and max functions are used incorrectly
 
 //! > cairo_code
 fn main() {
@@ -9,7 +9,7 @@ fn main() {
     let incorrect_max = max(a, b);
 }
 
-//! > Min and max swapped wrong
+//! > min and max swapped wrong
 
 //! > cairo_code
 fn main() {

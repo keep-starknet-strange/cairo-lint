@@ -343,5 +343,5 @@ test_file!(
     min_max,
     min_max,
     "min and max functions are used incorrectly",
-    "Min and max swapped wrong"
+    "min and max swapped wrong"
 );
