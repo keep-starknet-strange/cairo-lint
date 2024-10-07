@@ -388,3 +388,19 @@ test_file!(
     "collapsible if with independent statement",
     "collapsible if with else on outer if"
 );
+
+test_file!(
+    ifs,
+    ifs_same_cond,
+    "Same condition with else",
+    "Same condition with boolean",
+    "Same condition with felt252",
+    "Same condition with struct",
+    "Same condition with multiple if else",
+    "Similar conditions",
+    "Combined conditions with different if",
+    "if with functions",
+    "Greater lesser comparison",
+    "Same conditions with literals and vars",
+    "Same conditions with literals"
+);
