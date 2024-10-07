@@ -63,6 +63,9 @@ Note: You can also include test files with the `--test` flag
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/TropicalDog17"><img src="https://avatars.githubusercontent.com/u/79791913?v=4?s=100" width="100px;" alt="Tuan Tran"/><br /><sub><b>Tuan Tran</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=TropicalDog17" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=TropicalDog17" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/JoE11-y"><img src="https://avatars.githubusercontent.com/u/55321462?v=4?s=100" width="100px;" alt="BlockyJ"/><br /><sub><b>BlockyJ</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=JoE11-y" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=JoE11-y" title="Tests">⚠️</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://linkedin.com/in/luis-jimenez22"><img src="https://avatars.githubusercontent.com/u/87153882?v=4?s=100" width="100px;" alt="Luis Jiménez"/><br /><sub><b>Luis Jiménez</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=jimenezz22" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=jimenezz22" title="Tests">⚠️</a></td>
+    </tr>
   </tbody>
 </table>
 
