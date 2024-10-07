@@ -1,4 +1,4 @@
-use cairo_lang_defs::ids::NamedLanguageElementId;
+use cairo_lang_defs::ids::TopLevelLanguageElementId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -7,6 +7,8 @@ use cairo_lang_semantic::{
 };
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+
+use crate::lints::{NONE, SOME};
 
 pub const LOOP_MATCH_POP_FRONT: &str =
     "you seem to be trying to use `loop` for iterating over a span. Consider using `for in`";
@@ -98,8 +100,6 @@ pub fn check_loop_match_pop_front(
 }
 
 const OPTION_TYPE: &str = "core::option::Option::<";
-const SOME_VARIANT: &str = "Some";
-const NONE_VARIANT: &str = "None";
 
 fn check_single_match(db: &dyn SemanticGroup, match_expr: &ExprMatch, arenas: &Arenas) -> bool {
     let arms = &match_expr.arms;
@@ -154,7 +154,7 @@ fn check_enum_pattern(
         return false;
     }
     // Check if the variant is the None variant
-    if enum_pat.variant.id.name(db.upcast()) == NONE_VARIANT
+    if enum_pat.variant.id.full_path(db.upcast()) == NONE
     // Get the expression of the None variant and checks if it's a block expression. 
         && let Expr::Block(expr_block) = &arenas.exprs[arm_expression]
         // If it's a block expression checks that it only contains `break;`
@@ -162,7 +162,7 @@ fn check_enum_pattern(
     {
         true
     } else {
-        enum_pat.variant.id.name(db.upcast()) == SOME_VARIANT
+        enum_pat.variant.id.full_path(db.upcast()) == SOME
     }
 }
 /// Checks that the block only contains `break;` without comments

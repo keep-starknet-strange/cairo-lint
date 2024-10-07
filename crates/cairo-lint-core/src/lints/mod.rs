@@ -29,6 +29,15 @@ pub(crate) const NOT: &str = "core::traits::BitNot::bitnot";
 pub(crate) const DIV: &str = "core::traits::Div::div";
 pub(crate) const MUL: &str = "core::traits::Mul::mul";
 pub(crate) const SUB: &str = "core::traits::Sub::sub";
+pub(crate) const OK: &str = "core::result::Result::Ok";
+pub(crate) const ERR: &str = "core::result::Result::Err";
+pub(crate) const SOME: &str = "core::option::Option::Some";
+pub(crate) const NONE: &str = "core::option::Option::None";
+pub(crate) const TRUE: &str = "core::bool::True";
+pub(crate) const FALSE: &str = "core::bool::False";
+pub(crate) const PANIC_WITH_FELT252: &str = "core::panic_with_felt252";
+pub(crate) const DEFAULT: &str = "core::traits::Default::default";
+pub(crate) const ARRAY_NEW: &str = "core::array::ArrayTrait::new";
 
 pub(crate) fn function_trait_name_from_fn_id(db: &dyn SemanticGroup, function: &FunctionId) -> String {
     let Ok(Some(func_id)) = function.get_concrete(db).body(db) else {

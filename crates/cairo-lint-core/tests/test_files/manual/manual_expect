@@ -59,6 +59,7 @@ fn main() {
     let opt_val: Option<i32> = Option::None;
     let _a = opt_val.expect('panic');
 }
+
 //! > ==========================================================================
 
 //! > test manual if allowed
@@ -160,14 +161,21 @@ fn main() {
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+ --> lib.cairo:3:14
+  |
+3 |       let _a = match res_val {
+  |  ______________-
+4 | |         Result::Ok(val) => val,
+5 | |         Result::Err(err) => core::panic_with_felt252(err)
+6 | |     };
+  | |_____-
+  |
 
 //! > fixed
 fn main() {
     let res_val: Result<i32> = Result::Err('err');
-    let _a = match res_val {
-        Result::Ok(val) => val,
-        Result::Err(err) => core::panic_with_felt252(err)
-    };
+    let _a = res_val.expect(err);
 }
 
 //! > ==========================================================================
