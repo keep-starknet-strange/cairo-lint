@@ -66,6 +66,7 @@ Note: You can also include test files with the `--test` flag
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="http://linkedin.com/in/luis-jimenez22"><img src="https://avatars.githubusercontent.com/u/87153882?v=4?s=100" width="100px;" alt="Luis Jiménez"/><br /><sub><b>Luis Jiménez</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=jimenezz22" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=jimenezz22" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/MariangelaNM"><img src="https://avatars.githubusercontent.com/u/91926755?v=4?s=100" width="100px;" alt="Mariángela N."/><br /><sub><b>Mariángela N.</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=MariangelaNM" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=MariangelaNM" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Gianfranco99"><img src="https://avatars.githubusercontent.com/u/67334390?v=4?s=100" width="100px;" alt="Gianfranco99"/><br /><sub><b>Gianfranco99</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=Gianfranco99" title="Code">💻</a> <a href="https://github.com/keep-starknet-strange/cairo-lint/commits?author=Gianfranco99" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
 </table>
