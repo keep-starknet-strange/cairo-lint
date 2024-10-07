@@ -186,11 +186,6 @@ impl AnalyzerPlugin for CairoLint {
                             &ExprIf::from_syntax_node(db.upcast(), node.clone()),
                             &mut diags,
                         );
-                        ifs_same_cond::check_duplicate_if_condition(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
                     }
                     SyntaxKind::ExprMatch => {
                         manual_ok_or::check_manual_ok_or(
@@ -270,6 +265,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                 equatable_if_let::check_equatable_if_let(db, expr_if, &function_body.arenas, diagnostics);
                 collapsible_if_else::check_collapsible_if_else(db, expr_if, &function_body.arenas, diagnostics);
                 collapsible_if::check_collapsible_if(db, expr_if, &function_body.arenas, diagnostics);
+                ifs_same_cond::check_duplicate_if_condition(db, expr_if, &function_body.arenas, diagnostics);
             }
             _ => (),
         };
