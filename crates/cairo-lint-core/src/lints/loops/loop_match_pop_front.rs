@@ -5,6 +5,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Expr, ExprBlock, ExprId, ExprLoop, ExprMatch, Pattern, PatternEnumVariant, Statement,
 };
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const LOOP_MATCH_POP_FRONT: &str =
@@ -12,24 +13,57 @@ pub const LOOP_MATCH_POP_FRONT: &str =
 
 const SPAN_MATCH_POP_FRONT: &str = "\"SpanImpl::pop_front\"";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+pub(super) const LINT_NAME: &str = "loop_match_pop_front";
+
+/// Checks for
+/// ```ignore
+/// let a: Span<u32> = array![1, 2, 3].span();
+/// loop {
+///    match a.pop_front() {
+///        Option::Some(val) => {do_smth(val); },
+///        Option::None => { break; }
+///    }
+/// }
+/// ```
+/// Which can be rewritten as
+/// ```ignore
+/// let a: Span<u32> = array![1, 2, 3].span();
+/// for val in a {
+///     do_smth(val);
+/// }
+/// ```
 pub fn check_loop_match_pop_front(
     db: &dyn SemanticGroup,
     loop_expr: &ExprLoop,
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
+    // Checks if the lint is allowed in an upper scope
+    let mut current_node = loop_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
+    }
+
+    // Checks that the loop doesn't return anything
     if !loop_expr.ty.is_unit(db) {
         return;
     }
     let Expr::Block(expr_block) = &arenas.exprs[loop_expr.body] else {
         return;
     };
+    // Case where there's no statements only an expression in the tail.
     if expr_block.statements.is_empty()
         && let Some(tail) = &expr_block.tail
+        // Get the function call and check that it's the span match pop front function from the corelib
         && let Expr::Match(expr_match) = &arenas.exprs[*tail]
         && let Expr::FunctionCall(func_call) = &arenas.exprs[expr_match.matched_expr]
         && func_call.function.name(db) == SPAN_MATCH_POP_FRONT
     {
+        // Check that something is done only in the Some branch of the match
         if !check_single_match(db, expr_match, arenas) {
             return;
         }
@@ -40,10 +74,13 @@ pub fn check_loop_match_pop_front(
         });
         return;
     }
+    // If the loop contains multiple statements.
     if !expr_block.statements.is_empty()
+    // If the first statement is the match we're looking for. the order is important
         && let Statement::Expr(stmt_expr) = &arenas.statements[expr_block.statements[0]]
         && let Expr::Match(expr_match) = &arenas.exprs[stmt_expr.expr]
     {
+        // Checks that we're only doing something in the some branch
         if !check_single_match(db, expr_match, arenas) {
             return;
         }
@@ -64,7 +101,7 @@ const OPTION_TYPE: &str = "core::option::Option::<";
 const SOME_VARIANT: &str = "Some";
 const NONE_VARIANT: &str = "None";
 
-pub fn check_single_match(db: &dyn SemanticGroup, match_expr: &ExprMatch, arenas: &Arenas) -> bool {
+fn check_single_match(db: &dyn SemanticGroup, match_expr: &ExprMatch, arenas: &Arenas) -> bool {
     let arms = &match_expr.arms;
 
     // Check that we're in a setup with 2 arms that return unit

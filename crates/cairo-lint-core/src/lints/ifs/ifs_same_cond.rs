@@ -1,57 +1,69 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::ast::{BlockOrIf, Condition, Expr, ExprIf, OptionElseClause};
-use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf};
+use cairo_lang_syntax::node::helpers::QueryAttrs;
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+
+use super::ensure_no_ref_arg;
 
 pub const DUPLICATE_IF_CONDITION: &str = "Consecutive `if` with the same condition found.";
 
-pub fn check_duplicate_if_condition(db: &dyn SyntaxGroup, if_expr: &ExprIf, diagnostics: &mut Vec<PluginDiagnostic>) {
-    let if_condition = if_expr.condition(db);
+pub(super) const LINT_NAME: &str = "ifs_same_cond";
 
-    if matches!(&if_condition, Condition::Expr(expr) if matches!(expr.expr(db), Expr::FunctionCall(_)))
-        || matches!(&if_condition, Condition::Let(condition_let) if matches!(condition_let.expr(db), Expr::FunctionCall(_)))
+pub fn check_duplicate_if_condition(
+    db: &dyn SemanticGroup,
+    expr_if: &ExprIf,
+    arenas: &Arenas,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    // Checks if the lint is allowed in any upper scope
+    let mut current_node = expr_if.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
+    }
+    let cond_expr = match &expr_if.condition {
+        Condition::BoolExpr(expr_id) => &arenas.exprs[*expr_id],
+        Condition::Let(expr_id, _patterns) => &arenas.exprs[*expr_id],
+    };
+
+    if let Expr::FunctionCall(func_call) = cond_expr
+        && ensure_no_ref_arg(arenas, func_call)
     {
         return;
     }
 
-    let mut current_block = if_expr.else_clause(db);
-    let mut condition_found = false;
-    let if_condition_text = get_condition_text(db, &if_condition);
+    let mut current_block = expr_if.else_block;
+    let if_condition_text =
+        cond_expr.stable_ptr().lookup(db.upcast()).as_syntax_node().get_text_without_trivia(db.upcast());
 
-    while let OptionElseClause::ElseClause(ref else_clause) = current_block {
-        if let BlockOrIf::If(else_if_block) = else_clause.else_block_or_if(db) {
-            let else_if_condition = else_if_block.condition(db);
+    while let Some(expr_id) = current_block
+        && let Expr::If(else_if_block) = &arenas.exprs[expr_id]
+    {
+        current_block = else_if_block.else_block;
+        let else_if_cond = match &else_if_block.condition {
+            Condition::BoolExpr(expr_id) => &arenas.exprs[*expr_id],
+            Condition::Let(expr_id, _patterns) => &arenas.exprs[*expr_id],
+        };
 
-            if matches!(&else_if_condition, Condition::Expr(expr) if matches!(expr.expr(db), Expr::FunctionCall(_)))
-                || matches!(&else_if_condition, Condition::Let(condition_let) if matches!(condition_let.expr(db), Expr::FunctionCall(_)))
-            {
-                current_block = else_if_block.else_clause(db);
-                continue;
-            }
+        if let Expr::FunctionCall(func_call) = else_if_cond
+            && ensure_no_ref_arg(arenas, func_call)
+        {
+            continue;
+        }
+        let else_if_condition_text =
+            else_if_cond.stable_ptr().lookup(db.upcast()).as_syntax_node().get_text_without_trivia(db.upcast());
 
-            let else_if_condition_text = get_condition_text(db, &else_if_condition);
-
-            if if_condition_text == else_if_condition_text && !condition_found {
-                diagnostics.push(PluginDiagnostic {
-                    stable_ptr: if_expr.as_syntax_node().stable_ptr(),
-                    message: DUPLICATE_IF_CONDITION.to_string(),
-                    severity: Severity::Warning,
-                });
-                condition_found = true;
-            }
-
-            current_block = else_if_block.else_clause(db);
-        } else {
+        if if_condition_text == else_if_condition_text {
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: expr_if.stable_ptr.untyped(),
+                message: DUPLICATE_IF_CONDITION.to_string(),
+                severity: Severity::Warning,
+            });
             break;
         }
-    }
-}
-
-fn get_condition_text(db: &dyn SyntaxGroup, condition: &Condition) -> String {
-    match condition {
-        Condition::Expr(expr) => expr.as_syntax_node().get_text(db).to_string(),
-
-        Condition::Let(condition_let) => condition_let.expr(db).as_syntax_node().get_text(db).to_string(),
     }
 }

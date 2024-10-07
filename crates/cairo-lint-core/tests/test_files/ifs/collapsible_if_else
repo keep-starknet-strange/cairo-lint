@@ -19,14 +19,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:10:11
+  --> lib.cairo:4:9
    |
-10 |           } else {
-   |  ___________-
-11 | |             if a == 15 {
+ 4 |           if a == 10 {
+   |  _________-
+ 5 | |             a += 1;
 ...  |
-16 | |             }
-17 | |         }
+12 | |             }
+13 | |         }
    | |_________-
    |
 
@@ -68,14 +68,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:10:5
+  --> lib.cairo:3:5
    |
-10 |       else {
+ 3 |       if x {
    |  _____-
-11 | |         if !x {
+ 4 | |         println!("x is true");
 ...  |
-17 | |         }
-18 | |     }
+13 | |         }
+14 | |     }
    | |_____-
    |
 
@@ -116,14 +116,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:10:5
+  --> lib.cairo:3:5
    |
-10 |       else {
+ 3 |       if x {
    |  _____-
-11 | |         if !x {
+ 4 | |         println!("x is true");
 ...  |
-16 | |         }
-17 | |     }
+12 | |         }
+13 | |     }
    | |_____-
    |
 
@@ -160,14 +160,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:10:5
+  --> lib.cairo:3:5
    |
-10 |       else {
+ 3 |       if x {
    |  _____-
-11 | |         if !x {
-12 | |             println!("x is false");
-13 | |         }
-14 | |     }
+ 4 | |         println!("x is true");
+...  |
+ 9 | |         }
+10 | |     }
    | |_____-
    |
 
@@ -181,6 +181,40 @@ fn main() {
             println!("x is false");
         }
  }
+
+//! > ==========================================================================
+
+//! > Simple else if with new line allowed
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    #[allow(collapsible_if_else)]
+    if x {
+        println!("x is true");
+    }
+    else {
+        if !x {
+            println!("x is false");
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = true;
+    #[allow(collapsible_if_else)]
+    if x {
+        println!("x is true");
+    }
+    else {
+        if !x {
+            println!("x is false");
+        }
+    }
+}
 
 //! > ==========================================================================
 
@@ -200,16 +234,16 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-  --> lib.cairo:8:7
-   |
- 8 |       } else {
-   |  _______-
- 9 | |         if !x {
-10 | |             println!("x is false");
-11 | |         }
-12 | |     }
-   | |_____-
-   |
+ --> lib.cairo:3:5
+  |
+3 |       if x {
+  |  _____-
+4 | |         println!("x is true");
+... |
+8 | |         }
+9 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main() {

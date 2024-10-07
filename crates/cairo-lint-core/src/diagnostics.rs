@@ -9,7 +9,6 @@ pub fn format_diagnostic<'a>(diagnostic: &'a SemanticDiagnostic, db: &'a RootDat
     let location = diagnostic.location(db.upcast());
     let file_id = location.file_id;
     let span = location.span;
-    let file_location = span.position_in_file(db.upcast(), file_id).unwrap();
     let level = match diagnostic.severity() {
         Severity::Warning => Level::Warning,
         Severity::Error => Level::Error,
@@ -18,7 +17,8 @@ pub fn format_diagnostic<'a>(diagnostic: &'a SemanticDiagnostic, db: &'a RootDat
         .render(
             level.title(&diagnostic.format(db)).snippet(
                 Snippet::source(db.file_content(file_id).unwrap().as_ref())
-                    .line_start(file_location.start.line)
+                    // We give the wole file as string input so the start line is 1
+                    .line_start(1)
                     .origin(&file_id.full_path(db.upcast()))
                     .fold(true)
                     .annotation(level.span(span.to_str_range())),

@@ -9,6 +9,7 @@ pub mod manual_unwrap_or_default;
 
 use cairo_lang_syntax::node::ast::{Condition, Expr, ExprIf, ExprMatch, MatchArm, Pattern, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use helpers::*;
 
@@ -28,7 +29,27 @@ pub enum ManualLint {
     ManualExpectErr,
 }
 
-pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: ManualLint) -> bool {
+pub const ALLOWED: [&str; 10] = [
+    manual_is::some::LINT_NAME,
+    manual_is::none::LINT_NAME,
+    manual_is::ok::LINT_NAME,
+    manual_is::err::LINT_NAME,
+    manual_ok_or::LINT_NAME,
+    manual_expect::LINT_NAME,
+    manual_unwrap_or_default::LINT_NAME,
+    manual_ok::LINT_NAME,
+    manual_err::LINT_NAME,
+    manual_expect_err::LINT_NAME,
+];
+
+pub fn check_manual(db: &dyn SyntaxGroup, expr_match: &ExprMatch, manual_lint: ManualLint, lint_name: &str) -> bool {
+    let mut current_node = expr_match.as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db, "allow", lint_name) {
+            return false;
+        }
+        current_node = node;
+    }
     let arms = expr_match.arms(db).elements(db);
 
     if arms.len() != 2 {
@@ -165,7 +186,14 @@ fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SyntaxGroup, manual_lint: Manua
     }
 }
 
-pub fn check_manual_if(db: &dyn SyntaxGroup, expr: &ExprIf, manual_lint: ManualLint) -> bool {
+pub fn check_manual_if(db: &dyn SyntaxGroup, expr: &ExprIf, manual_lint: ManualLint, lint_name: &str) -> bool {
+    let mut current_node = expr.as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db, "allow", lint_name) {
+            return false;
+        }
+        current_node = node;
+    }
     if let Condition::Let(condition_let) = expr.condition(db) {
         match &condition_let.patterns(db).elements(db)[0] {
             Pattern::Enum(enum_pattern) => {

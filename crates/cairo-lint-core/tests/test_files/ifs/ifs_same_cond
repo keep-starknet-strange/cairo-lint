@@ -17,14 +17,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:10:5
+  --> lib.cairo:6:5
    |
-10 |       if x == z {
+ 6 |       if x == z {
    |  _____-
-11 | |         println!("x is equal to z");
+ 7 | |         println!("x is equal to z");
 ...  |
-15 | |         println!("x plus 5 is equal to y");
-16 | |     }
+11 | |         println!("x plus 5 is equal to y");
+12 | |     }
    | |_____-
    |
 
@@ -60,16 +60,16 @@ fn main(){
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:6:5
-   |
- 6 |       if a > 3 {
-   |  _____-
- 7 | |         println!("a == 3");
- 8 | |     } else if a > 3 {
- 9 | |         println!("3 == a");
-10 | |     }
-   | |_____-
-   |
+ --> lib.cairo:4:5
+  |
+4 |       if a > 3 {
+  |  _____-
+5 | |         println!("a == 3");
+6 | |     } else if a > 3 {
+7 | |         println!("3 == a");
+8 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main(){
@@ -99,16 +99,16 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:6:5
-   |
- 6 |       if condition {
-   |  _____-
- 7 | |         println!("Condition is true");
- 8 | |     } else if condition {
- 9 | |         println!("Condition is still true");
-10 | |     }
-   | |_____-
-   |
+ --> lib.cairo:4:5
+  |
+4 |       if condition {
+  |  _____-
+5 | |         println!("Condition is true");
+6 | |     } else if condition {
+7 | |         println!("Condition is still true");
+8 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main() {
@@ -138,16 +138,16 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:6:5
-   |
- 6 |       if a == b {
-   |  _____-
- 7 | |         println!("a is equal to b");
- 8 | |     } else if a == b {
- 9 | |         println!("a is equal to b");
-10 | |     }
-   | |_____-
-   |
+ --> lib.cairo:4:5
+  |
+4 |       if a == b {
+  |  _____-
+5 | |         println!("a is equal to b");
+6 | |     } else if a == b {
+7 | |         println!("a is equal to b");
+8 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main() {
@@ -178,16 +178,16 @@ fn main(){
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:8:5
-   |
- 8 |       if str1 == str2 {
-   |  _____-
- 9 | |         println!("Strings are equal");
-10 | |     } else if str1 == str2 {
-11 | |         println!("Strings are still equal");
-12 | |     }
-   | |_____-
-   |
+ --> lib.cairo:5:5
+  |
+5 |       if str1 == str2 {
+  |  _____-
+6 | |         println!("Strings are equal");
+7 | |     } else if str1 == str2 {
+8 | |         println!("Strings are still equal");
+9 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main(){
@@ -226,47 +226,47 @@ fn main(){
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:8:5
+  --> lib.cairo:11:12
    |
- 8 |       if str1 == str2 {
+11 |       } else if str1 == str2 {
+   |  ____________-
+12 | |         println!("Strings are still equal");
+...  |
+15 | |         println!("Strings are still equal");
+16 | |     } 
+   | |_____-
+   |
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:9:12
+   |
+ 9 |       } else if str1 == str2 {
+   |  ____________-
+10 | |         println!("Strings are still equal");
+...  |
+15 | |         println!("Strings are still equal");
+16 | |     } 
+   | |_____-
+   |
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:7:12
+   |
+ 7 |       } else if str1 == str2 {
+   |  ____________-
+ 8 | |         println!("Strings are still equal");
+...  |
+15 | |         println!("Strings are still equal");
+16 | |     } 
+   | |_____-
+   |
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:5:5
+   |
+ 5 |       if str1 == str2 {
    |  _____-
- 9 | |         println!("Strings are equal");
+ 6 | |         println!("Strings are equal");
 ...  |
-18 | |         println!("Strings are still equal");
-19 | |     } 
-   | |_____-
-   |
-warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:12:12
-   |
-12 |       } else if str1 == str2 {
-   |  ____________-
-13 | |         println!("Strings are still equal");
-...  |
-20 | |         println!("Strings are still equal");
-21 | |     } 
-   | |_____-
-   |
-warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:16:12
-   |
-16 |       } else if str1 == str2 {
-   |  ____________-
-17 | |         println!("Strings are still equal");
-...  |
-22 | |         println!("Strings are still equal");
-23 | |     } 
-   | |_____-
-   |
-warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:20:12
-   |
-20 |       } else if str1 == str2 {
-   |  ____________-
-21 | |         println!("Strings are still equal");
-...  |
-24 | |         println!("Strings are still equal");
-25 | |     } 
+15 | |         println!("Strings are still equal");
+16 | |     } 
    | |_____-
    |
 
@@ -312,14 +312,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:18:5
+  --> lib.cairo:10:5
    |
-18 |       if p1.x == p2.x && p1.y == p2.y {
+10 |       if p1.x == p2.x && p1.y == p2.y {
    |  _____-
-19 | |         println!("Points are equal");
-20 | |     } else if p1.x == p2.x && p1.y == p2.y {
-21 | |         println!("Points are still equal");
-22 | |     }
+11 | |         println!("Points are equal");
+12 | |     } else if p1.x == p2.x && p1.y == p2.y {
+13 | |         println!("Points are still equal");
+14 | |     }
    | |_____-
    |
 
@@ -356,14 +356,14 @@ fn main(){
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
- --> lib.cairo:4:5
+ --> lib.cairo:3:5
   |
-4 |       if 2 == 3 {
+3 |       if 2 == 3 {
   |  _____-
-5 | |         println!("a == 3");
-6 | |     } else if 2 == 3 {
-7 | |         println!("a == 3");
-8 | |     }
+4 | |         println!("a == 3");
+5 | |     } else if 2 == 3 {
+6 | |         println!("a == 3");
+7 | |     }
   | |_____-
   |
 
@@ -394,16 +394,16 @@ fn main(){
 
 //! > diagnostics
 warning: Plugin diagnostic: Consecutive `if` with the same condition found.
-  --> lib.cairo:6:5
-   |
- 6 |       if a == 3 {
-   |  _____-
- 7 | |         println!("a == 3");
- 8 | |     } else if a == 3 {
- 9 | |         println!("a == 3");
-10 | |     }
-   | |_____-
-   |
+ --> lib.cairo:4:5
+  |
+4 |       if a == 3 {
+  |  _____-
+5 | |         println!("a == 3");
+6 | |     } else if a == 3 {
+7 | |         println!("a == 3");
+8 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main(){
@@ -469,6 +469,17 @@ fn main(){
 }
 
 //! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:7:4
+   |
+ 7 |      if foo() {
+   |  ____-
+ 8 | |         println!("foo");
+ 9 | |     } else if foo() { 
+10 | |         println!("foo");
+11 | |     }
+   | |_____-
+   |
 
 //! > fixed
 fn foo() -> bool{

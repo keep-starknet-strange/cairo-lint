@@ -1,3 +1,33 @@
+//! > contradictory comparison allowed
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(contradictory_comparison)]
+    if x == y && x != y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(contradictory_comparison)]
+    if x == y && x != y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
 //! > contradictory equal and less than
 
 //! > cairo_code
@@ -13,9 +43,9 @@ fn main() -> bool {
 
 //! > diagnostics
 error: Plugin diagnostic: This double comparison is contradictory and always false.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x == y && x < y {
+4 |     if x == y && x < y {
   |        ^^^^^^^^^^^^^^^
   |
 
@@ -47,9 +77,9 @@ fn main() -> bool {
 
 //! > diagnostics
 error: Plugin diagnostic: This double comparison is contradictory and always false.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x < y && x > y {
+4 |     if x < y && x > y {
   |        ^^^^^^^^^^^^^^
   |
 
@@ -81,9 +111,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x == y || x > y {
+4 |     if x == y || x > y {
   |        ---------------
   |
 
@@ -115,9 +145,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x == y || x < y {
+4 |     if x == y || x < y {
   |        ---------------
   |
 
@@ -149,9 +179,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x > y || x == y {
+4 |     if x > y || x == y {
   |        ---------------
   |
 
@@ -183,9 +213,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x >= y && x <= y {
+4 |     if x >= y && x <= y {
   |        ----------------
   |
 
@@ -217,9 +247,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: Redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x > y || x < y {
+4 |     if x > y || x < y {
   |        --------------
   |
 
@@ -251,9 +281,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x < y || x == y {
+4 |     if x < y || x == y {
   |        ---------------
   |
 
@@ -285,9 +315,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: This double comparison can be simplified.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x <= y && x >= y {
+4 |     if x <= y && x >= y {
   |        ----------------
   |
 
@@ -319,9 +349,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: Redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x < y || x > y {
+4 |     if x < y || x > y {
   |        --------------
   |
 
@@ -330,6 +360,74 @@ fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
     if x != y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > every impossible comparison
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 4_u32;
+    let y = 10_u32;
+    if x > y && x >= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: This double comparison is contradictory and always false.
+ --> lib.cairo:4:8
+  |
+4 |     if x > y && x >= y {
+  |        ^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() -> bool {
+    let x = 4_u32;
+    let y = 10_u32;
+    if x > y && x >= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x <= y && x > y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: This double comparison is contradictory and always false.
+ --> lib.cairo:4:8
+  |
+4 |     if x <= y && x > y {
+  |        ^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    if x <= y && x > y {
         true
     } else {
         false
@@ -368,6 +466,36 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
+//! > redundant comparison allowed
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(redundant_comparison)]
+    if x == y && x >= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(redundant_comparison)]
+    if x == y && x >= y {
+        true
+    } else {
+        false
+    }
+}
+
+//! > ==========================================================================
+
 //! > redundant greater than or equal and less than or equal
 
 //! > cairo_code
@@ -383,9 +511,9 @@ fn main() -> bool {
 
 //! > diagnostics
 warning: Plugin diagnostic: Redundant double comparison found. Consider simplifying to a single comparison.
- --> lib.cairo:6:8
+ --> lib.cairo:4:8
   |
-6 |     if x >= y || x <= y {
+4 |     if x >= y || x <= y {
   |        ----------------
   |
 
@@ -402,13 +530,14 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > impossible comparison
+//! > simplifiable comparison allowed
 
 //! > cairo_code
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    if x <= y && x > y {
+    #[allow(simplifiable_comparison)]
+    if x == y || x > y {
         true
     } else {
         false
@@ -416,55 +545,58 @@ fn main() -> bool {
 }
 
 //! > diagnostics
-error: Plugin diagnostic: This double comparison is contradictory and always false.
- --> lib.cairo:6:8
-  |
-6 |     if x <= y && x > y {
-  |        ^^^^^^^^^^^^^^^
-  |
 
 //! > fixed
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    if x <= y && x > y {
+    #[allow(simplifiable_comparison)]
+    if x == y || x > y {
         true
     } else {
         false
     }
 }
+//! > ==========================================================================
 
+//! > simple double comparison allowed
+
+//! > cairo_code
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(simplifiable_comparison)]
+    x == y || x > y 
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(simplifiable_comparison)]
+    x == y || x > y 
+}
 
 //! > ==========================================================================
 
-//! > every impossible comparison
+//! > simple let double comparison allowed
 
 //! > cairo_code
-fn main() -> bool {
-    let x = 4_u32;
+fn main() {
+    let x = 5_u32;
     let y = 10_u32;
-    if x > y && x >= y {
-        true
-    } else {
-        false
-    }
+    #[allow(simplifiable_comparison)]
+     let _cond = x == y || x > y;
 }
 
 //! > diagnostics
-error: Plugin diagnostic: This double comparison is contradictory and always false.
- --> lib.cairo:6:8
-  |
-6 |     if x > y && x >= y {
-  |        ^^^^^^^^^^^^^^^
-  |
 
 //! > fixed
-fn main() -> bool {
-    let x = 4_u32;
+fn main() {
+    let x = 5_u32;
     let y = 10_u32;
-    if x > y && x >= y {
-        true
-    } else {
-        false
-    }
+    #[allow(simplifiable_comparison)]
+     let _cond = x == y || x > y;
 }

@@ -10,15 +10,14 @@ fn main() {
 }
 
 //! > diagnostics
-
 warning: Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
- --> lib.cairo:4:16
+ --> lib.cairo:3:16
   |
-4 |       let _foo = match foo {
+3 |       let _foo = match foo {
   |  ________________-
-5 | |         Result::Ok(_) => Option::None,
-6 | |         Result::Err(x) => Option::Some(x),
-7 | |     };
+4 | |         Result::Ok(_) => Option::None,
+5 | |         Result::Err(x) => Option::Some(x),
+6 | |     };
   | |_____-
   |
 
@@ -26,6 +25,30 @@ warning: Plugin diagnostic: Manual match for `err` detected. Consider using `err
 fn main() {
     let foo: Result<i32> = Result::Err('err');
     let _foo = foo.err();
+}
+//! > ==========================================================================
+//! > test basic err allowed
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    #[allow(manual_err)]
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(x) => Option::Some(x),
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    #[allow(manual_err)]
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(x) => Option::Some(x),
+    };
 }
 
 //! > ==========================================================================
@@ -43,16 +66,15 @@ fn main() {
 }
 
 //! > diagnostics
-
 warning: Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
- --> lib.cairo:4:14
+ --> lib.cairo:3:14
   |
-4 |       let _a = if let Result::Err(x) = res_val {
+3 |       let _a = if let Result::Err(x) = res_val {
   |  ______________-
-5 | |         Option::Some(x)
-6 | |     } else {
-7 | |         Option::None
-8 | |     };
+4 | |         Option::Some(x)
+5 | |     } else {
+6 | |         Option::None
+7 | |     };
   | |_____-
   |
 
@@ -60,32 +82,6 @@ warning: Plugin diagnostic: Manual match for `err` detected. Consider using `err
 fn main() {
     let res_val: Result<i32> = Result::Err('err');
     let _a = res_val.err();
-}
-
-//! > ==========================================================================
-
-//! > test other err
-
-//! > cairo_code
-fn main() {
-    let foo: Result<i32> = Result::Err('err');
-    let other_err = 'other err';
-    let _foo = match foo {
-        Result::Ok(_) => Option::None,
-        Result::Err(_) => Option::Some(other_err),
-    };
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let foo: Result<i32> = Result::Err('err');
-    let other_err = 'other err';
-    let _foo = match foo {
-        Result::Ok(_) => Option::None,
-        Result::Err(_) => Option::Some(other_err),
-    };
 }
 
 //! > ==========================================================================
@@ -116,3 +112,28 @@ fn main() {
     };
 }
 
+//! > ==========================================================================
+
+//! > test other err
+
+//! > cairo_code
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let other_err = 'other err';
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(_) => Option::Some(other_err),
+    };
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let other_err = 'other err';
+    let _foo = match foo {
+        Result::Ok(_) => Option::None,
+        Result::Err(_) => Option::Some(other_err),
+    };
+}

@@ -1,22 +1,49 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::ast::{Condition, ConditionLet, Expr, ExprIf, OptionPatternEnumInnerPattern, Pattern};
-use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, Pattern, PatternId};
+use cairo_lang_syntax::node::helpers::QueryAttrs;
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 pub const EQUATABLE_IF_LET: &str =
     "`if let` pattern used for equatable value. Consider using a simple comparison `==` instead";
+pub(super) const LINT_NAME: &str = "equatable_if_let";
 
-pub fn check_equatable_if_let(db: &dyn SyntaxGroup, expr: &ExprIf, diagnostics: &mut Vec<PluginDiagnostic>) {
-    let condition = expr.condition(db);
+/// Checks for
+/// ```ignore
+/// if let Some(2) = a {
+///     ...
+/// }
+/// ```
+/// Which can be replaced by
+/// ```ignore
+/// if a == Some(2) {
+///    ...
+/// }
+/// ````
+pub fn check_equatable_if_let(
+    db: &dyn SemanticGroup,
+    expr: &ExprIf,
+    arenas: &Arenas,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let mut current_node = expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
+    }
 
-    if let Condition::Let(condition_let) = condition {
-        let expr_is_simple = is_simple_equality_expr(&condition_let.expr(db));
-        let condition_is_simple = is_simple_equality_condition(&condition_let, db);
+    if let Condition::Let(condition_let, patterns) = &expr.condition {
+        // Simple literals and variables
+        let expr_is_simple =
+            matches!(arenas.exprs[*condition_let], Expr::Literal(_) | Expr::StringLiteral(_) | Expr::Var(_));
+        let condition_is_simple = is_simple_equality_condition(patterns, arenas);
 
         if expr_is_simple && condition_is_simple {
             diagnostics.push(PluginDiagnostic {
-                stable_ptr: expr.as_syntax_node().stable_ptr(),
+                stable_ptr: expr.stable_ptr.untyped(),
                 message: EQUATABLE_IF_LET.to_string(),
                 severity: Severity::Warning,
             });
@@ -24,44 +51,15 @@ pub fn check_equatable_if_let(db: &dyn SyntaxGroup, expr: &ExprIf, diagnostics: 
     }
 }
 
-fn is_simple_equality_expr(expr: &Expr) -> bool {
-    match expr {
-        // Simple literals like numbers, booleans, and strings
-        Expr::Literal(_) | Expr::False(_) | Expr::True(_) | Expr::ShortString(_) | Expr::String(_) => true,
-
-        // Path expression (typically variables or constants)
-        Expr::Path(_) => true,
-
-        // If it's any other expression, it’s considered complex
-        _ => false,
-    }
-}
-
-fn is_simple_equality_condition(condition: &ConditionLet, db: &dyn SyntaxGroup) -> bool {
-    let patterns = condition.patterns(db).elements(db);
-
+fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool {
     for pattern in patterns {
-        match pattern {
-            Pattern::Literal(_)
-            | Pattern::False(_)
-            | Pattern::True(_)
-            | Pattern::ShortString(_)
-            | Pattern::String(_)
-            | Pattern::Path(_) => return true,
-
-            Pattern::Enum(enum_pattern) => match enum_pattern.pattern(db) {
-                OptionPatternEnumInnerPattern::Empty(_) => return true,
-                OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                    match inner_pattern.pattern(db) {
-                        Pattern::Literal(_)
-                        | Pattern::False(_)
-                        | Pattern::True(_)
-                        | Pattern::ShortString(_)
-                        | Pattern::String(_) => return true,
-                        _ => continue,
-                    }
-                }
-            },
+        match &arenas.patterns[*pattern] {
+            Pattern::Literal(_) | Pattern::StringLiteral(_) => return true,
+            Pattern::EnumVariant(pat) => {
+                return pat.inner_pattern.is_none_or(|pat_id| {
+                    matches!(arenas.patterns[pat_id], Pattern::Literal(_) | Pattern::StringLiteral(_))
+                })
+            }
             _ => continue,
         }
     }

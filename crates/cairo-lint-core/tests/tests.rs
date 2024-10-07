@@ -48,7 +48,8 @@ test_file!(
     "reversed destructuring comprehensive match",
     "simple destructuring match with unit and comment in scope",
     "simple destructuring match with comment in scope",
-    "comprehensive match"
+    "comprehensive match",
+    "comprehensive match allowed"
 );
 
 test_file!(
@@ -74,6 +75,7 @@ test_file!(
     "double parens with function call",
     "double parens with return",
     "double parens in let statement",
+    "double parens in let statement allowed",
     "double parens in struct field access",
     "double parens in match arm"
 );
@@ -81,7 +83,12 @@ test_file!(
 test_file!(
     double_comparison,
     double_comparison,
+    "simple double comparison allowed",
+    "simple let double comparison allowed",
     "double comparison equal or greater than",
+    "simplifiable comparison allowed",
+    "contradictory comparison allowed",
+    "redundant comparison allowed",
     "double comparison equal or less than",
     "double comparison greater than or equal",
     "double comparison greater than or less than",
@@ -105,11 +112,19 @@ test_file!(
     "simple loop match pop front impl path",
     "simple loop match pop front multiple dots",
     "loop match pop front with comment in some",
+    "loop match pop front with comment in some allowed",
     "loop match pop front with comment in none",
     "loop match pop front with sutff in none"
 );
 
-test_file!(breaks, breaks, "Simple break", "Break inside of if", "Break inside of if with comment");
+test_file!(
+    breaks,
+    breaks,
+    "Simple break",
+    "Simple break allowed",
+    "Break inside of if",
+    "Break inside of if with comment"
+);
 
 test_file!(
     ifs,
@@ -119,7 +134,8 @@ test_file!(
     "Simple Value Pattern Matching",
     "Enum Unit Variant Pattern Matching",
     "Complex Equality Destructuring",
-    "Matching With Simple Structs field"
+    "Matching With Simple Structs field",
+    "Matching With Simple Structs field allowed"
 );
 
 test_file!(
@@ -128,6 +144,7 @@ test_file!(
     "Comparison with true",
     "Comparison with true on LHS",
     "Comparison with false",
+    "Comparison with false allowed",
     "Comparison with false on LHS",
     "Negated comparison with true",
     "Negated comparison with true on LHS",
@@ -140,6 +157,7 @@ test_file!(
     erasing_operations,
     "Multiplication by zero",
     "Division by zero",
+    "Division by zero allowed",
     "Bitwise AND with zero",
     "Multiple operations",
     "Multiple bitwise operations"
@@ -148,7 +166,7 @@ test_file!(
 test_file!(
     duplicate_underscore_args,
     duplicate_underscore_args,
-    "duplicate underscore args",
+    "duplicate underscore args allowed",
     "duplicate underscore args2",
     "duplicate underscore longer args",
     "duplicate underscore longer args2",
@@ -160,6 +178,7 @@ test_file!(
     ifs,
     collapsible_if_else,
     "Simple else if with new line",
+    "Simple else if with new line allowed",
     "Simple else if without new line",
     "Multiple else if",
     "Else if with multiple statements",
@@ -174,6 +193,7 @@ test_file!(
     "simple lt op",
     "simple gt op",
     "simple bitwise op",
+    "simple bitwise op allowed",
     "simple sub op",
     "simple divide op",
     "op with method call"
@@ -186,17 +206,21 @@ test_file!(
     "Multiple Panic",
     "Multiple Panic and other macros",
     "Empty Panic",
-    "NO Panic",
+    "Empty Panic allowed",
+    "Empty Panic function allowed",
+    "Empty Panic function",
+    "No Panic",
     "Panic inside function"
 );
 
 test_file!(
-    loop_for_while,
+    loops,
     loop_for_while,
     "simple loop with break",
     "loop with comparison condition",
     "loop with negative condition",
     "loop with arithmetic condition",
+    "loop with arithmetic condition allowed",
     "loop with multiple conditions",
     "loop with arithmetic condition and else block",
     "loop with multiple condition inside if block",
@@ -209,6 +233,7 @@ test_file!(
     manual,
     manual_ok_or,
     "test error str",
+    "test error str allowed",
     "test error enum",
     "test with comment in None",
     "test with comment in Some",
@@ -224,14 +249,17 @@ test_file!(
     bitwise_for_parity_check,
     "with single variable",
     "with multiple variables",
+    "with multiple variables allowed",
     "In a loop",
-    "with conditional logic"
+    "with conditional logic",
+    "with conditional logic allowed"
 );
 
 test_file!(
     manual,
     manual_is_some,
     "test basic is some",
+    "test basic is some allowed",
     "test with comment in Some",
     "test with comment in None",
     "test match expression is a function",
@@ -243,6 +271,7 @@ test_file!(
     manual,
     manual_is_none,
     "test basic is none",
+    "test basic is none allowed",
     "test with comment in Some",
     "test with comment in None",
     "test match expression is a function",
@@ -287,6 +316,7 @@ test_file!(
     "test with comment in None",
     "test match expression is a function",
     "test manual if",
+    "test manual if allowed",
     "test manual if with additional instructions",
     "test manual result if",
     "test manual match result",
@@ -297,6 +327,7 @@ test_file!(
     manual,
     manual_expect_err,
     "test basic match expect err",
+    "test basic match expect err allowed",
     "test basic if expect err",
     "test match with other err",
     "test if with other err",
@@ -308,6 +339,7 @@ test_file!(
     manual,
     manual_is_ok,
     "test basic is ok",
+    "test basic is ok allowed",
     "test match expression is a function",
     "test manual if",
     "test manual if expression is a function"
@@ -319,17 +351,35 @@ test_file!(
     "test basic is err",
     "test match expression is a function",
     "test manual if",
-    "test manual if expression is a function"
+    "test manual if expression is a function",
+    "test manual if expression is a function allowed"
 );
 
-test_file!(manual, manual_ok, "test basic ok", "test basic if ok", "test other var", "test if other var");
-
-test_file!(manual, manual_err, "test basic err", "test basic if err", "test other err", "test if other err");
+test_file!(
+    manual,
+    manual_ok,
+    "test basic ok",
+    "test basic if ok",
+    "test basic if ok allowed",
+    "test other var",
+    "test if other var"
+);
 
 test_file!(
-    collapsible_if,
+    manual,
+    manual_err,
+    "test basic err",
+    "test basic err allowed",
+    "test basic if err",
+    "test other err",
+    "test if other err"
+);
+
+test_file!(
+    ifs,
     collapsible_if,
     "collapsible if in boolean conditions",
+    "collapsible if in boolean conditions allowed",
     "collapsible if with combinable conditions",
     "collapsible if in conditions with complex expressions",
     "collapsible if with function calls",

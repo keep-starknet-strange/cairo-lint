@@ -1,33 +1,55 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::ast::{BinaryOperator, Expr, ExprBinary};
-use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::{Terminal, TypedSyntaxNode};
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
+use cairo_lang_syntax::node::helpers::QueryAttrs;
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use num_bigint::BigInt;
+
+use super::{function_trait_name_from_fn_id, AND};
+use crate::lints::{DIV, MUL};
 
 pub const ERASING_OPERATION: &str = "This operation results in the value being erased (e.g., multiplication by 0). \
                                      Consider replacing the entire expression with 0.";
 
-pub fn check_erasing_operation(db: &dyn SyntaxGroup, node: ExprBinary, diagnostics: &mut Vec<PluginDiagnostic>) {
-    let lhs = node.lhs(db);
-    let op = node.op(db);
-    let rhs = node.rhs(db);
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "erasing_op";
 
-    let is_erasing_operation = match op {
-        BinaryOperator::Mul(_) | BinaryOperator::Div(_) => is_zero(db, &lhs) || is_zero(db, &rhs),
-        BinaryOperator::And(_) => is_zero(db, &lhs) || is_zero(db, &rhs),
+pub fn check_erasing_operation(
+    db: &dyn SemanticGroup,
+    expr_func: &ExprFunctionCall,
+    arenas: &Arenas,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    // Checks if the lint is allowed in any upper scope
+    let mut current_node = expr_func.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
+    }
+    let func = function_trait_name_from_fn_id(db, &expr_func.function);
+
+    let is_erasing_operation = match func.as_str() {
+        MUL | AND => is_zero(&expr_func.args[0], arenas) || is_zero(&expr_func.args[1], arenas),
+        DIV => is_zero(&expr_func.args[0], arenas),
         _ => false,
     };
-    fn is_zero(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
-        match expr {
-            Expr::Literal(lit) => lit.text(db) == "0",
-            _ => false,
-        }
-    }
     if is_erasing_operation {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: node.as_syntax_node().stable_ptr(),
+            stable_ptr: expr_func.stable_ptr.untyped(),
             message: ERASING_OPERATION.to_string(),
             severity: Severity::Warning,
         });
+    }
+}
+fn is_zero(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
+    match arg {
+        ExprFunctionCallArg::Value(expr) => match &arenas.exprs[*expr] {
+            Expr::Literal(val) => val.value == BigInt::ZERO,
+            _ => false,
+        },
+        _ => false,
     }
 }

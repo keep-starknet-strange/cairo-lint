@@ -20,7 +20,7 @@ use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::{Upcast, UpcastMut};
 use cairo_lint_core::diagnostics::format_diagnostic;
 use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
-use cairo_lint_core::plugin::cairo_lint_plugin_suite;
+use cairo_lint_core::plugin::{cairo_lint_plugin_suite, diagnostic_kind_from_message, CairoLintKind};
 use clap::Parser;
 use helpers::*;
 use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
@@ -124,6 +124,13 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             )?;
             // Get the package path.
             let package_path = package.root.clone().into();
+            // Get if we should lint panics or not
+            let cairo_lint_config = package.tool_metadata("cairo-lint");
+            let should_lint_panics = if let Some(config) = cairo_lint_config {
+                config["nopanic"].as_bool().unwrap_or_default()
+            } else {
+                false
+            };
             // Build the config for this package.
             let config = build_project_config(
                 compilation_unit,
@@ -135,7 +142,10 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 &metadata.packages,
             )?;
             update_crate_roots_from_project_config(&mut db, &config);
-            let crate_id = db.intern_crate(CrateLongId::Real(SmolStr::new(&compilation_unit.target.name)));
+            let crate_id = db.intern_crate(CrateLongId::Real {
+                name: SmolStr::new(&compilation_unit.target.name),
+                version: Some(package.version.clone()),
+            });
             // Get all the diagnostics
             let mut diags = Vec::new();
 
@@ -151,7 +161,18 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 .iter()
                 .flat_map(|diags| {
                     let all_diags = diags.get_all();
-                    all_diags.iter().for_each(|diag| ui.print(format_diagnostic(diag, &db, &renderer)));
+                    all_diags
+                        .iter()
+                        .filter(|diag| {
+                            if let SemanticDiagnosticKind::PluginDiagnostic(diag) = &diag.kind {
+                                (matches!(diagnostic_kind_from_message(&diag.message), CairoLintKind::Panic)
+                                    && should_lint_panics)
+                                    || !matches!(diagnostic_kind_from_message(&diag.message), CairoLintKind::Panic)
+                            } else {
+                                true
+                            }
+                        })
+                        .for_each(|diag| ui.print(format_diagnostic(diag, &db, &renderer)));
                     all_diags
                 })
                 .collect::<Vec<_>>();
@@ -188,6 +209,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                     if fixes.len() <= 1 {
                         fixable_diagnostics = fixes;
                     } else {
+                        // Check if we have nested diagnostics. If so it's a nightmare to fix hence just ignore it
                         for i in 0..fixes.len() - 1 {
                             let first = fixes[i].span;
                             let second = fixes[i + 1].span;
@@ -199,6 +221,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                             }
                         }
                     }
+                    // Get all the files that need to be fixed
                     let mut files: HashMap<FileId, String> = HashMap::default();
                     files.insert(
                         file_id,
@@ -206,12 +229,14 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                             .ok_or(anyhow!("{} not found", file_id.file_name(db.upcast())))?
                             .to_string(),
                     );
+                    // Fix the files
                     for fix in fixable_diagnostics {
                         // Can't fail we just set the file value.
                         files
                             .entry(file_id)
                             .and_modify(|file| file.replace_range(fix.span.to_str_range(), &fix.suggestion));
                     }
+                    // Dump them in place
                     std::fs::write(file_id.full_path(db.upcast()), files.get(&file_id).unwrap())?
                 }
             }
