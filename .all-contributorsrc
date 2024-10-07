@@ -169,6 +169,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "Gianfranco99",
+      "name": "Gianfranco99",
+      "avatar_url": "https://avatars.githubusercontent.com/u/67334390?v=4",
+      "profile": "https://github.com/Gianfranco99",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
