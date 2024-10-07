@@ -149,6 +149,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "jimenezz22",
+      "name": "Luis Jiménez",
+      "avatar_url": "https://avatars.githubusercontent.com/u/87153882?v=4",
+      "profile": "http://linkedin.com/in/luis-jimenez22",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
