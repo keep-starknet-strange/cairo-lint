@@ -1,17 +1,19 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::items::attribute::SemanticQueryAttrs;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
-use cairo_lang_semantic::Expr;
-use cairo_lang_syntax::node::ast::{ElseClause, Expr as AstExpr, ExprBinary, ExprIf, ExprLoop, ExprMatch};
+use cairo_lang_semantic::{Expr, Statement};
+use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::ifs::*;
-use crate::lints::manual::*;
+use crate::lints::ifs::{self, *};
+use crate::lints::loops::{loop_for_while, loop_match_pop_front};
+use crate::lints::manual::{self, *};
 use crate::lints::{
-    bitwise_for_parity_check, bool_comparison, breaks, collapsible_if, double_comparison, double_parens,
-    duplicate_underscore_args, eq_op, erasing_op, loop_for_while, loops, panic, performance, single_match,
+    bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
+    eq_op, erasing_op, loops, panic, performance, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -49,6 +51,8 @@ pub enum CairoLintKind {
     ManualIsOk,
     ManualIsErr,
     ManualExpect,
+    DuplicateIfCondition,
+    ManualExpectErr,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -65,7 +69,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
         duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
         collapsible_if::COLLAPSIBLE_IF => CairoLintKind::CollapsibleIf,
-        loops::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
+        loop_match_pop_front::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
         panic::PANIC_IN_CODE => CairoLintKind::Panic,
         loop_for_while::LOOP_FOR_WHILE => CairoLintKind::LoopForWhile,
@@ -79,11 +83,36 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         manual_is::MANUAL_IS_OK => CairoLintKind::ManualIsOk,
         manual_is::MANUAL_IS_ERR => CairoLintKind::ManualIsErr,
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
+        ifs_same_cond::DUPLICATE_IF_CONDITION => CairoLintKind::DuplicateIfCondition,
+        manual_expect_err::MANUAL_EXPECT_ERR => CairoLintKind::ManualExpectErr,
         _ => CairoLintKind::Unknown,
     }
 }
 
 impl AnalyzerPlugin for CairoLint {
+    fn declared_allows(&self) -> Vec<String> {
+        vec![
+            bitwise_for_parity_check::ALLOWED.as_slice(),
+            bool_comparison::ALLOWED.as_slice(),
+            breaks::ALLOWED.as_slice(),
+            double_comparison::ALLOWED.as_slice(),
+            double_parens::ALLOWED.as_slice(),
+            duplicate_underscore_args::ALLOWED.as_slice(),
+            eq_op::ALLOWED.as_slice(),
+            erasing_op::ALLOWED.as_slice(),
+            loop_for_while::ALLOWED.as_slice(),
+            loops::ALLOWED.as_slice(),
+            panic::ALLOWED.as_slice(),
+            single_match::ALLOWED.as_slice(),
+            ifs::ALLOWED.as_slice(),
+            manual::ALLOWED.as_slice(),
+        ]
+        .into_iter()
+        .flatten()
+        .map(ToString::to_string)
+        .collect()
+    }
+
     fn diagnostics(&self, db: &dyn SemanticGroup, module_id: ModuleId) -> Vec<PluginDiagnostic> {
         let mut diags = Vec::new();
         let syntax_db = db.upcast();
@@ -122,103 +151,8 @@ impl AnalyzerPlugin for CairoLint {
                         &AstExpr::from_syntax_node(db.upcast(), node.clone()),
                         &mut diags,
                     ),
-                    SyntaxKind::StatementBreak => breaks::check_break(db.upcast(), node, &mut diags),
-                    SyntaxKind::ExprIf => {
-                        collapsible_if::check_collapsible_if(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        equatable_if_let::check_equatable_if_let(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_is::check_manual_if_is(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_expect::check_manual_if_expect(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_ok_or::check_manual_if_ok_or(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_ok::check_manual_if_ok(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_err::check_manual_if_err(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_unwrap_or_default::check_manual_if_unwrap_or_default(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                    }
-                    SyntaxKind::ExprBinary => {
-                        let expr_binary = ExprBinary::from_syntax_node(db.upcast(), node);
-                        bool_comparison::check_bool_comparison(db.upcast(), &expr_binary, &mut diags);
-                        double_comparison::check_double_comparison(db.upcast(), &expr_binary, &mut diags);
-                        eq_op::check_eq_op(db.upcast(), &expr_binary, &mut diags);
-                        bitwise_for_parity_check::check_bitwise_for_parity(db.upcast(), &expr_binary, &mut diags);
-                        erasing_op::check_erasing_operation(db.upcast(), expr_binary, &mut diags);
-                    }
-                    SyntaxKind::ElseClause => {
-                        collapsible_if_else::check_collapsible_if_else(
-                            db.upcast(),
-                            &ElseClause::from_syntax_node(db.upcast(), node),
-                            &mut diags,
-                        );
-                    }
-                    SyntaxKind::ExprLoop => {
-                        loop_for_while::check_loop_for_while(
-                            db.upcast(),
-                            &ExprLoop::from_syntax_node(db.upcast(), node),
-                            &mut diags,
-                        );
-                    }
-                    SyntaxKind::ExprMatch => {
-                        manual_ok_or::check_manual_ok_or(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_ok::check_manual_ok(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_err::check_manual_err(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_is::check_manual_is(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_expect::check_manual_expect(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_unwrap_or_default::check_manual_unwrap_or_default(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                    }
+                    SyntaxKind::ExprIf => {}
+                    SyntaxKind::ExprMatch => {}
                     _ => continue,
                 }
             }
@@ -227,10 +161,12 @@ impl AnalyzerPlugin for CairoLint {
     }
 }
 fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnostics: &mut Vec<PluginDiagnostic>) {
-    duplicate_underscore_args::check_duplicate_underscore_args(
-        db.function_with_body_signature(func_id).unwrap().params,
-        diagnostics,
-    );
+    if let Ok(false) = func_id.has_attr_with_arg(db, "allow", "duplicate_underscore_args") {
+        duplicate_underscore_args::check_duplicate_underscore_args(
+            db.function_with_body_signature(func_id).unwrap().params,
+            diagnostics,
+        );
+    }
     let Ok(function_body) = db.function_body(func_id) else {
         return;
     };
@@ -238,15 +174,61 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
         match &expression {
             Expr::Match(expr_match) => {
                 single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas);
+                manual_ok_or::check_manual_ok_or(db, &function_body.arenas, expr_match, diagnostics);
+                manual_ok::check_manual_ok(db, &function_body.arenas, expr_match, diagnostics);
+                manual_err::check_manual_err(db, &function_body.arenas, expr_match, diagnostics);
+                manual_is::check_manual_is(db, &function_body.arenas, expr_match, diagnostics);
+                manual_expect::check_manual_expect(db, &function_body.arenas, expr_match, diagnostics);
+                manual_expect_err::check_manual_expect_err(db, &function_body.arenas, expr_match, diagnostics);
+                manual_unwrap_or_default::check_manual_unwrap_or_default(
+                    db,
+                    &function_body.arenas,
+                    expr_match,
+                    diagnostics,
+                );
             }
             Expr::Loop(expr_loop) => {
-                loops::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas)
+                loop_match_pop_front::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas);
+                loop_for_while::check_loop_for_while(db, expr_loop, &function_body.arenas, diagnostics);
             }
-            Expr::FunctionCall(expr_func) => panic::check_panic_usage(db, expr_func, diagnostics),
+            Expr::FunctionCall(expr_func) => {
+                panic::check_panic_usage(db, expr_func, diagnostics);
+                bool_comparison::check_bool_comparison(db, expr_func, &function_body.arenas, diagnostics);
+                bitwise_for_parity_check::check_bitwise_for_parity(db, expr_func, &function_body.arenas, diagnostics);
+                eq_op::check_eq_op(db, expr_func, &function_body.arenas, diagnostics);
+                erasing_op::check_erasing_operation(db, expr_func, &function_body.arenas, diagnostics);
+            }
+
+            Expr::LogicalOperator(expr_logical) => {
+                double_comparison::check_double_comparison(db, expr_logical, &function_body.arenas, diagnostics);
+            }
+            Expr::If(expr_if) => {
+                equatable_if_let::check_equatable_if_let(db, expr_if, &function_body.arenas, diagnostics);
+                collapsible_if_else::check_collapsible_if_else(db, expr_if, &function_body.arenas, diagnostics);
+                collapsible_if::check_collapsible_if(db, expr_if, &function_body.arenas, diagnostics);
+                ifs_same_cond::check_duplicate_if_condition(db, expr_if, &function_body.arenas, diagnostics);
+                manual_is::check_manual_if_is(db, &function_body.arenas, expr_if, diagnostics);
+                manual_expect::check_manual_if_expect(db, &function_body.arenas, expr_if, diagnostics);
+                manual_ok_or::check_manual_if_ok_or(db, &function_body.arenas, expr_if, diagnostics);
+                manual_ok::check_manual_if_ok(db, &function_body.arenas, expr_if, diagnostics);
+                manual_err::check_manual_if_err(db, &function_body.arenas, expr_if, diagnostics);
+                manual_expect_err::check_manual_if_expect_err(db, &function_body.arenas, expr_if, diagnostics);
+                manual_unwrap_or_default::check_manual_if_unwrap_or_default(
+                    db,
+                    &function_body.arenas,
+                    expr_if,
+                    diagnostics,
+                );
+            }
             Expr::While(expr_while) => {
                 performance::check_inefficient_while_comp(db, expr_while, diagnostics, &function_body.arenas)
             }
             _ => (),
         };
+    }
+    for (_stmt_id, stmt) in &function_body.arenas.statements {
+        if let Statement::Break(stmt_break) = &stmt {
+            breaks::check_break(db, stmt_break, &function_body.arenas, diagnostics)
+        }
     }
 }

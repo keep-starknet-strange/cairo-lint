@@ -1,9 +1,10 @@
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use anyhow::{anyhow, Result};
 use cairo_lang_compiler::project::{AllCratesConfig, ProjectConfig, ProjectConfigContent};
 use cairo_lang_filesystem::cfg::{Cfg as CompilerCfg, CfgSet};
-use cairo_lang_filesystem::db::{CrateSettings, Edition, ExperimentalFeaturesConfig};
+use cairo_lang_filesystem::db::{CrateSettings, DependencySettings, Edition, ExperimentalFeaturesConfig};
 use cairo_lang_filesystem::ids::Directory;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use scarb_metadata::{Cfg as ScarbCfg, CompilationUnitMetadata, PackageId, PackageMetadata};
@@ -72,16 +73,39 @@ pub fn build_project_config(
         .iter()
         .map(|component| {
             let cfg_set = component.cfg.as_ref().map(|cfgs| to_cairo_cfg(cfgs));
-            let package_ed = if let Some(pack) = packages.iter().find(|package| package.id == component.package) {
-                pack.edition.as_ref().map_or_else(|| edition, |ed| to_cairo_edition(ed).unwrap())
-            } else {
-                edition
-            };
+            let (package_ed, dependencies) =
+                if let Some(pack) = packages.iter().find(|package| package.id == component.package) {
+                    let mut dependencies: BTreeMap<String, DependencySettings> = pack
+                        .dependencies
+                        .iter()
+                        .filter_map(|dependency| {
+                            compilation_unit
+                                .components
+                                .iter()
+                                .find(|compilation_unit_metadata_component| {
+                                    compilation_unit_metadata_component.name == dependency.name
+                                })
+                                .map(|compilation_unit_metadata_component| {
+                                    let version = packages
+                                        .iter()
+                                        .find(|package| package.name == compilation_unit_metadata_component.name)
+                                        .map(|package| package.version.clone());
+                                    (dependency.name.clone(), DependencySettings { version })
+                                })
+                        })
+                        .collect();
+                    // Adds itself to dependencies
+                    dependencies.insert(pack.name.clone(), DependencySettings { version: Some(pack.version.clone()) });
+                    (pack.edition.as_ref().map_or_else(|| edition, |ed| to_cairo_edition(ed).unwrap()), dependencies)
+                } else {
+                    (edition, BTreeMap::default())
+                };
             (
                 component.name.to_smolstr(),
                 CrateSettings {
                     edition: package_ed,
                     cfg_set,
+                    dependencies,
                     experimental_features: ExperimentalFeaturesConfig { negative_impls: false, coupons: false },
                     version: Some(version.clone()),
                 },

@@ -129,6 +129,56 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "TropicalDog17",
+      "name": "Tuan Tran",
+      "avatar_url": "https://avatars.githubusercontent.com/u/79791913?v=4",
+      "profile": "https://github.com/TropicalDog17",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "JoE11-y",
+      "name": "BlockyJ",
+      "avatar_url": "https://avatars.githubusercontent.com/u/55321462?v=4",
+      "profile": "https://github.com/JoE11-y",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "jimenezz22",
+      "name": "Luis Jiménez",
+      "avatar_url": "https://avatars.githubusercontent.com/u/87153882?v=4",
+      "profile": "http://linkedin.com/in/luis-jimenez22",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "MariangelaNM",
+      "name": "Mariángela N.",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91926755?v=4",
+      "profile": "https://github.com/MariangelaNM",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "Gianfranco99",
+      "name": "Gianfranco99",
+      "avatar_url": "https://avatars.githubusercontent.com/u/67334390?v=4",
+      "profile": "https://github.com/Gianfranco99",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,

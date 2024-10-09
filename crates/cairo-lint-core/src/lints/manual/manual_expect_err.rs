@@ -6,34 +6,34 @@ use cairo_lang_syntax::node::TypedStablePtr;
 
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
-pub const MANUAL_OK_OR: &str = "Manual match for Option<T> detected. Consider using ok_or instead";
-pub(super) const LINT_NAME: &str = "manual_ok_or";
+pub const MANUAL_EXPECT_ERR: &str = "Manual match for `expect_err` detected. Consider using `expect_err()` instead";
+pub(super) const LINT_NAME: &str = "manual_expect_err";
 
-pub fn check_manual_ok_or(
+pub fn check_manual_expect_err(
     db: &dyn SemanticGroup,
     arenas: &Arenas,
     expr_match: &ExprMatch,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    if check_manual(db, expr_match, arenas, ManualLint::ManualOkOr, LINT_NAME) {
+    if check_manual(db, expr_match, arenas, ManualLint::ManualExpectErr, LINT_NAME) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_match.stable_ptr.untyped(),
-            message: MANUAL_OK_OR.to_owned(),
+            message: MANUAL_EXPECT_ERR.to_owned(),
             severity: Severity::Warning,
         });
     }
 }
 
-pub fn check_manual_if_ok_or(
+pub fn check_manual_if_expect_err(
     db: &dyn SemanticGroup,
     arenas: &Arenas,
     expr_if: &ExprIf,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    if check_manual_if(db, expr_if, arenas, ManualLint::ManualOkOr, LINT_NAME) {
+    if check_manual_if(db, expr_if, arenas, ManualLint::ManualExpectErr, LINT_NAME) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_if.stable_ptr.untyped(),
-            message: MANUAL_OK_OR.to_owned(),
+            message: MANUAL_EXPECT_ERR.to_owned(),
             severity: Severity::Warning,
         });
     }

@@ -15,14 +15,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:10:5
+  --> lib.cairo:6:5
    |
-10 |       if x || z {
+ 6 |       if x || z {
    |  _____-
-11 | |         if y && z {
-12 | |             println!("Hello");
-13 | |         }
-14 | |     }
+ 7 | |         if y && z {
+ 8 | |             println!("Hello");
+ 9 | |         }
+10 | |     }
    | |_____-
    |
 
@@ -33,6 +33,39 @@ fn main() {
     let z = false;
     if (x || z) && (y && z) {
         println!("Hello");
+    }
+}
+
+//! > ==========================================================================
+//! > collapsible if in boolean conditions allowed
+
+//! > cairo_code
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    #[allow(collapsible_if)]
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    #[allow(collapsible_if)]
+    if x || z {
+        if y && z {
+            println!("Hello");
+        }
     }
 }
 
@@ -58,14 +91,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:16:5
+  --> lib.cairo:9:5
    |
-16 |       if x + y > a {
+ 9 |       if x + y > a {
    |  _____-
-17 | |         if z * b < c {
-18 | |             println!("Complex conditions");
-19 | |         }
-20 | |     }
+10 | |         if z * b < c {
+11 | |             println!("Complex conditions");
+12 | |         }
+13 | |     }
    | |_____-
    |
 
@@ -100,16 +133,16 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:8:5
-   |
- 8 |       if x {
-   |  _____-
- 9 | |         if z {
-10 | |             println!("No fix here");
-11 | |         }
-12 | |     }
-   | |_____-
-   |
+ --> lib.cairo:5:5
+  |
+5 |       if x {
+  |  _____-
+6 | |         if z {
+7 | |             println!("No fix here");
+8 | |         }
+9 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn main() {
@@ -210,16 +243,16 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:8:5
-   |
- 8 |       if is_valid(true) {
-   |  _____-
- 9 | |         if is_ready(true) {
-10 | |             println!("Function calls in conditions");
-11 | |         }
-12 | |     }
-   | |_____-
-   |
+ --> lib.cairo:5:5
+  |
+5 |       if is_valid(true) {
+  |  _____-
+6 | |         if is_ready(true) {
+7 | |             println!("Function calls in conditions");
+8 | |         }
+9 | |     }
+  | |_____-
+  |
 
 //! > fixed
 fn is_valid(_a: bool) -> bool { true } 
@@ -284,14 +317,14 @@ fn main() {
 
 //! > diagnostics
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-  --> lib.cairo:10:5
+  --> lib.cairo:6:5
    |
-10 |       if a > b {
+ 6 |       if a > b {
    |  _____-
-11 | |         if c < b {
-12 | |             println!("Simple numerical conditions");
-13 | |         }
-14 | |     }
+ 7 | |         if c < b {
+ 8 | |             println!("Simple numerical conditions");
+ 9 | |         }
+10 | |     }
    | |_____-
    |
 

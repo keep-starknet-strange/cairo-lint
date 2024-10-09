@@ -1,0 +1,496 @@
+//! > Combined conditions with different if
+
+//! > cairo_code
+fn main() {
+    let x:u32 = 5;
+    let y:u32 = 10;
+    let z:u32 = 5;
+
+    if x == z {
+        println!("x is equal to z");
+    } else if x == z {
+        println!("x is still equal to z");
+    } else if x + 5 == y {
+        println!("x plus 5 is equal to y");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:6:5
+   |
+ 6 |       if x == z {
+   |  _____-
+ 7 | |         println!("x is equal to z");
+...  |
+11 | |         println!("x plus 5 is equal to y");
+12 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn main() {
+    let x:u32 = 5;
+    let y:u32 = 10;
+    let z:u32 = 5;
+
+    if x == z {
+        println!("x is equal to z");
+    } else if x == z {
+        println!("x is still equal to z");
+    } else if x + 5 == y {
+        println!("x plus 5 is equal to y");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Greater lesser comparison
+
+//! > cairo_code
+fn main(){
+    let a:u32 = 3;
+
+    if a > 3 {
+        println!("a == 3");
+    } else if a > 3 {
+        println!("3 == a");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+ --> lib.cairo:4:5
+  |
+4 |       if a > 3 {
+  |  _____-
+5 | |         println!("a == 3");
+6 | |     } else if a > 3 {
+7 | |         println!("3 == a");
+8 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main(){
+    let a:u32 = 3;
+
+    if a > 3 {
+        println!("a == 3");
+    } else if a > 3 {
+        println!("3 == a");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Same condition with boolean
+
+//! > cairo_code
+fn main() {
+    let condition = true;
+
+    if condition {
+        println!("Condition is true");
+    } else if condition {
+        println!("Condition is still true");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+ --> lib.cairo:4:5
+  |
+4 |       if condition {
+  |  _____-
+5 | |         println!("Condition is true");
+6 | |     } else if condition {
+7 | |         println!("Condition is still true");
+8 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let condition = true;
+
+    if condition {
+        println!("Condition is true");
+    } else if condition {
+        println!("Condition is still true");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Same condition with else
+
+//! > cairo_code
+fn main() {
+    let a = 1;
+    let b = 1;
+    if a == b {
+        println!("a is equal to b");
+    } else if a == b {
+        println!("a is equal to b");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+ --> lib.cairo:4:5
+  |
+4 |       if a == b {
+  |  _____-
+5 | |         println!("a is equal to b");
+6 | |     } else if a == b {
+7 | |         println!("a is equal to b");
+8 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main() {
+    let a = 1;
+    let b = 1;
+    if a == b {
+        println!("a is equal to b");
+    } else if a == b {
+        println!("a is equal to b");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Same condition with felt252
+
+//! > cairo_code
+fn main(){
+    let str1:felt252 = 'hello';
+    let str2:felt252 = 'hello';
+
+    if str1 == str2 {
+        println!("Strings are equal");
+    } else if str1 == str2 {
+        println!("Strings are still equal");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+ --> lib.cairo:5:5
+  |
+5 |       if str1 == str2 {
+  |  _____-
+6 | |         println!("Strings are equal");
+7 | |     } else if str1 == str2 {
+8 | |         println!("Strings are still equal");
+9 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main(){
+    let str1:felt252 = 'hello';
+    let str2:felt252 = 'hello';
+
+    if str1 == str2 {
+        println!("Strings are equal");
+    } else if str1 == str2 {
+        println!("Strings are still equal");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Same condition with multiple if else
+
+//! > cairo_code
+fn main(){
+    let str1:felt252 = 'hello';
+    let str2:felt252 = 'hello';
+
+    if str1 == str2 {
+        println!("Strings are equal");
+    } else if str1 == str2 {
+        println!("Strings are still equal");
+    } else if str1 == str2 {
+        println!("Strings are still equal");
+    } else if str1 == str2 {
+        println!("Strings are still equal");
+    } 
+    else if str1 == str2 {
+        println!("Strings are still equal");
+    } 
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:11:12
+   |
+11 |       } else if str1 == str2 {
+   |  ____________-
+12 | |         println!("Strings are still equal");
+...  |
+15 | |         println!("Strings are still equal");
+16 | |     } 
+   | |_____-
+   |
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:9:12
+   |
+ 9 |       } else if str1 == str2 {
+   |  ____________-
+10 | |         println!("Strings are still equal");
+...  |
+15 | |         println!("Strings are still equal");
+16 | |     } 
+   | |_____-
+   |
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:7:12
+   |
+ 7 |       } else if str1 == str2 {
+   |  ____________-
+ 8 | |         println!("Strings are still equal");
+...  |
+15 | |         println!("Strings are still equal");
+16 | |     } 
+   | |_____-
+   |
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:5:5
+   |
+ 5 |       if str1 == str2 {
+   |  _____-
+ 6 | |         println!("Strings are equal");
+...  |
+15 | |         println!("Strings are still equal");
+16 | |     } 
+   | |_____-
+   |
+
+//! > fixed
+fn main(){
+    let str1:felt252 = 'hello';
+    let str2:felt252 = 'hello';
+
+    if str1 == str2 {
+        println!("Strings are equal");
+    } else if str1 == str2 {
+        println!("Strings are still equal");
+    } else if str1 == str2 {
+        println!("Strings are still equal");
+    } else if str1 == str2 {
+        println!("Strings are still equal");
+    } 
+    else if str1 == str2 {
+        println!("Strings are still equal");
+    } 
+}
+
+//! > ==========================================================================
+
+//! > Same condition with struct
+
+//! > cairo_code
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let p1 = Point { x: 3, y: 4 };
+    let p2 = Point { x: 3, y: 4 };
+
+    if p1.x == p2.x && p1.y == p2.y {
+        println!("Points are equal");
+    } else if p1.x == p2.x && p1.y == p2.y {
+        println!("Points are still equal");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:10:5
+   |
+10 |       if p1.x == p2.x && p1.y == p2.y {
+   |  _____-
+11 | |         println!("Points are equal");
+12 | |     } else if p1.x == p2.x && p1.y == p2.y {
+13 | |         println!("Points are still equal");
+14 | |     }
+   | |_____-
+   |
+
+//! > fixed
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let p1 = Point { x: 3, y: 4 };
+    let p2 = Point { x: 3, y: 4 };
+
+    if p1.x == p2.x && p1.y == p2.y {
+        println!("Points are equal");
+    } else if p1.x == p2.x && p1.y == p2.y {
+        println!("Points are still equal");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Same conditions with literals
+
+//! > cairo_code
+fn main(){
+
+    if 2 == 3 {
+        println!("a == 3");
+    } else if 2 == 3 {
+        println!("a == 3");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+ --> lib.cairo:3:5
+  |
+3 |       if 2 == 3 {
+  |  _____-
+4 | |         println!("a == 3");
+5 | |     } else if 2 == 3 {
+6 | |         println!("a == 3");
+7 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main(){
+
+    if 2 == 3 {
+        println!("a == 3");
+    } else if 2 == 3 {
+        println!("a == 3");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Same conditions with literals and vars
+
+//! > cairo_code
+fn main(){
+    let a = 3;
+
+    if a == 3 {
+        println!("a == 3");
+    } else if a == 3 {
+        println!("a == 3");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+ --> lib.cairo:4:5
+  |
+4 |       if a == 3 {
+  |  _____-
+5 | |         println!("a == 3");
+6 | |     } else if a == 3 {
+7 | |         println!("a == 3");
+8 | |     }
+  | |_____-
+  |
+
+//! > fixed
+fn main(){
+    let a = 3;
+
+    if a == 3 {
+        println!("a == 3");
+    } else if a == 3 {
+        println!("a == 3");
+    }
+}
+
+//! > ==========================================================================
+
+//! > Similar conditions
+
+//! > cairo_code
+fn main() {
+    let a:u32 = 1;
+    let b:u32 = 2;
+
+    if a == b {
+        println!("a is equal to b");
+    } else if a < b {
+        println!("a is less than b");
+    } else if a > b {
+        println!("a is greater than b");
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let a:u32 = 1;
+    let b:u32 = 2;
+
+    if a == b {
+        println!("a is equal to b");
+    } else if a < b {
+        println!("a is less than b");
+    } else if a > b {
+        println!("a is greater than b");
+    }
+}
+
+//! > ==========================================================================
+
+//! > if with functions
+
+//! > cairo_code
+fn foo() -> bool{
+        println!("foo");
+        true
+    }
+
+fn main(){
+   if foo() {
+        println!("foo");
+    } else if foo() { 
+        println!("foo");
+    }
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+  --> lib.cairo:7:4
+   |
+ 7 |      if foo() {
+   |  ____-
+ 8 | |         println!("foo");
+ 9 | |     } else if foo() { 
+10 | |         println!("foo");
+11 | |     }
+   | |_____-
+   |
+
+//! > fixed
+fn foo() -> bool{
+        println!("foo");
+        true
+    }
+
+fn main(){
+   if foo() {
+        println!("foo");
+    } else if foo() { 
+        println!("foo");
+    }
+}
