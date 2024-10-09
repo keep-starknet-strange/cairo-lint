@@ -13,7 +13,7 @@ use crate::lints::loops::{loop_for_while, loop_match_pop_front};
 use crate::lints::manual::{self, *};
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    eq_op, erasing_op, loops, panic, single_match,
+    eq_op, erasing_op, loops, panic, performance, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -106,6 +106,7 @@ impl AnalyzerPlugin for CairoLint {
             single_match::ALLOWED.as_slice(),
             ifs::ALLOWED.as_slice(),
             manual::ALLOWED.as_slice(),
+            performance::ALLOWED.as_slice(),
         ]
         .into_iter()
         .flatten()
@@ -219,6 +220,9 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                     expr_if,
                     diagnostics,
                 );
+            }
+            Expr::While(expr_while) => {
+                performance::check_inefficient_while_comp(db, expr_while, diagnostics, &function_body.arenas)
             }
             _ => (),
         };

@@ -324,6 +324,17 @@ test_file!(
 );
 
 test_file!(
+    performance,
+    inefficient_while_comp,
+    "while loop exit condition less than",
+    "while loop exit condition less than or equal",
+    "while loop exit condition less than or equal allowed",
+    "while loop exit condition greater than",
+    "while loop exit condition greater than or equal",
+    "while loop exit condition nested"
+);
+
+test_file!(
     manual,
     manual_expect_err,
     "test basic match expect err",
