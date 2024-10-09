@@ -4,7 +4,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::attribute::SemanticQueryAttrs;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_semantic::{Expr, Statement};
-use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprIf, ExprMatch};
+use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
@@ -151,80 +151,8 @@ impl AnalyzerPlugin for CairoLint {
                         &AstExpr::from_syntax_node(db.upcast(), node.clone()),
                         &mut diags,
                     ),
-                    SyntaxKind::ExprIf => {
-                        manual_is::check_manual_if_is(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_expect::check_manual_if_expect(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_ok_or::check_manual_if_ok_or(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_ok::check_manual_if_ok(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_err::check_manual_if_err(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_expect_err::check_manual_if_expect_err(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_unwrap_or_default::check_manual_if_unwrap_or_default(
-                            db.upcast(),
-                            &ExprIf::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                    }
-                    SyntaxKind::ExprMatch => {
-                        manual_ok_or::check_manual_ok_or(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_ok::check_manual_ok(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_err::check_manual_err(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_is::check_manual_is(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_expect::check_manual_expect(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_expect_err::check_manual_expect_err(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                        manual_unwrap_or_default::check_manual_unwrap_or_default(
-                            db.upcast(),
-                            &ExprMatch::from_syntax_node(db.upcast(), node.clone()),
-                            &mut diags,
-                        );
-                    }
+                    SyntaxKind::ExprIf => {}
+                    SyntaxKind::ExprMatch => {}
                     _ => continue,
                 }
             }
@@ -246,6 +174,18 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
         match &expression {
             Expr::Match(expr_match) => {
                 single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas);
+                manual_ok_or::check_manual_ok_or(db, &function_body.arenas, expr_match, diagnostics);
+                manual_ok::check_manual_ok(db, &function_body.arenas, expr_match, diagnostics);
+                manual_err::check_manual_err(db, &function_body.arenas, expr_match, diagnostics);
+                manual_is::check_manual_is(db, &function_body.arenas, expr_match, diagnostics);
+                manual_expect::check_manual_expect(db, &function_body.arenas, expr_match, diagnostics);
+                manual_expect_err::check_manual_expect_err(db, &function_body.arenas, expr_match, diagnostics);
+                manual_unwrap_or_default::check_manual_unwrap_or_default(
+                    db,
+                    &function_body.arenas,
+                    expr_match,
+                    diagnostics,
+                );
             }
             Expr::Loop(expr_loop) => {
                 loop_match_pop_front::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas);
@@ -267,6 +207,18 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                 collapsible_if_else::check_collapsible_if_else(db, expr_if, &function_body.arenas, diagnostics);
                 collapsible_if::check_collapsible_if(db, expr_if, &function_body.arenas, diagnostics);
                 ifs_same_cond::check_duplicate_if_condition(db, expr_if, &function_body.arenas, diagnostics);
+                manual_is::check_manual_if_is(db, &function_body.arenas, expr_if, diagnostics);
+                manual_expect::check_manual_if_expect(db, &function_body.arenas, expr_if, diagnostics);
+                manual_ok_or::check_manual_if_ok_or(db, &function_body.arenas, expr_if, diagnostics);
+                manual_ok::check_manual_if_ok(db, &function_body.arenas, expr_if, diagnostics);
+                manual_err::check_manual_if_err(db, &function_body.arenas, expr_if, diagnostics);
+                manual_expect_err::check_manual_if_expect_err(db, &function_body.arenas, expr_if, diagnostics);
+                manual_unwrap_or_default::check_manual_if_unwrap_or_default(
+                    db,
+                    &function_body.arenas,
+                    expr_if,
+                    diagnostics,
+                );
             }
             _ => (),
         };

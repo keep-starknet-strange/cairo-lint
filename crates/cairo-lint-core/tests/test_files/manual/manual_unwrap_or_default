@@ -397,22 +397,20 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-  --> lib.cairo:3:3
-   |
- 3 |     match x {
-   |  ___-
- 4 | |     Option::Some(v) => {
-...  |
-11 | |     }
-12 | |   };
-   | |___-
-   |
 
 //! > fixed
 fn main() {
   let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
-  x.unwrap_or_default();
+  match x {
+    Option::Some(v) => {
+      // Testing with comments
+      v
+    },
+    Option::None => {
+      // Testing with comments
+      [0; 5]
+    }
+  };
 }
 
 //! > ==========================================================================

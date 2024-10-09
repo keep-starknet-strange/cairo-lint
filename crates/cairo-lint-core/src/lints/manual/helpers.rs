@@ -1,32 +1,16 @@
-use cairo_lang_syntax::node::ast::{
-    BlockOrIf, Condition, Expr, ExprBlock, ExprIf, OptionElseClause, OptionPatternEnumInnerPattern, Pattern, Statement,
-};
-use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_defs::ids::TopLevelLanguageElementId;
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, FixedSizeArrayItems, Pattern, Statement, VarId};
+use num_bigint::BigInt;
 
-/// Checks if the input statement is a `FunctionCall` then checks if the function name is one of the
-/// func_names input list.
-///
-/// # Arguments
-/// * `statement` - A statement that may contain a `FunctionCall`.
-/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
-/// * `func_names` - A list of target function names.
-///
-/// # Returns
-/// * `true` if the function name matches any of the input names, otherwise `false`.
-pub fn statement_check_func_name(statement: Statement, db: &dyn SyntaxGroup, func_names: &[&str]) -> bool {
-    match statement {
-        Statement::Expr(statement_expr) => {
-            let expr = statement_expr.expr(db);
-            if let Expr::FunctionCall(func_call) = expr {
-                let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
-                func_names.contains(&func_name.as_str())
-            } else {
-                false
-            }
-        }
-        _ => false,
-    }
+use super::is_expected_variant;
+use crate::lints::{function_trait_name_from_fn_id, ARRAY_NEW, DEFAULT, FALSE};
+
+/// Checks if the input statement is a `FunctionCall` then checks if the function name is the
+/// expected function name
+pub fn is_expected_function(expr: &Expr, db: &dyn SemanticGroup, func_name: &str) -> bool {
+    let Expr::FunctionCall(func_call) = expr else { return false };
+    func_call.function.full_name(db).as_str() == func_name
 }
 
 /// Checks if the inner_pattern in the input `Pattern::Enum` matches the given argument name.
@@ -38,195 +22,159 @@ pub fn statement_check_func_name(statement: Statement, db: &dyn SyntaxGroup, fun
 ///
 /// # Returns
 /// * `true` if the argument name matches, otherwise `false`.
-pub fn pattern_check_enum_arg(pattern: &Pattern, db: &dyn SyntaxGroup, arg_name: String) -> bool {
-    match pattern {
-        Pattern::Enum(enum_pattern) => {
-            let enum_arg = enum_pattern.pattern(db);
-            match enum_arg {
-                OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                    inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db) == arg_name
-                }
-                OptionPatternEnumInnerPattern::Empty(_) => false,
-            }
-        }
-        _ => false,
-    }
+pub fn pattern_check_enum_arg(pattern: &Pattern, arg: &VarId, arenas: &Arenas) -> bool {
+    let Pattern::EnumVariant(enum_var_pattern) = pattern else { return false };
+    let Some(inner_pattern) = enum_var_pattern.inner_pattern else { return false };
+    let Pattern::Variable(enum_destruct_var) = &arenas.patterns[inner_pattern] else { return false };
+    let VarId::Local(expected_var) = arg else { return false };
+    expected_var == &enum_destruct_var.var.id
 }
 
-/// Checks if the given `Expr::FunctionCall` expression matches the input `enum_name` and
-/// verifies that the first argument of the function call corresponds to pattern enum arg.
+/// Checks if the enum variant in the expression has the expected name and if the destructured
+/// variable in the pattern is used within the expression.
+///
+/// This function validates two conditions for a given enum pattern and expression:
+/// 1. The enum variant within the `expr` matches the `enum_name` provided.
+/// 2. The destructured variable from `pattern` is used in `expr`.
 ///
 /// # Arguments
-/// * `expr` - The expression to check, expected to be a function call.
-/// * `pattern` - The pattern to match against the function's first argument.
-/// * `db` - Reference to the `SyntaxGroup` for accessing the syntax tree.
-/// * `enum_name` - The name of the enum to match against the function call.
+///
+/// * `expr` - A reference to an `Expr` representing the expression to check.
+/// * `pattern` - A reference to a `Pattern` representing the pattern to match against.
+/// * `db` - A reference to a trait object of `SemanticGroup` used for semantic analysis.
+/// * `arenas` - A reference to an `Arenas` struct that provides access to allocated patterns and
+///   expressions.
+/// * `enum_name` - A string slice representing the expected enum variant's full path name.
 ///
 /// # Returns
-/// * `true` if the expression is a the input `enum_name` enum and the first argument matches the
-///   input pattern enum arg, otherwise `false`.
-pub fn pattern_check_enum_arg_is_expression(
-    expr: Expr,
-    pattern: Pattern,
-    db: &dyn SyntaxGroup,
-    enum_name: String,
-) -> bool {
-    if let Expr::FunctionCall(func_call) = expr {
-        if func_call.path(db).as_syntax_node().get_text(db) == enum_name {
-            pattern_check_enum_arg(
-                &pattern,
-                db,
-                func_call.arguments(db).arguments(db).elements(db)[0].as_syntax_node().get_text(db),
-            )
-        } else {
-            false
-        }
-    } else {
-        false
-    }
-}
-
-/// Checks if the inner_pattern in the input `Pattern::Enum` matches the given expr
 ///
-/// # Arguments
-/// * `pattern` - The pattern to check.
-/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
-/// * `expr` - the expr.
+/// Returns `true` if:
+/// - `pattern` is an enum variant pattern that matches `expr` and
+/// - the destructured variable from `pattern` is used in `expr`.
 ///
-/// # Returns
-/// * `true` if the expr matches, otherwise `false`.
-pub fn pattern_check_enum_expr(pattern: &Pattern, db: &dyn SyntaxGroup, expr: &Expr) -> bool {
-    if let Pattern::Enum(enum_pattern) = pattern {
-        if let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(x) = enum_pattern.pattern(db) {
-            let pattern_text = x.pattern(db).as_syntax_node().get_text_without_trivia(db);
-
-            return match expr {
-                Expr::Block(expr_block) => {
-                    expr_block.statements(db).elements(db).first().map_or(false, |statement| {
-                        statement.as_syntax_node().get_text_without_trivia(db) == pattern_text
-                    })
-                }
-                Expr::Path(_) => expr.as_syntax_node().get_text_without_trivia(db) == pattern_text,
-                _ => false,
-            };
-        }
-    }
-    false
-}
-
-/// Checks that the condition expression contains an `Enum` that contains an inner pattern that is
-/// the same as the statement in the if block
-///
-/// # Arguments
-/// * `expr` - The ExprIf expression to check.
-/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
-///
-/// # Returns
-/// * `true` if the pattern matches the if block statement, otherwise `false`.
-pub fn expr_check_inner_pattern_is_if_block_statement(expr: &ExprIf, db: &dyn SyntaxGroup) -> bool {
-    if let Condition::Let(condition_let) = expr.condition(db) {
-        match &condition_let.patterns(db).elements(db)[0] {
-            Pattern::Enum(enum_pattern) => {
-                let enum_arg = enum_pattern.pattern(db);
-                match enum_arg {
-                    OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) => {
-                        inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
-                            == expr.if_block(db).statements(db).as_syntax_node().get_text_without_trivia(db)
-                    }
-                    OptionPatternEnumInnerPattern::Empty(_) => false,
-                }
-            }
-            _ => false,
-        }
-    } else {
-        false
-    }
-}
-
-/// Checks if the input `Expr` is a `FunctionCall` with the specified function name.
-///
-/// # Arguments
-/// * `arm_expression` - The expression to check.
-/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
-/// * `func_name` - The target function name.
-///
-/// # Returns
-/// * `true` if the expression is a function call and the function name matches, otherwise `false`.
-pub fn arm_expr_check_func_name(arm_expression: Expr, db: &dyn SyntaxGroup, func_name: &str) -> bool {
-    if let Expr::FunctionCall(func_call) = arm_expression {
-        func_call.path(db).as_syntax_node().get_text(db) == func_name
-    } else {
-        false
-    }
-}
-
-/// Retrieves the else `ExprBlock` from an `OptionElseClause` clause if it's non-empty.
-///
-/// # Arguments
-/// * `else_clause` - The `OptionElseClause` to extract the block from.
-/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
-///
-/// # Returns
-/// * `Some(ExprBlock)` if an `else` block exists, otherwise `None`.
-pub fn get_else_expr_block(else_clause: OptionElseClause, db: &dyn SyntaxGroup) -> Option<ExprBlock> {
-    match else_clause {
-        OptionElseClause::Empty(_) => None,
-        OptionElseClause::ElseClause(else_clause) => match else_clause.else_block_or_if(db) {
-            BlockOrIf::Block(expr_block) => Some(expr_block),
-            _ => None,
-        },
-    }
-}
-
-/// Checks if the condition of the input `ExprIf` expression contains an enum pattern and contains
-/// an inner pattern that matches the inner pattern of the enum in the if block.
-///
-/// # Arguments
-/// * `expr` - The `ExprIf` expression containing the condition and the if block to check.
-/// * `db` - Reference to the `SyntaxGroup` for accessing the syntax tree.
-/// * `enum_name` - The name of the enum to match against the function call in the if block.
+/// Returns `false` otherwise.
 ///
 /// # Example
-/// for :
-/// if let Enum(x) = res_val {
-///     EnumName(x)
-/// }
-/// checks that x == x
+///
+/// Here `x` is destructured in the enum pattern and is used in the `Option::Some(x)` expression
+/// ```ignore
+/// match res_val {
+///     Result::Ok(x) => Option::Some(x),
+///     Result::Err(_) => Option::None,
+/// };
+/// ```
+pub fn is_destructured_variable_used_and_expected_variant(
+    expr: &Expr,
+    pattern: &Pattern,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    enum_name: &str,
+) -> bool {
+    let Expr::EnumVariantCtor(enum_expr) = expr else { return false };
+    if enum_expr.variant.id.full_path(db.upcast()) != enum_name {
+        return false;
+    };
+    let Expr::Var(return_enum_var) = &arenas.exprs[enum_expr.value_expr] else { return false };
+    pattern_check_enum_arg(pattern, &return_enum_var.var, arenas)
+}
+
+/// Checks if the inner pattern of a conditional `if` expression's pattern matches a block
+/// statement that returns a variable associated with the destructured variable in the pattern.
+///
+/// This function validates whether an `if` expression contains a destructured pattern that
+/// follows through the `if` block, ensuring that:
+/// 1. The `if` condition pattern is an enum variant pattern with a variable as its inner pattern.
+/// 2. The block within the `if` statement has a tail expression returning the same variable as the
+///    one destructured in the pattern.
+///
+/// # Arguments
+///
+/// * `expr` - A reference to an `ExprIf` representing the conditional `if` expression to check.
+/// * `arenas` - A reference to an `Arenas` struct that provides access to allocated patterns and
+///   expressions for detailed analysis.
 ///
 /// # Returns
-/// * `true` if the inner pattern of the enum in the condition matches the first argument of the
-///   enum `enume_name` in the statement of the if block, otherwise `false`.
-pub fn expr_check_condition_enum_inner_pattern_is_if_block_enum_inner_pattern(
-    expr: &ExprIf,
-    db: &dyn SyntaxGroup,
-    enum_name: String,
-) -> bool {
-    let Condition::Let(condition_let) = expr.condition(db) else {
-        return false;
-    };
-
-    let Pattern::Enum(enum_pattern) = &condition_let.patterns(db).elements(db)[0] else {
-        return false;
-    };
-
-    let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(inner_pattern) = enum_pattern.pattern(db) else {
-        return false;
-    };
-
-    let Statement::Expr(statement_expr) = expr.if_block(db).statements(db).elements(db)[0].clone() else {
-        return false;
-    };
-
-    let Expr::FunctionCall(func_call) = statement_expr.expr(db) else {
-        return false;
-    };
-
-    if func_call.path(db).as_syntax_node().get_text_without_trivia(db) != enum_name {
-        return false;
+///
+/// Returns `true` if:
+/// - The `if` condition is an enum variant pattern with an inner variable pattern.
+/// - The `if` block contains a tail expression that returns the destructured variable.
+///
+/// Returns `false` otherwise, indicating the pattern does not match.
+pub fn if_expr_pattern_matches_tail_var(expr: &ExprIf, arenas: &Arenas) -> bool {
+    // Checks if it's an `if-let`
+    if let Condition::Let(_condition_let, patterns) = &expr.condition
+        // Checks if the pattern is an Enum pattern
+        && let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]]
+        // Checks if the enum pattern has an inner pattern
+        && let Some(inner_pattern) = enum_pattern.inner_pattern
+        // Checks if the pattern is a variable
+        && let Pattern::Variable(destruct_var) = &arenas.patterns[inner_pattern]
+    {
+        let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else { return false };
+        let Some(tail_expr) = if_block.tail else { return false };
+        // Checks that the tail expression of the block is a variable.
+        let Expr::Var(return_var) = &arenas.exprs[tail_expr] else { return false };
+        // Checks that it's a local variable (defined in this scope)
+        let VarId::Local(local_return_var) = return_var.var else { return false };
+        // Checks that it's the exact variable that was created in the enum pattern
+        destruct_var.var.id == local_return_var
+    } else {
+        false
     }
+}
 
-    func_call.arguments(db).arguments(db).elements(db)[0].as_syntax_node().get_text_without_trivia(db)
-        == inner_pattern.pattern(db).as_syntax_node().get_text_without_trivia(db)
+/// Checks if the condition pattern in an `if` expression contains an enum variant pattern
+/// that matches an enum variant in the `if` block's tail expression.
+///
+/// This function verifies two conditions:
+/// 1. The condition of the `ExprIf` expression (`expr`) contains an enum variant pattern with an
+///    inner pattern.
+/// 2. The tail expression in the `if` block matches the same inner pattern and corresponds to the
+///    specified `enum_name`.
+///
+/// # Arguments
+///
+/// * `expr` - The `ExprIf` expression containing the enum variant pattern and the `if` block to
+///   check.
+/// * `db` - A reference to the `SemanticGroup`, which provides access to the syntax tree.
+/// * `arenas` - A reference to the `Arenas` structure, used for accessing allocated expressions and
+///   patterns.
+/// * `enum_name` - The expected enum variant name to match within the `if` block's statement.
+///
+/// # Returns
+///
+/// * `true` if the inner pattern in the enum variant condition matches the first argument of the
+///   enum variant with `enum_name` in the tail expression of the `if` block; otherwise, `false`.
+///
+/// # Example
+///
+/// ```ignore
+/// if let EnumVariant(x) = condition {
+///     EnumName(x)
+/// }
+/// ```
+/// Checks if `x` in the condition matches `x` in the `if` block's enum pattern.
+pub fn if_expr_condition_and_block_match_enum_pattern(
+    expr: &ExprIf,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    enum_name: &str,
+) -> bool {
+    if let Condition::Let(_expr_id, patterns) = &expr.condition
+        && let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]]
+        && let Some(inner_pattern) = enum_pattern.inner_pattern
+        && let Pattern::Variable(variable_pattern) = &arenas.patterns[inner_pattern]
+        && let Expr::Block(if_block) = &arenas.exprs[expr.if_block]
+        && let Some(tail_expr_id) = if_block.tail
+        && let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[tail_expr_id]
+        && is_expected_variant(&tail_expr_id, arenas, db, enum_name)
+        && let Expr::Var(var) = &arenas.exprs[enum_var.value_expr]
+        && let VarId::Local(return_var) = var.var
+    {
+        return_var == variable_pattern.var.id
+    } else {
+        false
+    }
 }
 
 /// Checks if the input `Expr` is a default of the expr kind.
@@ -237,29 +185,53 @@ pub fn expr_check_condition_enum_inner_pattern_is_if_block_enum_inner_pattern(
 ///
 /// # Returns
 /// * `true` if the expression is a default otherwise `false`.
-pub fn check_is_default(db: &dyn SyntaxGroup, expr: &Expr) -> bool {
+pub fn check_is_default(db: &dyn SemanticGroup, expr: &Expr, arenas: &Arenas) -> bool {
     match expr {
         Expr::FunctionCall(func_call) => {
-            let func_name = func_call.path(db).as_syntax_node().get_text_without_trivia(db);
-            func_name == "Default::default" || func_name == "ArrayTrait::new"
+            // Checks if the function called is either default or array new.
+            let trait_name = function_trait_name_from_fn_id(db, &func_call.function);
+            trait_name == DEFAULT || trait_name == ARRAY_NEW
         }
-        Expr::False(expr_false) => !expr_false.boolean_value(),
-        Expr::String(expr_str) => {
-            if let Some(str) = expr_str.string_value(db) {
-                str.is_empty()
+        // Empty string literal
+        Expr::StringLiteral(expr_str) => expr_str.value.is_empty(),
+        // If we're in a block checks that it returns default and does nothing else
+        Expr::Block(expr_block) => {
+            // Checks that if there is a statement in the block it's to set a variable that will be returned in
+            // the tail and nothing else
+            let default_subscope = if expr_block.statements.len() == 1 {
+                // Check for a let assignment
+                let Statement::Let(stmt) = &arenas.statements[expr_block.statements[0]] else { return false };
+                let Pattern::Variable(assigned_variable) = &arenas.patterns[stmt.pattern] else { return false };
+
+                // Checks that the tail contains a variable that is exactly the one created in the statements
+                let Some(tail) = expr_block.tail else { return false };
+                let Expr::Var(return_var) = &arenas.exprs[tail] else { return false };
+                let VarId::Local(tail_var) = return_var.var else { return false };
+
+                // Checks that the value assigned in the variable is a default value
+                check_is_default(db, &arenas.exprs[stmt.expr], arenas) && tail_var == assigned_variable.var.id
             } else {
                 false
-            }
+            };
+            let Some(tail_expr_id) = expr_block.tail else { return false };
+            default_subscope
+                || (check_is_default(db, &arenas.exprs[tail_expr_id], arenas) && expr_block.statements.is_empty())
         }
-        Expr::Block(expr_block) => match &expr_block.statements(db).elements(db)[0] {
-            Statement::Expr(statement_expr) => check_is_default(db, &statement_expr.expr(db)),
-            _ => false,
+        Expr::FixedSizeArray(expr_arr) => match &expr_arr.items {
+            // Case where the array is defined like that [0_u32; N]
+            FixedSizeArrayItems::ValueAndSize(expr_id, _) => check_is_default(db, &arenas.exprs[*expr_id], arenas),
+            // Case where the array is defined like that [0_u32, 0, 0, ...]
+            FixedSizeArrayItems::Items(expr_ids) => {
+                expr_ids.iter().all(|&expr| check_is_default(db, &arenas.exprs[expr], arenas))
+            }
         },
-        Expr::InlineMacro(expr_macro) => expr_macro.as_syntax_node().get_text_without_trivia(db) == "array![]",
-        Expr::FixedSizeArray(expr_arr) => expr_arr.exprs(db).elements(db).iter().all(|expr| check_is_default(db, expr)),
-        Expr::Literal(expr_literal) => expr_literal.as_syntax_node().get_text_without_trivia(db) == "0",
+        // Literal integer
+        Expr::Literal(expr_literal) => expr_literal.value == BigInt::ZERO,
+        // Boolean false
+        Expr::EnumVariantCtor(enum_variant) => enum_variant.variant.id.full_path(db.upcast()) == FALSE,
+        // Tuple contains only default elements
         Expr::Tuple(expr_tuple) => {
-            expr_tuple.expressions(db).elements(db).iter().all(|expr| check_is_default(db, expr))
+            expr_tuple.items.iter().all(|&expr| check_is_default(db, &arenas.exprs[expr], arenas))
         }
         _ => false,
     }
