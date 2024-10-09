@@ -2,10 +2,14 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprWhile};
+use cairo_lang_syntax::node::helpers::QueryAttrs;
+use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 const INEFFICIENT_WHILE_COMP_MESSAGE: &str = "using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider \
                                               switching to `!=` or using ArrayTrait::multi_pop_front.";
 
+pub const ALLOWED: [&str; 1] = [LINT_NAME];
+const LINT_NAME: &str = "inefficient_while_comp";
 // Match all types implementing PartialOrd
 const PARTIAL_ORD_PATTERNS: [&str; 4] =
     ["PartialOrd::lt\"", "PartialOrd::le\"", "PartialOrd::gt\"", "PartialOrd::ge\""];
@@ -16,6 +20,14 @@ pub fn check_inefficient_while_comp(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
+    // Checks if the lint is allowed in an upper scope.
+    let mut current_node = expr_while.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+            return;
+        }
+        current_node = node;
+    }
     // It might be a false positive, because there can be cases when:
     //  - The rhs arguments is changed in the loop body
     //  - The lhs argument can "skip" the moment where lhs == rhs
