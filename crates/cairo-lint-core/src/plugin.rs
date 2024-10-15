@@ -13,7 +13,7 @@ use crate::lints::loops::{loop_for_while, loop_match_pop_front};
 use crate::lints::manual::{self, *};
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    eq_op, erasing_op, loops, panic, performance, single_match,
+    eq_op, erasing_op, int_op_one, loops, panic, performance, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -53,6 +53,10 @@ pub enum CairoLintKind {
     ManualExpect,
     DuplicateIfCondition,
     ManualExpectErr,
+    IntGePlusOne,
+    IntGeMinOne,
+    IntLePlusOne,
+    IntLeMinOne,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -85,6 +89,10 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
         ifs_same_cond::DUPLICATE_IF_CONDITION => CairoLintKind::DuplicateIfCondition,
         manual_expect_err::MANUAL_EXPECT_ERR => CairoLintKind::ManualExpectErr,
+        int_op_one::INT_GE_PLUS_ONE => CairoLintKind::IntGePlusOne,
+        int_op_one::INT_GE_MIN_ONE => CairoLintKind::IntGeMinOne,
+        int_op_one::INT_LE_PLUS_ONE => CairoLintKind::IntLePlusOne,
+        int_op_one::INT_LE_MIN_ONE => CairoLintKind::IntLeMinOne,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -195,6 +203,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
             Expr::FunctionCall(expr_func) => {
                 panic::check_panic_usage(db, expr_func, diagnostics);
                 bool_comparison::check_bool_comparison(db, expr_func, &function_body.arenas, diagnostics);
+                int_op_one::check_int_plus_one(db, expr_func, &function_body.arenas, diagnostics);
                 bitwise_for_parity_check::check_bitwise_for_parity(db, expr_func, &function_body.arenas, diagnostics);
                 eq_op::check_eq_op(db, expr_func, &function_body.arenas, diagnostics);
                 erasing_op::check_erasing_operation(db, expr_func, &function_body.arenas, diagnostics);

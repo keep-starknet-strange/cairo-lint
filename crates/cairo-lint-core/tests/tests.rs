@@ -415,3 +415,16 @@ test_file!(
     "Same conditions with literals and vars",
     "Same conditions with literals"
 );
+
+test_file!(
+    int_op_one,
+    int_op_one,
+    "int ge plus one",
+    "int gt plus one",
+    "int ge min one",
+    "int gt min one",
+    "int le plus one",
+    "int lt plus one",
+    "int le min one",
+    "int lt min one"
+);
