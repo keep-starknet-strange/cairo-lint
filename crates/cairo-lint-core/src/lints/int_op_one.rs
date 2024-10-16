@@ -11,7 +11,7 @@ pub const INT_LE_PLUS_ONE: &str = "Unnecessary add operation in integer <= compa
 pub const INT_LE_MIN_ONE: &str = "Unnecessary sub operation in integer <= comparison. Use simplified comparison.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "int_plus_one";
+const LINT_NAME: &str = "int_op_one";
 
 pub fn check_int_plus_one(
     db: &dyn SemanticGroup,
@@ -29,9 +29,9 @@ pub fn check_int_plus_one(
     }
 
     // Check if the function call is the bool greater or equal (>=) or lower or equal (<=).
-    if !expr_func.function.full_name(db).contains("core::integer::")
-        || (!expr_func.function.full_name(db).contains("PartialOrd::ge")
-            && !expr_func.function.full_name(db).contains("PartialOrd::le"))
+    let full_name = expr_func.function.full_name(db);
+    if !full_name.contains("core::integer::")
+        || (!full_name.contains("PartialOrd::ge") && !full_name.contains("PartialOrd::le"))
     {
         return;
     }
@@ -90,11 +90,10 @@ pub fn check_int_plus_one(
 
 fn check_is_variable(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
     if let ExprFunctionCallArg::Value(val_expr) = arg {
-        let Expr::Var(_) = arenas.exprs[*val_expr] else {
-            return false;
-        };
-    };
-    true
+        matches!(arenas.exprs[*val_expr], Expr::Var(_))
+    } else {
+        false
+    }
 }
 
 fn check_is_add_or_sub_one(
@@ -111,10 +110,8 @@ fn check_is_add_or_sub_one(
     };
 
     // Check is addition or substraction
-    if !func_call.function.full_name(db).contains("core::integer::")
-        && !func_call.function.full_name(db).contains(operation)
-        || func_call.args.len() != 2
-    {
+    let full_name = func_call.function.full_name(db);
+    if !full_name.contains("core::integer::") && !full_name.contains(operation) || func_call.args.len() != 2 {
         return false;
     }
 
@@ -129,12 +126,11 @@ fn check_is_add_or_sub_one(
     };
 
     // Check rhs is 1
-    if let ExprFunctionCallArg::Value(v) = rhs {
-        if let Expr::Literal(ref litteral_expr) = arenas.exprs[*v] {
-            if litteral_expr.value != 1.into() {
-                return false;
-            }
-        };
+    if let ExprFunctionCallArg::Value(v) = rhs
+        && let Expr::Literal(ref litteral_expr) = arenas.exprs[*v]
+        && litteral_expr.value != 1.into()
+    {
+        return false;
     };
 
     true

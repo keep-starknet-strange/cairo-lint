@@ -420,6 +420,7 @@ test_file!(
     int_op_one,
     int_op_one,
     "int ge plus one",
+    "int gt plus one allowed",
     "int gt plus one",
     "int ge min one",
     "int gt min one",

@@ -24,6 +24,28 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > int gt plus one allowed
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    #[allow(int_op_one)]
+    if x >= y + 1 {}
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    #[allow(int_op_one)]
+    if x >= y + 1 {}
+}
+
+//! > ==========================================================================
+
 //! > int gt plus one
 
 //! > cairo_code

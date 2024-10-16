@@ -115,6 +115,7 @@ impl AnalyzerPlugin for CairoLint {
             ifs::ALLOWED.as_slice(),
             manual::ALLOWED.as_slice(),
             performance::ALLOWED.as_slice(),
+            int_op_one::ALLOWED.as_slice(),
         ]
         .into_iter()
         .flatten()
