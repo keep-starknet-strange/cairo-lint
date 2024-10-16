@@ -201,6 +201,22 @@ impl Fixer {
             CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsOk => self.fix_manual_is_ok(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsErr => self.fix_manual_is_err(db, plugin_diag.stable_ptr.lookup(db.upcast())),
+            CairoLintKind::IntGePlusOne => self.fix_int_ge_plus_one(
+                db,
+                ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            ),
+            CairoLintKind::IntGeMinOne => self.fix_int_ge_min_one(
+                db,
+                ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            ),
+            CairoLintKind::IntLePlusOne => self.fix_int_le_plus_one(
+                db,
+                ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            ),
+            CairoLintKind::IntLeMinOne => self.fix_int_le_min_one(
+                db,
+                ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
+            ),
             _ => None,
         }
     }
@@ -653,6 +669,50 @@ impl Fixer {
             _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
         };
         Some((node, fix))
+    }
+
+    /// Rewrites a manual implementation of int ge plus one x >= y + 1
+    pub fn fix_int_ge_plus_one(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> Option<(SyntaxNode, String)> {
+        let lhs = node.lhs(db).as_syntax_node().get_text(db);
+
+        let Expr::Binary(rhs_exp) = node.rhs(db) else { panic!("should be addition") };
+        let rhs = rhs_exp.lhs(db).as_syntax_node().get_text(db);
+
+        let fix = format!("{} > {} ", lhs.trim(), rhs.trim());
+        Some((node.as_syntax_node(), fix))
+    }
+
+    /// Rewrites a manual implementation of int ge min one x - 1 >= y
+    pub fn fix_int_ge_min_one(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> Option<(SyntaxNode, String)> {
+        let Expr::Binary(lhs_exp) = node.lhs(db) else { panic!("should be substraction") };
+        let rhs = node.rhs(db).as_syntax_node().get_text(db);
+
+        let lhs = lhs_exp.lhs(db).as_syntax_node().get_text(db);
+
+        let fix = format!("{} > {} ", lhs.trim(), rhs.trim());
+        Some((node.as_syntax_node(), fix))
+    }
+
+    /// Rewrites a manual implementation of int le plus one x + 1 <= y
+    pub fn fix_int_le_plus_one(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> Option<(SyntaxNode, String)> {
+        let Expr::Binary(lhs_exp) = node.lhs(db) else { panic!("should be addition") };
+        let rhs = node.rhs(db).as_syntax_node().get_text(db);
+
+        let lhs = lhs_exp.lhs(db).as_syntax_node().get_text(db);
+
+        let fix = format!("{} < {} ", lhs.trim(), rhs.trim());
+        Some((node.as_syntax_node(), fix))
+    }
+
+    /// Rewrites a manual implementation of int le min one x <= y -1
+    pub fn fix_int_le_min_one(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> Option<(SyntaxNode, String)> {
+        let lhs = node.lhs(db).as_syntax_node().get_text(db);
+
+        let Expr::Binary(rhs_exp) = node.rhs(db) else { panic!("should be substraction") };
+        let rhs = rhs_exp.lhs(db).as_syntax_node().get_text(db);
+
+        let fix = format!("{} < {} ", lhs.trim(), rhs.trim());
+        Some((node.as_syntax_node(), fix))
     }
 }
 
