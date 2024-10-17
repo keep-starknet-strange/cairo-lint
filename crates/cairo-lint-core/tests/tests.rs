@@ -415,3 +415,20 @@ test_file!(
     "Same conditions with literals and vars",
     "Same conditions with literals"
 );
+
+test_file!(
+    impossible_comparison,
+    impossible_comparison,
+    "gt and lt",
+    "gt and lt possible",
+    "gt and le",
+    "ge and lt",
+    "ge and le",
+    "lt and gt",
+    "lt and gt possible",
+    "lt and ge",
+    "le and gt",
+    "le and ge",
+    "le and ge allowed",
+    "with else clause"
+);
