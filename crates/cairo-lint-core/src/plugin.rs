@@ -13,7 +13,7 @@ use crate::lints::loops::{loop_for_while, loop_match_pop_front};
 use crate::lints::manual::{self, *};
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    eq_op, erasing_op, loops, panic, performance, single_match,
+    eq_op, erasing_op, impossible_comparison, loops, panic, performance, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -53,6 +53,7 @@ pub enum CairoLintKind {
     ManualExpect,
     DuplicateIfCondition,
     ManualExpectErr,
+    ImposibleComparison,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
@@ -85,6 +86,7 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         manual_expect::MANUAL_EXPECT => CairoLintKind::ManualExpect,
         ifs_same_cond::DUPLICATE_IF_CONDITION => CairoLintKind::DuplicateIfCondition,
         manual_expect_err::MANUAL_EXPECT_ERR => CairoLintKind::ManualExpectErr,
+        impossible_comparison::IMPOSSIBLE_COMPARISON => CairoLintKind::ImposibleComparison,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -107,6 +109,7 @@ impl AnalyzerPlugin for CairoLint {
             ifs::ALLOWED.as_slice(),
             manual::ALLOWED.as_slice(),
             performance::ALLOWED.as_slice(),
+            impossible_comparison::ALLOWED.as_slice(),
         ]
         .into_iter()
         .flatten()
@@ -220,6 +223,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                     expr_if,
                     diagnostics,
                 );
+                impossible_comparison::check_impossible_comparision(db, &function_body.arenas, expr_if, diagnostics);
             }
             Expr::While(expr_while) => {
                 performance::check_inefficient_while_comp(db, expr_while, diagnostics, &function_body.arenas)
