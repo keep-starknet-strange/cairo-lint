@@ -429,3 +429,20 @@ test_file!(
     "int le min one",
     "int lt min one"
 );
+
+test_file!(
+    impossible_comparison,
+    impossible_comparison,
+    "gt and lt",
+    "gt and lt possible",
+    "gt and le",
+    "ge and lt",
+    "ge and le",
+    "lt and gt",
+    "lt and gt possible",
+    "lt and ge",
+    "le and gt",
+    "le and ge",
+    "le and ge allowed",
+    "with else clause"
+);

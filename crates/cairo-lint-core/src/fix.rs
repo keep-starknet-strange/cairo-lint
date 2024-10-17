@@ -217,6 +217,9 @@ impl Fixer {
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
+            CairoLintKind::ImposibleComparison => {
+                self.fix_impossible_comparison(db, plugin_diag.stable_ptr.lookup(db.upcast()))
+            }
             _ => None,
         }
     }
@@ -713,6 +716,29 @@ impl Fixer {
 
         let fix = format!("{} < {} ", lhs.trim(), rhs.trim());
         Some((node.as_syntax_node(), fix))
+    }
+
+    pub fn fix_impossible_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        let expr_if = ExprIf::from_syntax_node(db, node.clone());
+        let indent = expr_if.if_kw(db).as_syntax_node().get_text(db).chars().take_while(|c| c.is_whitespace()).count();
+
+        match expr_if.else_clause(db) {
+            OptionElseClause::Empty(_) => Some((
+                node,
+                indent_snippet(&format!("if false {}", expr_if.if_block(db).as_syntax_node().get_text(db)), indent / 4),
+            )),
+            OptionElseClause::ElseClause(else_clause) => Some((
+                node,
+                indent_snippet(
+                    &format!(
+                        "if false {}{}",
+                        expr_if.if_block(db).as_syntax_node().get_text(db),
+                        else_clause.as_syntax_node().get_text(db)
+                    ),
+                    indent / 4,
+                ),
+            )),
+        }
     }
 }
 
