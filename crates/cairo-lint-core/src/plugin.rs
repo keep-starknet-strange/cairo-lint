@@ -204,7 +204,7 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
             Expr::FunctionCall(expr_func) => {
                 panic::check_panic_usage(db, expr_func, diagnostics);
                 bool_comparison::check_bool_comparison(db, expr_func, &function_body.arenas, diagnostics);
-                int_op_one::check_int_plus_one(db, expr_func, &function_body.arenas, diagnostics);
+                int_op_one::check_int_op_one(db, expr_func, &function_body.arenas, diagnostics);
                 bitwise_for_parity_check::check_bitwise_for_parity(db, expr_func, &function_body.arenas, diagnostics);
                 eq_op::check_eq_op(db, expr_func, &function_body.arenas, diagnostics);
                 erasing_op::check_erasing_operation(db, expr_func, &function_body.arenas, diagnostics);

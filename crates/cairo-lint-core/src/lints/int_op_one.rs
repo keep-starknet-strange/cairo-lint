@@ -13,7 +13,7 @@ pub const INT_LE_MIN_ONE: &str = "Unnecessary sub operation in integer <= compar
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "int_op_one";
 
-pub fn check_int_plus_one(
+pub fn check_int_op_one(
     db: &dyn SemanticGroup,
     expr_func: &ExprFunctionCall,
     arenas: &Arenas,
@@ -44,7 +44,7 @@ pub fn check_int_plus_one(
         && check_is_add_or_sub_one(db, rhs, arenas, "::add")
         && expr_func.function.full_name(db).contains("::ge")
     {
-        diagnostics.push(PluginDiagnostic {
+        return diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: INT_GE_PLUS_ONE.to_string(),
             severity: Severity::Warning,
@@ -56,7 +56,7 @@ pub fn check_int_plus_one(
         && check_is_variable(rhs, arenas)
         && expr_func.function.full_name(db).contains("::ge")
     {
-        diagnostics.push(PluginDiagnostic {
+        return diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: INT_GE_MIN_ONE.to_string(),
             severity: Severity::Warning,
@@ -68,7 +68,7 @@ pub fn check_int_plus_one(
         && check_is_variable(rhs, arenas)
         && expr_func.function.full_name(db).contains("::le")
     {
-        diagnostics.push(PluginDiagnostic {
+        return diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: INT_LE_PLUS_ONE.to_string(),
             severity: Severity::Warning,
@@ -80,7 +80,7 @@ pub fn check_int_plus_one(
         && check_is_add_or_sub_one(db, rhs, arenas, "::sub")
         && expr_func.function.full_name(db).contains("::le")
     {
-        diagnostics.push(PluginDiagnostic {
+        return diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: INT_LE_MIN_ONE.to_string(),
             severity: Severity::Warning,
