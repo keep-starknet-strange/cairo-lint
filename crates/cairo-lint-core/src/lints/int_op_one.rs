@@ -44,11 +44,11 @@ pub fn check_int_op_one(
         && check_is_add_or_sub_one(db, rhs, arenas, "::add")
         && expr_func.function.full_name(db).contains("::ge")
     {
-        return diagnostics.push(PluginDiagnostic {
+        diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: INT_GE_PLUS_ONE.to_string(),
             severity: Severity::Warning,
-        });
+        })
     }
 
     // x - 1 >= y
@@ -56,11 +56,11 @@ pub fn check_int_op_one(
         && check_is_variable(rhs, arenas)
         && expr_func.function.full_name(db).contains("::ge")
     {
-        return diagnostics.push(PluginDiagnostic {
+        diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: INT_GE_MIN_ONE.to_string(),
             severity: Severity::Warning,
-        });
+        })
     }
 
     // x + 1 <= y
@@ -68,11 +68,11 @@ pub fn check_int_op_one(
         && check_is_variable(rhs, arenas)
         && expr_func.function.full_name(db).contains("::le")
     {
-        return diagnostics.push(PluginDiagnostic {
+        diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: INT_LE_PLUS_ONE.to_string(),
             severity: Severity::Warning,
-        });
+        })
     }
 
     // x <= y - 1
@@ -80,11 +80,11 @@ pub fn check_int_op_one(
         && check_is_add_or_sub_one(db, rhs, arenas, "::sub")
         && expr_func.function.full_name(db).contains("::le")
     {
-        return diagnostics.push(PluginDiagnostic {
+        diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: INT_LE_MIN_ONE.to_string(),
             severity: Severity::Warning,
-        });
+        })
     }
 }
 
