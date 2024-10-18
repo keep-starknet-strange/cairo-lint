@@ -201,7 +201,6 @@ impl Fixer {
             CairoLintKind::ManualIsNone => self.fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsOk => self.fix_manual_is_ok(db, plugin_diag.stable_ptr.lookup(db.upcast())),
             CairoLintKind::ManualIsErr => self.fix_manual_is_err(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-<<<<<<< HEAD
             CairoLintKind::IntGePlusOne => self.fix_int_ge_plus_one(
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
@@ -218,11 +217,6 @@ impl Fixer {
                 db,
                 ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
             ),
-            CairoLintKind::ImposibleComparison => {
-                self.fix_impossible_comparison(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-            }
-=======
->>>>>>> 5294e4f (fix from review)
             _ => None,
         }
     }
@@ -676,7 +670,6 @@ impl Fixer {
         };
         Some((node, fix))
     }
-<<<<<<< HEAD
 
     /// Rewrites a manual implementation of int ge plus one x >= y + 1
     pub fn fix_int_ge_plus_one(&self, db: &dyn SyntaxGroup, node: ExprBinary) -> Option<(SyntaxNode, String)> {
@@ -721,31 +714,6 @@ impl Fixer {
         let fix = format!("{} < {} ", lhs.trim(), rhs.trim());
         Some((node.as_syntax_node(), fix))
     }
-
-    pub fn fix_impossible_comparison(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        let expr_if = ExprIf::from_syntax_node(db, node.clone());
-        let indent = expr_if.if_kw(db).as_syntax_node().get_text(db).chars().take_while(|c| c.is_whitespace()).count();
-
-        match expr_if.else_clause(db) {
-            OptionElseClause::Empty(_) => Some((
-                node,
-                indent_snippet(&format!("if false {}", expr_if.if_block(db).as_syntax_node().get_text(db)), indent / 4),
-            )),
-            OptionElseClause::ElseClause(else_clause) => Some((
-                node,
-                indent_snippet(
-                    &format!(
-                        "if false {}{}",
-                        expr_if.if_block(db).as_syntax_node().get_text(db),
-                        else_clause.as_syntax_node().get_text(db)
-                    ),
-                    indent / 4,
-                ),
-            )),
-        }
-    }
-=======
->>>>>>> 5294e4f (fix from review)
 }
 
 fn expr_match_get_var_name_and_err(expr_match: ExprMatch, db: &dyn SyntaxGroup, arm_index: usize) -> (String, String) {

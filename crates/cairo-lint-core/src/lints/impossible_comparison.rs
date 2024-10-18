@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use num_bigint::BigInt;
 
 use super::function_trait_name_from_fn_id;
-use crate::lints::{EQ, GE, GT, LE, LT};
+use crate::lints::{GE, GT, LE, LT};
 
 pub const IMPOSSIBLE_COMPARISON: &str = "Impossible condition, always false";
 

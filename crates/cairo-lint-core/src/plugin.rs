@@ -13,7 +13,7 @@ use crate::lints::loops::{loop_for_while, loop_match_pop_front};
 use crate::lints::manual::{self, *};
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    eq_op, erasing_op, int_op_one, impossible_comparison, loops, panic, performance, single_match,
+    eq_op, erasing_op, impossible_comparison, int_op_one, loops, panic, performance, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
