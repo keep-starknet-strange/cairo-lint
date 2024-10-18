@@ -9,20 +9,17 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x > 200 && x < 100 {
-  |  _____-
-4 | |         //impossible to reach
-5 | |     }
-  | |_____-
+3 |     if x > 200 && x < 100 {
+  |        ^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x > 200 && x < 100 {
         //impossible to reach
     }
 }
@@ -62,20 +59,17 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x > 200 && x <= 100 {
-  |  _____-
-4 | |         //impossible to reach
-5 | |     }
-  | |_____-
+3 |     if x > 200 && x <= 100 {
+  |        ^^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x > 200 && x <= 100 {
         //impossible to reach
     }
 }
@@ -93,20 +87,17 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x >= 200 && x < 100 {
-  |  _____-
-4 | |         //impossible to reach
-5 | |     }
-  | |_____-
+3 |     if x >= 200 && x < 100 {
+  |        ^^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x >= 200 && x < 100 {
         //impossible to reach
     }
 }
@@ -124,20 +115,17 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x >= 200 && x <= 100 {
-  |  _____-
-4 | |         //impossible to reach
-5 | |     }
-  | |_____-
+3 |     if x >= 200 && x <= 100 {
+  |        ^^^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x >= 200 && x <= 100 {
         //impossible to reach
     }
 }
@@ -155,20 +143,17 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x < 100 && x > 100 {
-  |  _____-
-4 | |         //impossible to reach
-5 | |     }
-  | |_____-
+3 |     if x < 100 && x > 100 {
+  |        ^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x < 100 && x > 100 {
         //impossible to reach
     }
 }
@@ -208,23 +193,21 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x < 100 && x >= 100 {
-  |  _____-
-4 | |         //impossible to reach
-5 | |     }
-  | |_____-
+3 |     if x < 100 && x >= 100 {
+  |        ^^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x < 100 && x >= 100 {
         //impossible to reach
     }
 }
+
 
 //! > ==========================================================================
 
@@ -239,20 +222,17 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x <= 100 && x > 200 {
-  |  _____-
-4 | |         //impossible to reach
-5 | |     }
-  | |_____-
+3 |     if x <= 100 && x > 200 {
+  |        ^^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x <= 100 && x > 200 {
         //impossible to reach
     }
 }
@@ -270,20 +250,17 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x <= 100 && x >= 200 {
-  |  _____-
-4 | |         //impossible to reach
-5 | |     }
-  | |_____-
+3 |     if x <= 100 && x >= 200 {
+  |        ^^^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x <= 100 && x >= 200 {
         //impossible to reach
     }
 }
@@ -314,6 +291,30 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > le and ge different var
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x <= 100 && y >= 200 {
+        //possible to reach
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x <= 100 && y >= 200 {
+        //possible to reach
+    }
+}
+
+//! > ==========================================================================
+
 //! > with else clause
 
 //! > cairo_code
@@ -329,22 +330,17 @@ fn main() {
 }
 
 //! > diagnostics
-warning: Plugin diagnostic: Impossible condition, replace by false
- --> lib.cairo:3:5
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
   |
-3 |       if x >= 200 && x < 100 {
-  |  _____-
-4 | |         //impossible to reach
-... |
-8 | |         //possible to reach
-9 | |     }
-  | |_____-
+3 |     if x >= 200 && x < 100 {
+  |        ^^^^^^^^^^^^^^^^^^^
   |
 
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    if false {
+    if x >= 200 && x < 100 {
         //impossible to reach
     } else if x == 1 {
         //possible to reach

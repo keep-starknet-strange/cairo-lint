@@ -444,5 +444,6 @@ test_file!(
     "le and gt",
     "le and ge",
     "le and ge allowed",
+    "le and ge different var",
     "with else clause"
 );

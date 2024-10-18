@@ -215,6 +215,12 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
 
             Expr::LogicalOperator(expr_logical) => {
                 double_comparison::check_double_comparison(db, expr_logical, &function_body.arenas, diagnostics);
+                impossible_comparison::check_impossible_comparision(
+                    db,
+                    expr_logical,
+                    &function_body.arenas,
+                    diagnostics,
+                );
             }
             Expr::If(expr_if) => {
                 equatable_if_let::check_equatable_if_let(db, expr_if, &function_body.arenas, diagnostics);
@@ -233,7 +239,6 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                     expr_if,
                     diagnostics,
                 );
-                impossible_comparison::check_impossible_comparision(db, &function_body.arenas, expr_if, diagnostics);
             }
             Expr::While(expr_while) => {
                 performance::check_inefficient_while_comp(db, expr_while, diagnostics, &function_body.arenas)
