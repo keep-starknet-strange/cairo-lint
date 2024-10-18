@@ -74,8 +74,8 @@ pub fn check_impossible_comparision(
         _ => return,
     };
 
-    if !(lhs_var.stable_ptr.lookup(db.upcast()).as_syntax_node().get_text_without_trivia(db.upcast())
-        == rhs_var.stable_ptr.lookup(db.upcast()).as_syntax_node().get_text_without_trivia(db.upcast()))
+    if lhs_var.stable_ptr.lookup(db.upcast()).as_syntax_node().get_text_without_trivia(db.upcast())
+        != rhs_var.stable_ptr.lookup(db.upcast()).as_syntax_node().get_text_without_trivia(db.upcast())
     {
         return;
     }
