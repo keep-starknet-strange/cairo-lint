@@ -11,7 +11,6 @@ pub mod duplicate_underscore_args;
 pub mod eq_op;
 pub mod erasing_op;
 pub mod ifs;
-pub mod impossible_comparison;
 pub mod int_op_one;
 pub mod loops;
 pub mod manual;

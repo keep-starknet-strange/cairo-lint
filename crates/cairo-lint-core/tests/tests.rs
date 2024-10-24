@@ -101,7 +101,20 @@ test_file!(
     "contradictory equal and less than",
     "redundant greater than or equal and less than or equal",
     "impossible comparison",
-    "every impossible comparison"
+    "every impossible comparison",
+    "impossible comparison : gt and lt",
+    "impossible comparison : gt and lt possible",
+    "impossible comparison : gt and le",
+    "impossible comparison : ge and lt",
+    "impossible comparison : ge and le",
+    "impossible comparison : lt and gt",
+    "impossible comparison : lt and gt possible",
+    "impossible comparison : lt and ge",
+    "impossible comparison : le and gt",
+    "impossible comparison : le and ge",
+    "impossible comparison : le and ge allowed",
+    "impossible comparison : le and ge different var",
+    "impossible comparison : with else clause"
 );
 
 test_file!(
@@ -428,22 +441,4 @@ test_file!(
     "int lt plus one",
     "int le min one",
     "int lt min one"
-);
-
-test_file!(
-    impossible_comparison,
-    impossible_comparison,
-    "gt and lt",
-    "gt and lt possible",
-    "gt and le",
-    "ge and lt",
-    "ge and le",
-    "lt and gt",
-    "lt and gt possible",
-    "lt and ge",
-    "le and gt",
-    "le and ge",
-    "le and ge allowed",
-    "le and ge different var",
-    "with else clause"
 );

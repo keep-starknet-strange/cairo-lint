@@ -13,7 +13,7 @@ use crate::lints::loops::{loop_for_while, loop_match_pop_front};
 use crate::lints::manual::{self, *};
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    eq_op, erasing_op, impossible_comparison, int_op_one, loops, panic, performance, single_match,
+    eq_op, erasing_op, int_op_one, loops, panic, performance, single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -94,7 +94,6 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         int_op_one::INT_GE_MIN_ONE => CairoLintKind::IntGeMinOne,
         int_op_one::INT_LE_PLUS_ONE => CairoLintKind::IntLePlusOne,
         int_op_one::INT_LE_MIN_ONE => CairoLintKind::IntLeMinOne,
-        impossible_comparison::IMPOSSIBLE_COMPARISON => CairoLintKind::ImposibleComparison,
         _ => CairoLintKind::Unknown,
     }
 }
@@ -118,7 +117,6 @@ impl AnalyzerPlugin for CairoLint {
             manual::ALLOWED.as_slice(),
             performance::ALLOWED.as_slice(),
             int_op_one::ALLOWED.as_slice(),
-            impossible_comparison::ALLOWED.as_slice(),
         ]
         .into_iter()
         .flatten()
@@ -215,12 +213,6 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
 
             Expr::LogicalOperator(expr_logical) => {
                 double_comparison::check_double_comparison(db, expr_logical, &function_body.arenas, diagnostics);
-                impossible_comparison::check_impossible_comparision(
-                    db,
-                    expr_logical,
-                    &function_body.arenas,
-                    diagnostics,
-                );
             }
             Expr::If(expr_if) => {
                 equatable_if_let::check_equatable_if_let(db, expr_if, &function_body.arenas, diagnostics);
