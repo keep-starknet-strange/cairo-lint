@@ -57,6 +57,7 @@ pub enum CairoLintKind {
     IntGeMinOne,
     IntLePlusOne,
     IntLeMinOne,
+    ImposibleComparison,
 }
 
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
