@@ -11,7 +11,6 @@ members = [
 version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/keep-starknet-strange/cairo-lint"
-license = "Apache-2.0"
 license-file = "LICENSE"
 
 [workspace.dependencies]

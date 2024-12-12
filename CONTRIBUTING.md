@@ -1,4 +1,4 @@
-<h1 style="border-bottom: 0;">Contribution Guideline</h1>
+# Contribution Guideline
 
 
 ## Environment setup

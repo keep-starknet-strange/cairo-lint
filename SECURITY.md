@@ -1,4 +1,4 @@
-<h1 style="border-bottom: 0;">Security Policy</h1>
+# Security Policy
 
 ## Supported Versions
 

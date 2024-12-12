@@ -1,4 +1,4 @@
-<h1 style="border-bottom: 0;">Cairo-lint Maintenance</h1>
+# Cairo-lint Maintenance
 
 ## Maintainers
 
