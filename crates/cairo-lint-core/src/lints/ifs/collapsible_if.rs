@@ -43,44 +43,41 @@ pub fn check_collapsible_if(
     // TODO: Check if if block can contain only 1 statement without tail
     // Case where the if block only contains a statement and no tail
     if_chain! {
-      if if_block.statements.len() == 1;
-      if if_block.tail.is_none();
-      // If the inner statement is an expression
-      if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
-      // And this expression is an if expression
-      if let Expr::If(ref inner_if_expr) = arenas.exprs[inner_expr_stmt.expr];
-      then {
-        // Check if any of the ifs (outter and inner) have an else block, if it's the case don't diagnostic
-        if inner_if_expr.else_block.is_some() || expr_if.else_block.is_some() {
-          return;
-        }
+        if if_block.statements.len() == 1;
+        if if_block.tail.is_none();
+        // If the inner statement is an expression
+        if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
+        // And this expression is an if expression
+        if let Expr::If(ref inner_if_expr) = arenas.exprs[inner_expr_stmt.expr];
+        then {
+            // Check if any of the ifs (outter and inner) have an else block, if it's the case don't diagnostic
+            if inner_if_expr.else_block.is_some() || expr_if.else_block.is_some() {
+                return;
+            }
 
-        diagnostics.push(PluginDiagnostic {
-          stable_ptr: expr_if.stable_ptr.untyped(),
-          message: COLLAPSIBLE_IF.to_string(),
-          severity: Severity::Warning,
-        });
-        return;
-      }
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: expr_if.stable_ptr.untyped(),
+                message: COLLAPSIBLE_IF.to_string(),
+                severity: Severity::Warning,
+            });
+            return;
+        }
     }
 
-    // Case where the outter if only has a tail
-    if_chain! {
-      if if_block.tail.is_some_and(|tail| {
+    // Case where the outter if only has a tail.
+    if if_block.tail.is_some_and(|tail| {
         // Check that the tail expression is a if
         let Expr::If(ref inner_if_expr) = arenas.exprs[tail] else {
             return false;
         };
         // Check if any of the ifs (outter and inner) have an else block, if it's the case don't diagnostic
         expr_if.else_block.is_none() && inner_if_expr.else_block.is_none()
-      });
-      if if_block.statements.is_empty();
-      then {
+    }) && if_block.statements.is_empty()
+    {
         diagnostics.push(PluginDiagnostic {
-          stable_ptr: expr_if.stable_ptr.untyped(),
-          message: COLLAPSIBLE_IF.to_string(),
-          severity: Severity::Warning,
+            stable_ptr: expr_if.stable_ptr.untyped(),
+            message: COLLAPSIBLE_IF.to_string(),
+            severity: Severity::Warning,
         });
-      }
     }
 }

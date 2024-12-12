@@ -55,11 +55,11 @@ pub fn check_eq_op(
             }
 
             if_chain! {
-              if let Expr::Snapshot(snapshot) = expr;
-              if matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_));
-              then {
-                return;
-              }
+                if let Expr::Snapshot(snapshot) = expr;
+                if matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_));
+                then {
+                    return;
+                }
             }
 
             expr.stable_ptr()
@@ -79,11 +79,11 @@ pub fn check_eq_op(
             }
 
             if_chain! {
-              if let Expr::Snapshot(snapshot) = expr;
-              if matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_));
-              then {
-                return;
-              }
+                if let Expr::Snapshot(snapshot) = expr;
+                if matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_));
+                then {
+                    return;
+                }
             }
 
             expr.stable_ptr()

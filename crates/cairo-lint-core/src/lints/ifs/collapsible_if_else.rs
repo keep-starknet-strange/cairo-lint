@@ -63,22 +63,22 @@ pub fn check_collapsible_if_else(
 fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
     if block_expr.statements.len() == 1 && block_expr.tail.is_none() {
         if_chain! {
-          if let Statement::Expr(statement_expr) = &arenas.statements[block_expr.statements[0]];
-          if matches!(arenas.exprs[statement_expr.expr], Expr::If(_));
-          then {
-            return true;
-          } else {
-            return false;
-          }
+            if let Statement::Expr(statement_expr) = &arenas.statements[block_expr.statements[0]];
+            if matches!(arenas.exprs[statement_expr.expr], Expr::If(_));
+            then {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
     if_chain! {
-      if let Some(tail) = block_expr.tail;
-      if block_expr.statements.is_empty();
-      then {
-        return matches!(arenas.exprs[tail], Expr::If(_));
-      }
+        if let Some(tail) = block_expr.tail;
+        if block_expr.statements.is_empty();
+        then {
+            return matches!(arenas.exprs[tail], Expr::If(_));
+        }
     }
 
     false

@@ -259,27 +259,27 @@ pub fn check_manual_if(
     if_chain! {
         if let Condition::Let(_condition_let, patterns) = &expr.condition;
         if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
-      then {
-        let enum_name = enum_pattern.variant.id.full_path(db.upcast());
-        match enum_name.as_str() {
-            SOME => {
-                let found_if = check_syntax_opt_if(expr, db, arenas, manual_lint);
-                let found_else = check_syntax_opt_else(expr, db, arenas, manual_lint);
-                return found_if && found_else;
+        then {
+            let enum_name = enum_pattern.variant.id.full_path(db.upcast());
+            match enum_name.as_str() {
+                SOME => {
+                    let found_if = check_syntax_opt_if(expr, db, arenas, manual_lint);
+                    let found_else = check_syntax_opt_else(expr, db, arenas, manual_lint);
+                    return found_if && found_else;
+                }
+                OK => {
+                    let found_if = check_syntax_res_if(expr, db, arenas, manual_lint);
+                    let found_else = check_syntax_res_else(expr, db, arenas, manual_lint);
+                    return found_if && found_else;
+                }
+                ERR => {
+                    let found_if = check_syntax_err_if(expr, db, arenas, manual_lint);
+                    let found_else = check_syntax_err_else(expr, db, arenas, manual_lint);
+                    return found_if && found_else;
+                }
+                _ => return false,
             }
-            OK => {
-                let found_if = check_syntax_res_if(expr, db, arenas, manual_lint);
-                let found_else = check_syntax_res_else(expr, db, arenas, manual_lint);
-                return found_if && found_else;
-            }
-            ERR => {
-                let found_if = check_syntax_err_if(expr, db, arenas, manual_lint);
-                let found_else = check_syntax_err_else(expr, db, arenas, manual_lint);
-                return found_if && found_else;
-            }
-            _ => return false,
         }
-      }
     }
     false
 }

@@ -61,17 +61,17 @@ pub fn check_bool_comparison(
     // destructure that. Also the boolean type in cairo is an enum hence the enum ctor.
     for arg in &expr_func.args {
         if_chain! {
-          if let ExprFunctionCallArg::Value(expr) = arg;
-          if let Expr::Snapshot(snap) = &arenas.exprs[*expr];
-          if let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[snap.inner];
-          if enum_var.variant.concrete_enum_id.enum_id(db).full_path(db.upcast()) == "core::bool";
-          then {
-            diagnostics.push(PluginDiagnostic {
-              stable_ptr: expr_func.stable_ptr.untyped(),
-              message: BOOL_COMPARISON.to_string(),
-              severity: Severity::Warning,
-          });
-          }
+            if let ExprFunctionCallArg::Value(expr) = arg;
+            if let Expr::Snapshot(snap) = &arenas.exprs[*expr];
+            if let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[snap.inner];
+            if enum_var.variant.concrete_enum_id.enum_id(db).full_path(db.upcast()) == "core::bool";
+            then {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: expr_func.stable_ptr.untyped(),
+                    message: BOOL_COMPARISON.to_string(),
+                    severity: Severity::Warning,
+                });
+            }
         }
     }
 }

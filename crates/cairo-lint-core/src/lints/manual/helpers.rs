@@ -104,23 +104,23 @@ pub fn is_destructured_variable_used_and_expected_variant(
 pub fn if_expr_pattern_matches_tail_var(expr: &ExprIf, arenas: &Arenas) -> bool {
     // Checks if it's an `if-let`
     if_chain! {
-      if let Condition::Let(_condition_let, patterns) = &expr.condition;
+        if let Condition::Let(_condition_let, patterns) = &expr.condition;
         // Checks if the pattern is an Enum pattern
         if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
         // Checks if the enum pattern has an inner pattern
         if let Some(inner_pattern) = enum_pattern.inner_pattern;
         // Checks if the pattern is a variable
         if let Pattern::Variable(destruct_var) = &arenas.patterns[inner_pattern];
-      then {
-        let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else { return false };
-        let Some(tail_expr) = if_block.tail else { return false };
-        // Checks that the tail expression of the block is a variable.
-        let Expr::Var(return_var) = &arenas.exprs[tail_expr] else { return false };
-        // Checks that it's a local variable (defined in this scope)
-        let VarId::Local(local_return_var) = return_var.var else { return false };
-        // Checks that it's the exact variable that was created in the enum pattern
-        return destruct_var.var.id == local_return_var;
-      }
+        then {
+            let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else { return false };
+            let Some(tail_expr) = if_block.tail else { return false };
+            // Checks that the tail expression of the block is a variable.
+            let Expr::Var(return_var) = &arenas.exprs[tail_expr] else { return false };
+            // Checks that it's a local variable (defined in this scope)
+            let VarId::Local(local_return_var) = return_var.var else { return false };
+            // Checks that it's the exact variable that was created in the enum pattern
+            return destruct_var.var.id == local_return_var;
+        }
     }
     false
 }
@@ -163,19 +163,19 @@ pub fn if_expr_condition_and_block_match_enum_pattern(
     enum_name: &str,
 ) -> bool {
     if_chain! {
-      if let Condition::Let(_expr_id, patterns) = &expr.condition;
-      if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
-      if let Some(inner_pattern) = enum_pattern.inner_pattern;
-      if let Pattern::Variable(variable_pattern) = &arenas.patterns[inner_pattern];
-      if let Expr::Block(if_block) = &arenas.exprs[expr.if_block];
-      if let Some(tail_expr_id) = if_block.tail;
-      if let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[tail_expr_id];
-      if is_expected_variant(&tail_expr_id, arenas, db, enum_name);
-      if let Expr::Var(var) = &arenas.exprs[enum_var.value_expr];
-      if let VarId::Local(return_var) = var.var;
-      then {
-        return return_var == variable_pattern.var.id;
-      }
+        if let Condition::Let(_expr_id, patterns) = &expr.condition;
+        if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
+        if let Some(inner_pattern) = enum_pattern.inner_pattern;
+        if let Pattern::Variable(variable_pattern) = &arenas.patterns[inner_pattern];
+        if let Expr::Block(if_block) = &arenas.exprs[expr.if_block];
+        if let Some(tail_expr_id) = if_block.tail;
+        if let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[tail_expr_id];
+        if is_expected_variant(&tail_expr_id, arenas, db, enum_name);
+        if let Expr::Var(var) = &arenas.exprs[enum_var.value_expr];
+        if let VarId::Local(return_var) = var.var;
+        then {
+            return return_var == variable_pattern.var.id;
+        }
     }
     false
 }

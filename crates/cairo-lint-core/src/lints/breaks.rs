@@ -25,14 +25,14 @@ pub fn check_break(
         current_node = node;
     }
     if_chain! {
-      if let Some(expr) = stmt_break.expr_option;
-      if arenas.exprs[expr].ty().is_unit(db);
-      then {
-        diagnostics.push(PluginDiagnostic {
-          stable_ptr: stmt_break.stable_ptr.untyped(),
-          message: BREAK_UNIT.to_string(),
-          severity: Severity::Warning,
-      });
-      }
+        if let Some(expr) = stmt_break.expr_option;
+        if arenas.exprs[expr].ty().is_unit(db);
+        then {
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: stmt_break.stable_ptr.untyped(),
+                message: BREAK_UNIT.to_string(),
+                severity: Severity::Warning,
+            });
+        }
     }
 }

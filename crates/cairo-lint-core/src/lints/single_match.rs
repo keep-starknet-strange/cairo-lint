@@ -126,16 +126,16 @@ fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGro
 
     // If there's statement checks that it's `()` without comment
     if_chain! {
-      if statements.len() == 1;
-      if let Statement::Expr(statement_expr) = &statements[0];
-      if let AstExpr::Tuple(tuple_expr) = statement_expr.expr(db);
-      then {
-        let tuple_node = tuple_expr.as_syntax_node();
-        if tuple_node.span(db).start != tuple_node.span_start_without_trivia(db) {
-            return false;
+        if statements.len() == 1;
+        if let Statement::Expr(statement_expr) = &statements[0];
+        if let AstExpr::Tuple(tuple_expr) = statement_expr.expr(db);
+        then {
+            let tuple_node = tuple_expr.as_syntax_node();
+            if tuple_node.span(db).start != tuple_node.span_start_without_trivia(db) {
+                return false;
+            }
+            return is_expr_list_parenthesised_unit(&tuple_expr, db);
         }
-        return is_expr_list_parenthesised_unit(&tuple_expr, db);
-      }
     }
     false
 }

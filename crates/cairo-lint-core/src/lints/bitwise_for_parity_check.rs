@@ -44,17 +44,17 @@ pub fn check_bitwise_for_parity(
 
     // From the trait function id get the trait name and check if it's the corelib `BitAnd`
     if_chain! {
-      if trait_fn_id.full_path(db.upcast()) == AND;
-      if let ExprFunctionCallArg::Value(val) = expr_func.args[1];
-      // Checks if the rhs is 1
-      if let Expr::Literal(lit) = &arenas.exprs[val];
-      if lit.value == BigInt::from(1u8);
-      then {
-        diagnostics.push(PluginDiagnostic {
-          stable_ptr: expr_func.stable_ptr.untyped(),
-          message: BITWISE_FOR_PARITY.to_string(),
-          severity: Severity::Warning,
-      });
-      }
+        if trait_fn_id.full_path(db.upcast()) == AND;
+        if let ExprFunctionCallArg::Value(val) = expr_func.args[1];
+        // Checks if the rhs is 1
+        if let Expr::Literal(lit) = &arenas.exprs[val];
+        if lit.value == BigInt::from(1u8);
+        then {
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: expr_func.stable_ptr.untyped(),
+                message: BITWISE_FOR_PARITY.to_string(),
+                severity: Severity::Warning,
+            });
+        }
     }
 }

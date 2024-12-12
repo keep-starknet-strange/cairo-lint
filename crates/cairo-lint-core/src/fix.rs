@@ -282,16 +282,16 @@ impl Fixer {
         let trivia = if trivia.is_empty() { trivia } else { format!("{indent}{trivia}\n") };
         for arm in arms {
             if_chain! {
-              if let Pattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0];
-              if let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(var) = enum_pattern.pattern(db);
-              then {
-                elt_name = var.pattern(db).as_syntax_node().get_text_without_trivia(db);
+                if let Pattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0];
+                if let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(var) = enum_pattern.pattern(db);
+                then {
+                    elt_name = var.pattern(db).as_syntax_node().get_text_without_trivia(db);
                     some_arm = if let Expr::Block(block_expr) = arm.expression(db) {
                         block_expr.statements(db).as_syntax_node().get_text(db)
                     } else {
                         arm.expression(db).as_syntax_node().get_text(db)
                     }
-              }
+                }
             }
         }
         Some((

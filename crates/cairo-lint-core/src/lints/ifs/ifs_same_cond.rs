@@ -32,11 +32,11 @@ pub fn check_duplicate_if_condition(
     };
 
     if_chain! {
-      if let Expr::FunctionCall(func_call) = cond_expr;
-      if ensure_no_ref_arg(arenas, func_call);
-      then {
-        return;
-      }
+        if let Expr::FunctionCall(func_call) = cond_expr;
+        if ensure_no_ref_arg(arenas, func_call);
+        then {
+            return;
+        }
     }
 
     let mut current_block = expr_if.else_block;
