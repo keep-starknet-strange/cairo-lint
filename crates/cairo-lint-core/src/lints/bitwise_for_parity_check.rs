@@ -5,6 +5,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 use num_bigint::BigInt;
 
 use super::AND;
@@ -40,17 +41,20 @@ pub fn check_bitwise_for_parity(
         FunctionWithBodyId::Trait(func) => func,
         _ => return,
     };
+
     // From the trait function id get the trait name and check if it's the corelib `BitAnd`
-    if trait_fn_id.full_path(db.upcast()) == AND
-        && let ExprFunctionCallArg::Value(val) = expr_func.args[1]
-        // Checks if the rhs is 1
-        && let Expr::Literal(lit) = &arenas.exprs[val]
-        && lit.value == BigInt::from(1u8)
-    {
+    if_chain! {
+      if trait_fn_id.full_path(db.upcast()) == AND;
+      if let ExprFunctionCallArg::Value(val) = expr_func.args[1];
+      // Checks if the rhs is 1
+      if let Expr::Literal(lit) = &arenas.exprs[val];
+      if lit.value == BigInt::from(1u8);
+      then {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr_func.stable_ptr.untyped(),
-            message: BITWISE_FOR_PARITY.to_string(),
-            severity: Severity::Warning,
-        });
+          stable_ptr: expr_func.stable_ptr.untyped(),
+          message: BITWISE_FOR_PARITY.to_string(),
+          severity: Severity::Warning,
+      });
+      }
     }
 }

@@ -15,6 +15,7 @@ use cairo_lang_semantic::{Arenas, Condition, Expr, ExprId, ExprIf, ExprMatch, Ma
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use helpers::*;
+use if_chain::if_chain;
 
 use super::{FALSE, OK, PANIC_WITH_FELT252, TRUE};
 use crate::lints::{ERR, NONE, SOME};
@@ -255,31 +256,32 @@ pub fn check_manual_if(
         current_node = node;
     }
 
-    if let Condition::Let(_condition_let, patterns) = &expr.condition
-        && let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]]
-    {
+    if_chain! {
+        if let Condition::Let(_condition_let, patterns) = &expr.condition;
+        if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
+      then {
         let enum_name = enum_pattern.variant.id.full_path(db.upcast());
         match enum_name.as_str() {
             SOME => {
                 let found_if = check_syntax_opt_if(expr, db, arenas, manual_lint);
                 let found_else = check_syntax_opt_else(expr, db, arenas, manual_lint);
-                found_if && found_else
+                return found_if && found_else;
             }
             OK => {
                 let found_if = check_syntax_res_if(expr, db, arenas, manual_lint);
                 let found_else = check_syntax_res_else(expr, db, arenas, manual_lint);
-                found_if && found_else
+                return found_if && found_else;
             }
             ERR => {
                 let found_if = check_syntax_err_if(expr, db, arenas, manual_lint);
                 let found_else = check_syntax_err_else(expr, db, arenas, manual_lint);
-                found_if && found_else
+                return found_if && found_else;
             }
-            _ => false,
+            _ => return false,
         }
-    } else {
-        false
+      }
     }
+    false
 }
 
 fn check_syntax_opt_if(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {

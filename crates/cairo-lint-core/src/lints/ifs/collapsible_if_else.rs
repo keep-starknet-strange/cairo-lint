@@ -4,6 +4,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
 pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
 pub(super) const LINT_NAME: &str = "collapsible_if_else";
@@ -61,18 +62,24 @@ pub fn check_collapsible_if_else(
 
 fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
     if block_expr.statements.len() == 1 && block_expr.tail.is_none() {
-        if let Statement::Expr(statement_expr) = &arenas.statements[block_expr.statements[0]]
-            && matches!(arenas.exprs[statement_expr.expr], Expr::If(_))
-        {
-            true
-        } else {
-            false
+        if_chain! {
+          if let Statement::Expr(statement_expr) = &arenas.statements[block_expr.statements[0]];
+          if matches!(arenas.exprs[statement_expr.expr], Expr::If(_));
+          then {
+            return true;
+          } else {
+            return false;
+          }
         }
-    } else if let Some(tail) = block_expr.tail
-        && block_expr.statements.is_empty()
-    {
-        matches!(arenas.exprs[tail], Expr::If(_))
-    } else {
-        false
     }
+
+    if_chain! {
+      if let Some(tail) = block_expr.tail;
+      if block_expr.statements.is_empty();
+      then {
+        return matches!(arenas.exprs[tail], Expr::If(_));
+      }
+    }
+
+    false
 }

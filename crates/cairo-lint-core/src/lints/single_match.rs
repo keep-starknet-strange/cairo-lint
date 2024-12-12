@@ -6,6 +6,7 @@ use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthes
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
 pub const DESTRUCT_MATCH: &str =
     "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
@@ -122,19 +123,21 @@ fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGro
     if statements.is_empty() && block_expr.rbrace(db).leading_trivia(db).node.get_text(db).trim().is_empty() {
         return true;
     }
+
     // If there's statement checks that it's `()` without comment
-    if statements.len() == 1
-        && let Statement::Expr(statement_expr) = &statements[0]
-        && let AstExpr::Tuple(tuple_expr) = statement_expr.expr(db)
-    {
+    if_chain! {
+      if statements.len() == 1;
+      if let Statement::Expr(statement_expr) = &statements[0];
+      if let AstExpr::Tuple(tuple_expr) = statement_expr.expr(db);
+      then {
         let tuple_node = tuple_expr.as_syntax_node();
         if tuple_node.span(db).start != tuple_node.span_start_without_trivia(db) {
             return false;
         }
-        is_expr_list_parenthesised_unit(&tuple_expr, db)
-    } else {
-        false
+        return is_expr_list_parenthesised_unit(&tuple_expr, db);
+      }
     }
+    false
 }
 
 /// Checks that either the expression is `()` or `{ }` or `{ () }` but none of them should contain a

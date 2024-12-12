@@ -6,6 +6,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::ExprFunctionCall;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
 pub const PANIC_IN_CODE: &str = "Leaving `panic` in the code is discouraged.";
 const PANIC: &str = "core::panics::panic";
@@ -48,24 +49,28 @@ pub fn check_panic_usage(
             message: PANIC_IN_CODE.to_owned(),
             severity: Severity::Warning,
         });
+    } else {
         // If the originating location is a different file get the syntax node that generated the
         // code that contains a panic.
-    } else if let Some(text_position) = span.position_in_file(db.upcast(), file_id)
-        && let Ok(file_node) = db.file_syntax(file_id)
-    {
-        let syntax_node = file_node.lookup_position(db.upcast(), text_position.start);
-        // Checks if the lint is allowed in the original file
-        let mut current_node = syntax_node.clone();
-        while let Some(node) = current_node.parent() {
-            if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-                return;
+        if_chain! {
+            if let Some(text_position) = span.position_in_file(db.upcast(), file_id);
+            if let Ok(file_node) = db.file_syntax(file_id);
+            then {
+                let syntax_node = file_node.lookup_position(db.upcast(), text_position.start);
+                // Checks if the lint is allowed in the original file
+                let mut current_node = syntax_node.clone();
+                while let Some(node) = current_node.parent() {
+                    if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
+                        return;
+                    }
+                    current_node = node;
+                }
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: syntax_node.stable_ptr(),
+                    message: PANIC_IN_CODE.to_owned(),
+                    severity: Severity::Warning,
+                });
             }
-            current_node = node;
         }
-        diagnostics.push(PluginDiagnostic {
-            stable_ptr: syntax_node.stable_ptr(),
-            message: PANIC_IN_CODE.to_owned(),
-            severity: Severity::Warning,
-        });
     }
 }

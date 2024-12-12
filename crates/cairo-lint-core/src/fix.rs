@@ -11,6 +11,7 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
+use if_chain::if_chain;
 use log::debug;
 
 use crate::lints::bool_comparison::generate_fixed_text_for_comparison;
@@ -280,15 +281,17 @@ impl Fixer {
         let trivia = node.clone().get_text_of_span(db, loop_span);
         let trivia = if trivia.is_empty() { trivia } else { format!("{indent}{trivia}\n") };
         for arm in arms {
-            if let Pattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0]
-                && let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(var) = enum_pattern.pattern(db)
-            {
+            if_chain! {
+              if let Pattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0];
+              if let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(var) = enum_pattern.pattern(db);
+              then {
                 elt_name = var.pattern(db).as_syntax_node().get_text_without_trivia(db);
-                some_arm = if let Expr::Block(block_expr) = arm.expression(db) {
-                    block_expr.statements(db).as_syntax_node().get_text(db)
-                } else {
-                    arm.expression(db).as_syntax_node().get_text(db)
-                }
+                    some_arm = if let Expr::Block(block_expr) = arm.expression(db) {
+                        block_expr.statements(db).as_syntax_node().get_text(db)
+                    } else {
+                        arm.expression(db).as_syntax_node().get_text(db)
+                    }
+              }
             }
         }
         Some((

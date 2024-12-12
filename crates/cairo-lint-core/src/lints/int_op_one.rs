@@ -4,6 +4,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
 pub const INT_GE_PLUS_ONE: &str = "Unnecessary add operation in integer >= comparison. Use simplified comparison.";
 pub const INT_GE_MIN_ONE: &str = "Unnecessary sub operation in integer >= comparison. Use simplified comparison.";
@@ -126,12 +127,14 @@ fn check_is_add_or_sub_one(
     };
 
     // Check rhs is 1
-    if let ExprFunctionCallArg::Value(v) = rhs
-        && let Expr::Literal(ref litteral_expr) = arenas.exprs[*v]
-        && litteral_expr.value != 1.into()
-    {
-        return false;
-    };
+    if_chain! {
+        if let ExprFunctionCallArg::Value(v) = rhs;
+        if let Expr::Literal(ref litteral_expr) = arenas.exprs[*v];
+        if litteral_expr.value != 1.into();
+        then {
+            return false;
+        }
+    }
 
     true
 }

@@ -5,6 +5,7 @@ use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
 use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
 
@@ -52,10 +53,13 @@ pub fn check_eq_op(
             if matches!(expr, Expr::FunctionCall(_)) {
                 return;
             }
-            if let Expr::Snapshot(snapshot) = expr
-                && matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_))
-            {
+
+            if_chain! {
+              if let Expr::Snapshot(snapshot) = expr;
+              if matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_));
+              then {
                 return;
+              }
             }
 
             expr.stable_ptr()
@@ -73,10 +77,13 @@ pub fn check_eq_op(
             if matches!(expr, Expr::FunctionCall(_)) {
                 return;
             }
-            if let Expr::Snapshot(snapshot) = expr
-                && matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_))
-            {
+
+            if_chain! {
+              if let Expr::Snapshot(snapshot) = expr;
+              if matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_));
+              then {
                 return;
+              }
             }
 
             expr.stable_ptr()
