@@ -20,7 +20,10 @@ pub fn check_panic_usage(
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Checks if the lint is allowed in an upper scope
-    let mut current_node = expr_function_call.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    let mut current_node = expr_function_call
+        .stable_ptr
+        .lookup(db.upcast())
+        .as_syntax_node();
     let init_node = current_node.clone();
     while let Some(node) = current_node.parent() {
         if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
@@ -36,11 +39,16 @@ pub fn check_panic_usage(
 
     // Get the origination location of this panic as there is a `panic!` macro that gerates virtual
     // files
-    let initial_file_id = StableLocation::new(expr_function_call.stable_ptr.untyped()).file_id(db.upcast());
+    let initial_file_id =
+        StableLocation::new(expr_function_call.stable_ptr.untyped()).file_id(db.upcast());
     let (file_id, span) = get_originating_location(
         db.upcast(),
         initial_file_id,
-        expr_function_call.stable_ptr.lookup(db.upcast()).as_syntax_node().span(db.upcast()),
+        expr_function_call
+            .stable_ptr
+            .lookup(db.upcast())
+            .as_syntax_node()
+            .span(db.upcast()),
     );
     // If the panic comes from a real file (macros generate code in new virtual files)
     if initial_file_id == file_id {

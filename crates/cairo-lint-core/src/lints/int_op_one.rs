@@ -6,10 +6,14 @@ use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
-pub const INT_GE_PLUS_ONE: &str = "Unnecessary add operation in integer >= comparison. Use simplified comparison.";
-pub const INT_GE_MIN_ONE: &str = "Unnecessary sub operation in integer >= comparison. Use simplified comparison.";
-pub const INT_LE_PLUS_ONE: &str = "Unnecessary add operation in integer <= comparison. Use simplified comparison.";
-pub const INT_LE_MIN_ONE: &str = "Unnecessary sub operation in integer <= comparison. Use simplified comparison.";
+pub const INT_GE_PLUS_ONE: &str =
+    "Unnecessary add operation in integer >= comparison. Use simplified comparison.";
+pub const INT_GE_MIN_ONE: &str =
+    "Unnecessary sub operation in integer >= comparison. Use simplified comparison.";
+pub const INT_LE_PLUS_ONE: &str =
+    "Unnecessary add operation in integer <= comparison. Use simplified comparison.";
+pub const INT_LE_MIN_ONE: &str =
+    "Unnecessary sub operation in integer <= comparison. Use simplified comparison.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "int_op_one";
@@ -112,7 +116,9 @@ fn check_is_add_or_sub_one(
 
     // Check is addition or substraction
     let full_name = func_call.function.full_name(db);
-    if !full_name.contains("core::integer::") && !full_name.contains(operation) || func_call.args.len() != 2 {
+    if !full_name.contains("core::integer::") && !full_name.contains(operation)
+        || func_call.args.len() != 2
+    {
         return false;
     }
 

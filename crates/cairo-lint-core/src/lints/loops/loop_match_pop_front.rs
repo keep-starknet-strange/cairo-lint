@@ -121,7 +121,9 @@ fn check_single_match(db: &dyn SemanticGroup, match_expr: &ExprMatch, arenas: &A
                 Pattern::Otherwise(_) => false,
                 // Check if the variant is of type option and if it's `None` checks that it only contains `{ break; }`
                 // without comments`
-                Pattern::EnumVariant(enum_pat) => check_enum_pattern(db, enum_pat, arenas, first_arm.expression),
+                Pattern::EnumVariant(enum_pat) => {
+                    check_enum_pattern(db, enum_pat, arenas, first_arm.expression)
+                }
                 _ => false,
             }
         } else {
@@ -139,7 +141,9 @@ fn check_single_match(db: &dyn SemanticGroup, match_expr: &ExprMatch, arenas: &A
                 }
                 // Check if the variant is of type option and if it's `None` checks that it only contains `{ break; }`
                 // without comments`
-                Pattern::EnumVariant(enum_pat) => check_enum_pattern(db, enum_pat, arenas, second_arm.expression),
+                Pattern::EnumVariant(enum_pat) => {
+                    check_enum_pattern(db, enum_pat, arenas, second_arm.expression)
+                }
                 _ => false,
             }
         } else {

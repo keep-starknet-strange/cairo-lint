@@ -10,13 +10,19 @@ use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
-pub const BOOL_COMPARISON: &str = "Unnecessary comparison with a boolean value. Use the variable directly.";
+pub const BOOL_COMPARISON: &str =
+    "Unnecessary comparison with a boolean value. Use the variable directly.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "bool_comparison";
 
 /// Generates the fixed boolean for a boolean comparison. It will transform `x == false` to `!x`
-pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: &str, node: ExprBinary) -> String {
+pub fn generate_fixed_text_for_comparison(
+    db: &dyn SyntaxGroup,
+    lhs: &str,
+    rhs: &str,
+    node: ExprBinary,
+) -> String {
     let op_kind = node.op(db).as_syntax_node().kind(db);
     let lhs = lhs.trim();
     let rhs = rhs.trim();
@@ -54,7 +60,11 @@ pub fn check_bool_comparison(
         current_node = node;
     }
     // Check if the function call is the bool partial eq function (==).
-    if !expr_func.function.full_name(db).contains("core::BoolPartialEq::") {
+    if !expr_func
+        .function
+        .full_name(db)
+        .contains("core::BoolPartialEq::")
+    {
         return;
     }
     // Extract the args of the function call. This function expects snapshots hence we need to

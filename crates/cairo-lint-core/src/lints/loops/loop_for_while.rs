@@ -6,7 +6,8 @@ use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
-pub const LOOP_FOR_WHILE: &str = "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
+pub const LOOP_FOR_WHILE: &str =
+    "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
                                   loop for clarity and conciseness";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];

@@ -19,8 +19,12 @@ use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::{Upcast, UpcastMut};
 use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
-use cairo_lint_core::plugin::{cairo_lint_plugin_suite, diagnostic_kind_from_message, CairoLintKind};
+use cairo_lint_core::fix::{
+    apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
+};
+use cairo_lint_core::plugin::{
+    cairo_lint_plugin_suite, diagnostic_kind_from_message, CairoLintKind,
+};
 use clap::Parser;
 use helpers::*;
 use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
@@ -72,7 +76,8 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
     // Corelib package id
     let corelib_id = &corelib.id;
     // Corelib path
-    let corelib = Into::<PathBuf>::into(corelib.manifest_path.parent().as_ref().unwrap()).join("src");
+    let corelib =
+        Into::<PathBuf>::into(corelib.manifest_path.parent().as_ref().unwrap()).join("src");
     // Filter the packages that are requested by the user. The test target is a special case and will
     // never be linted unless specified with the `--test` flag
 
@@ -87,7 +92,8 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 .compilation_units
                 .iter()
                 .filter(|compilation_unit| {
-                    compilation_unit.package == package.id || tests_targets.contains(&&compilation_unit.target)
+                    compilation_unit.package == package.id
+                        || tests_targets.contains(&&compilation_unit.target)
                 })
                 .collect::<Vec<_>>()
         } else {
@@ -120,7 +126,10 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             // Convert the package edition to a cairo edition. If not specified or not known it will return an
             // error.
             let edition = to_cairo_edition(
-                package.edition.as_ref().ok_or(anyhow!("No edition found for package {}", package.name))?,
+                package
+                    .edition
+                    .as_ref()
+                    .ok_or(anyhow!("No edition found for package {}", package.name))?,
             )?;
             // Get the package path.
             let package_path = package.root.clone().into();
@@ -165,9 +174,14 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                         .iter()
                         .filter(|diag| {
                             if let SemanticDiagnosticKind::PluginDiagnostic(diag) = &diag.kind {
-                                (matches!(diagnostic_kind_from_message(&diag.message), CairoLintKind::Panic)
-                                    && should_lint_panics)
-                                    || !matches!(diagnostic_kind_from_message(&diag.message), CairoLintKind::Panic)
+                                (matches!(
+                                    diagnostic_kind_from_message(&diag.message),
+                                    CairoLintKind::Panic
+                                ) && should_lint_panics)
+                                    || !matches!(
+                                        diagnostic_kind_from_message(&diag.message),
+                                        CairoLintKind::Panic
+                                    )
                             } else {
                                 true
                             }
@@ -184,7 +198,8 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                     collect_unused_imports(&db, &diagnostics);
                 let mut fixes = HashMap::new();
                 unused_imports.keys().for_each(|file_id| {
-                    let file_fixes: Vec<Fix> = apply_import_fixes(&db, unused_imports.get(file_id).unwrap());
+                    let file_fixes: Vec<Fix> =
+                        apply_import_fixes(&db, unused_imports.get(file_id).unwrap());
                     fixes.insert(*file_id, file_fixes);
                 });
 
@@ -199,7 +214,10 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                         fixes
                             .entry(location.file_id)
                             .or_insert_with(Vec::new)
-                            .push(Fix { span: fix_node.span(db.upcast()), suggestion: fix });
+                            .push(Fix {
+                                span: fix_node.span(db.upcast()),
+                                suggestion: fix,
+                            });
                     }
                 }
                 for (file_id, mut fixes) in fixes.into_iter() {
@@ -232,9 +250,9 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                     // Fix the files
                     for fix in fixable_diagnostics {
                         // Can't fail we just set the file value.
-                        files
-                            .entry(file_id)
-                            .and_modify(|file| file.replace_range(fix.span.to_str_range(), &fix.suggestion));
+                        files.entry(file_id).and_modify(|file| {
+                            file.replace_range(fix.span.to_str_range(), &fix.suggestion)
+                        });
                     }
                     // Dump them in place
                     std::fs::write(file_id.full_path(db.upcast()), files.get(&file_id).unwrap())?
@@ -246,5 +264,9 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
 }
 
 fn find_testable_targets(package: &PackageMetadata) -> Vec<&TargetMetadata> {
-    package.targets.iter().filter(|target| target.kind == "test").collect()
+    package
+        .targets
+        .iter()
+        .filter(|target| target.kind == "test")
+        .collect()
 }

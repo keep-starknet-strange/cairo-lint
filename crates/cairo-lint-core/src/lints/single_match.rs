@@ -10,7 +10,8 @@ use if_chain::if_chain;
 
 pub const DESTRUCT_MATCH: &str =
     "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
-pub const MATCH_FOR_EQUALITY: &str = "you seem to be trying to use `match` for an equality check. Consider using `if`";
+pub const MATCH_FOR_EQUALITY: &str =
+    "you seem to be trying to use `match` for an equality check. Consider using `if`";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "single_match";
@@ -64,7 +65,11 @@ pub fn check_single_match(
             Pattern::Otherwise(_) => return,
             // Get the number of variants in the enum to know if it's comprehensive or not
             Pattern::EnumVariant(enum_pat) => {
-                enum_len = Some(db.enum_variants(enum_pat.variant.concrete_enum_id.enum_id(db)).unwrap().len());
+                enum_len = Some(
+                    db.enum_variants(enum_pat.variant.concrete_enum_id.enum_id(db))
+                        .unwrap()
+                        .len(),
+                );
                 // If there's an enum pattern it's a destructuring match
                 is_destructuring = enum_pat.inner_pattern.is_some();
             }
@@ -91,9 +96,12 @@ pub fn check_single_match(
         };
 
         // Checks that the second arm doesn't do anything
-        is_single_armed =
-            is_expr_unit(arenas.exprs[second_arm.expression].stable_ptr().lookup(db.upcast()), db.upcast())
-                && is_complete;
+        is_single_armed = is_expr_unit(
+            arenas.exprs[second_arm.expression]
+                .stable_ptr()
+                .lookup(db.upcast()),
+            db.upcast(),
+        ) && is_complete;
     };
 
     match (is_single_armed, is_destructuring) {
@@ -120,7 +128,15 @@ fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn Syntax
 fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGroup) -> bool {
     let statements = block_expr.statements(db).elements(db);
     // Check if the block is empty and there's no comment in it
-    if statements.is_empty() && block_expr.rbrace(db).leading_trivia(db).node.get_text(db).trim().is_empty() {
+    if statements.is_empty()
+        && block_expr
+            .rbrace(db)
+            .leading_trivia(db)
+            .node
+            .get_text(db)
+            .trim()
+            .is_empty()
+    {
         return true;
     }
 

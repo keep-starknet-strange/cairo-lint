@@ -40,8 +40,11 @@ pub fn check_duplicate_if_condition(
     }
 
     let mut current_block = expr_if.else_block;
-    let if_condition_text =
-        cond_expr.stable_ptr().lookup(db.upcast()).as_syntax_node().get_text_without_trivia(db.upcast());
+    let if_condition_text = cond_expr
+        .stable_ptr()
+        .lookup(db.upcast())
+        .as_syntax_node()
+        .get_text_without_trivia(db.upcast());
 
     while let Some(expr_id) = current_block {
         if let Expr::If(else_if_block) = &arenas.exprs[expr_id] {
@@ -59,8 +62,11 @@ pub fn check_duplicate_if_condition(
                 }
             }
 
-            let else_if_condition_text =
-                else_if_cond.stable_ptr().lookup(db.upcast()).as_syntax_node().get_text_without_trivia(db.upcast());
+            let else_if_condition_text = else_if_cond
+                .stable_ptr()
+                .lookup(db.upcast())
+                .as_syntax_node()
+                .get_text_without_trivia(db.upcast());
 
             if if_condition_text == else_if_condition_text {
                 diagnostics.push(PluginDiagnostic {

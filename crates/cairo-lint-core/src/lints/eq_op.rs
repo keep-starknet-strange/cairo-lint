@@ -9,7 +9,8 @@ use if_chain::if_chain;
 
 use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
 
-const DIV_EQ_OP: &str = "Division with identical operands, this operation always results in one (except for zero) and \
+const DIV_EQ_OP: &str =
+    "Division with identical operands, this operation always results in one (except for zero) and \
                          may indicate a logic error";
 const EQ_COMP_OP: &str =
     "Comparison with identical operands, this operation always results in true and may indicate a logic error";
@@ -17,9 +18,11 @@ const NEQ_COMP_OP: &str =
     "Comparison with identical operands, this operation always results in false and may indicate a logic error";
 const EQ_DIFF_OP: &str =
     "Subtraction with identical operands, this operation always results in zero and may indicate a logic error";
-const EQ_BITWISE_OP: &str = "Bitwise operation with identical operands, this operation always results in the same \
+const EQ_BITWISE_OP: &str =
+    "Bitwise operation with identical operands, this operation always results in the same \
                              value and may indicate a logic error";
-const EQ_LOGICAL_OP: &str = "Logical operation with identical operands, this operation always results in the same \
+const EQ_LOGICAL_OP: &str =
+    "Logical operation with identical operands, this operation always results in the same \
                              value and may indicate a logic error";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];

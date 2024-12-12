@@ -38,7 +38,9 @@ pub fn check_collapsible_if(
         }
         current_node = node;
     }
-    let Expr::Block(ref if_block) = arenas.exprs[expr_if.if_block] else { return };
+    let Expr::Block(ref if_block) = arenas.exprs[expr_if.if_block] else {
+        return;
+    };
 
     // TODO: Check if if block can contain only 1 statement without tail
     // Case where the if block only contains a statement and no tail

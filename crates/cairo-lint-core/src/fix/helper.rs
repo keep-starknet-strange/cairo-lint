@@ -47,7 +47,11 @@ pub fn remove_break_from_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &
     let mut block_body = String::new();
     for statement in block.statements(db).elements(db) {
         if !matches!(statement, Statement::Break(_)) {
-            block_body.push_str(&format!("{}    {}\n", indent, statement.as_syntax_node().get_text_without_trivia(db)));
+            block_body.push_str(&format!(
+                "{}    {}\n",
+                indent,
+                statement.as_syntax_node().get_text_without_trivia(db)
+            ));
         }
     }
     block_body
@@ -82,7 +86,11 @@ pub fn remove_break_from_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &
 /// ```
 ///
 /// This function formats the `else` or `else if` block and returns it as a string.
-pub fn remove_break_from_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClause, indent: &str) -> String {
+pub fn remove_break_from_else_clause(
+    db: &dyn SyntaxGroup,
+    else_clause: ElseClause,
+    indent: &str,
+) -> String {
     let mut else_body = String::new();
     match else_clause.else_block_or_if(db) {
         BlockOrIf::Block(block) => {
@@ -92,7 +100,10 @@ pub fn remove_break_from_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClau
             else_body.push_str(&format!(
                 "{}else if {} {{\n",
                 indent,
-                else_if.condition(db).as_syntax_node().get_text_without_trivia(db)
+                else_if
+                    .condition(db)
+                    .as_syntax_node()
+                    .get_text_without_trivia(db)
             ));
             else_body.push_str(&remove_break_from_block(db, else_if.if_block(db), indent));
             else_body.push_str(&format!("{}}}\n", indent));
@@ -119,9 +130,17 @@ pub fn remove_break_from_else_clause(db: &dyn SyntaxGroup, else_clause: ElseClau
 /// This inverts both the logical operator (`&&` becomes `||`) and the comparison operators.
 pub fn invert_condition(condition: &str) -> String {
     if condition.contains("&&") {
-        condition.split("&&").map(|part| invert_simple_condition(part.trim())).collect::<Vec<_>>().join(" || ")
+        condition
+            .split("&&")
+            .map(|part| invert_simple_condition(part.trim()))
+            .collect::<Vec<_>>()
+            .join(" || ")
     } else if condition.contains("||") {
-        condition.split("||").map(|part| invert_simple_condition(part.trim())).collect::<Vec<_>>().join(" && ")
+        condition
+            .split("||")
+            .map(|part| invert_simple_condition(part.trim()))
+            .collect::<Vec<_>>()
+            .join(" && ")
     } else {
         invert_simple_condition(condition)
     }
