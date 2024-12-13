@@ -9,7 +9,8 @@ use num_bigint::BigInt;
 use super::{function_trait_name_from_fn_id, AND};
 use crate::lints::{DIV, MUL};
 
-pub const ERASING_OPERATION: &str = "This operation results in the value being erased (e.g., multiplication by 0). \
+pub const ERASING_OPERATION: &str =
+    "This operation results in the value being erased (e.g., multiplication by 0). \
                                      Consider replacing the entire expression with 0.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];

@@ -14,7 +14,9 @@ use cairo_lang_test_utils::parse_test_file::{dump_to_test_file, parse_test_file,
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_lang_utils::Upcast;
 use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fix::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
+use cairo_lint_core::fix::{
+    apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
+};
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
 use cairo_lint_test_utils::{get_diags, test_file, Tests};
 use ctor::dtor;
@@ -31,7 +33,13 @@ negative_impls = true
 coupons = true
 "#;
 
-test_file!(unused_variables, unused_variables, "one unused variable", "two unused variable", "plenty unused variables");
+test_file!(
+    unused_variables,
+    unused_variables,
+    "one unused variable",
+    "two unused variable",
+    "plenty unused variables"
+);
 
 test_file!(
     single_match,

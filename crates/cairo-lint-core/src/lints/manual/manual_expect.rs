@@ -6,7 +6,8 @@ use cairo_lang_syntax::node::TypedStablePtr;
 
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
-pub const MANUAL_EXPECT: &str = "Manual match for expect detected. Consider using `expect()` instead";
+pub const MANUAL_EXPECT: &str =
+    "Manual match for expect detected. Consider using `expect()` instead";
 
 pub(super) const LINT_NAME: &str = "manual_expect";
 
@@ -16,7 +17,13 @@ pub fn check_manual_expect(
     expr_match: &ExprMatch,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    if check_manual(db, expr_match, arenas, ManualLint::ManualOptExpect, LINT_NAME) {
+    if check_manual(
+        db,
+        expr_match,
+        arenas,
+        ManualLint::ManualOptExpect,
+        LINT_NAME,
+    ) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_match.stable_ptr.untyped(),
             message: MANUAL_EXPECT.to_owned(),
@@ -24,7 +31,13 @@ pub fn check_manual_expect(
         });
     }
 
-    if check_manual(db, expr_match, arenas, ManualLint::ManualResExpect, LINT_NAME) {
+    if check_manual(
+        db,
+        expr_match,
+        arenas,
+        ManualLint::ManualResExpect,
+        LINT_NAME,
+    ) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_match.stable_ptr.untyped(),
             message: MANUAL_EXPECT.to_owned(),

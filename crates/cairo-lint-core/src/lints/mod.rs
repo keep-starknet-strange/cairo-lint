@@ -41,7 +41,10 @@ pub(crate) const PANIC_WITH_FELT252: &str = "core::panic_with_felt252";
 pub(crate) const DEFAULT: &str = "core::traits::Default::default";
 pub(crate) const ARRAY_NEW: &str = "core::array::ArrayTrait::new";
 
-pub(crate) fn function_trait_name_from_fn_id(db: &dyn SemanticGroup, function: &FunctionId) -> String {
+pub(crate) fn function_trait_name_from_fn_id(
+    db: &dyn SemanticGroup,
+    function: &FunctionId,
+) -> String {
     let Ok(Some(func_id)) = function.get_concrete(db).body(db) else {
         return String::new();
     };

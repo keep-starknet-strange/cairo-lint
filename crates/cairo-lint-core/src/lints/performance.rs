@@ -11,8 +11,12 @@ const INEFFICIENT_WHILE_COMP_MESSAGE: &str = "using [`<`, `<=`, `>=`, `>`] exit 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "inefficient_while_comp";
 // Match all types implementing PartialOrd
-const PARTIAL_ORD_PATTERNS: [&str; 4] =
-    ["PartialOrd::lt\"", "PartialOrd::le\"", "PartialOrd::gt\"", "PartialOrd::ge\""];
+const PARTIAL_ORD_PATTERNS: [&str; 4] = [
+    "PartialOrd::lt\"",
+    "PartialOrd::le\"",
+    "PartialOrd::gt\"",
+    "PartialOrd::ge\"",
+];
 
 pub fn check_inefficient_while_comp(
     db: &dyn SemanticGroup,
@@ -36,7 +40,12 @@ pub fn check_inefficient_while_comp(
     }
 }
 
-fn check_expression(db: &dyn SemanticGroup, expr: &Expr, diagnostics: &mut Vec<PluginDiagnostic>, arenas: &Arenas) {
+fn check_expression(
+    db: &dyn SemanticGroup,
+    expr: &Expr,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+    arenas: &Arenas,
+) {
     match expr {
         Expr::FunctionCall(func_call) => {
             let func_name = func_call.function.name(db);

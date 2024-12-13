@@ -37,8 +37,10 @@ pub fn check_equatable_if_let(
 
     if let Condition::Let(condition_let, patterns) = &expr.condition {
         // Simple literals and variables
-        let expr_is_simple =
-            matches!(arenas.exprs[*condition_let], Expr::Literal(_) | Expr::StringLiteral(_) | Expr::Var(_));
+        let expr_is_simple = matches!(
+            arenas.exprs[*condition_let],
+            Expr::Literal(_) | Expr::StringLiteral(_) | Expr::Var(_)
+        );
         let condition_is_simple = is_simple_equality_condition(patterns, arenas);
 
         if expr_is_simple && condition_is_simple {
@@ -57,7 +59,10 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
             Pattern::Literal(_) | Pattern::StringLiteral(_) => return true,
             Pattern::EnumVariant(pat) => {
                 return pat.inner_pattern.is_none_or(|pat_id| {
-                    matches!(arenas.patterns[pat_id], Pattern::Literal(_) | Pattern::StringLiteral(_))
+                    matches!(
+                        arenas.patterns[pat_id],
+                        Pattern::Literal(_) | Pattern::StringLiteral(_)
+                    )
                 })
             }
             _ => continue,

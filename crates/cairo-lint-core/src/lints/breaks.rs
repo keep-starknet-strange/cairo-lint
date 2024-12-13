@@ -4,8 +4,10 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, StatementBreak};
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
-pub const BREAK_UNIT: &str = "unnecessary double parentheses found after break. Consider removing them.";
+pub const BREAK_UNIT: &str =
+    "unnecessary double parentheses found after break. Consider removing them.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "break_unit";
@@ -23,13 +25,15 @@ pub fn check_break(
         }
         current_node = node;
     }
-    if let Some(expr) = stmt_break.expr_option
-        && arenas.exprs[expr].ty().is_unit(db)
-    {
-        diagnostics.push(PluginDiagnostic {
-            stable_ptr: stmt_break.stable_ptr.untyped(),
-            message: BREAK_UNIT.to_string(),
-            severity: Severity::Warning,
-        });
+    if_chain! {
+        if let Some(expr) = stmt_break.expr_option;
+        if arenas.exprs[expr].ty().is_unit(db);
+        then {
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: stmt_break.stable_ptr.untyped(),
+                message: BREAK_UNIT.to_string(),
+                severity: Severity::Warning,
+            });
+        }
     }
 }

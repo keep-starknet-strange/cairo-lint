@@ -35,7 +35,10 @@ pub struct ImportFix {
 impl ImportFix {
     /// Creates a new `ImportFix` for the given syntax node.
     pub fn new(node: SyntaxNode) -> Self {
-        ImportFix { node, items_to_remove: vec![] }
+        ImportFix {
+            node,
+            items_to_remove: vec![],
+        }
     }
 }
 
@@ -76,7 +79,11 @@ pub fn collect_unused_imports(
 /// * `db` - The root database containing the project information.
 /// * `id` - The UseId of the unused import.
 /// * `fixes` - A mutable reference to the HashMap of fixes.
-fn process_unused_import(db: &RootDatabase, id: &UseId, fixes: &mut HashMap<SyntaxNode, ImportFix>) {
+fn process_unused_import(
+    db: &RootDatabase,
+    id: &UseId,
+    fixes: &mut HashMap<SyntaxNode, ImportFix>,
+) {
     let unused_node = id.stable_ptr(db).lookup(db.upcast()).as_syntax_node();
     let mut current_node = unused_node.clone();
 
@@ -117,7 +124,10 @@ pub fn apply_import_fixes(db: &RootDatabase, fixes: &HashMap<SyntaxNode, ImportF
 
             if import_fix.items_to_remove.is_empty() {
                 // Single import case: remove entire import
-                vec![Fix { span, suggestion: String::new() }]
+                vec![Fix {
+                    span,
+                    suggestion: String::new(),
+                }]
             } else {
                 // Multi-import case
                 handle_multi_import(db, &import_fix.node, &import_fix.items_to_remove)
@@ -137,7 +147,11 @@ pub fn apply_import_fixes(db: &RootDatabase, fixes: &HashMap<SyntaxNode, ImportF
 /// # Returns
 ///
 /// A vector of Fix objects for the multi-import case.
-fn handle_multi_import(db: &RootDatabase, node: &SyntaxNode, items_to_remove: &[String]) -> Vec<Fix> {
+fn handle_multi_import(
+    db: &RootDatabase,
+    node: &SyntaxNode,
+    items_to_remove: &[String],
+) -> Vec<Fix> {
     if all_descendants_removed(db, node, items_to_remove) {
         remove_entire_import(db, node)
     } else {
@@ -156,7 +170,11 @@ fn handle_multi_import(db: &RootDatabase, node: &SyntaxNode, items_to_remove: &[
 /// # Returns
 ///
 /// A boolean indicating whether all descendants should be removed.
-fn all_descendants_removed(db: &RootDatabase, node: &SyntaxNode, items_to_remove: &[String]) -> bool {
+fn all_descendants_removed(
+    db: &RootDatabase,
+    node: &SyntaxNode,
+    items_to_remove: &[String],
+) -> bool {
     node.descendants(db)
         .filter(|child| child.kind(db) == SyntaxKind::UsePathLeaf)
         .all(|child| items_to_remove.contains(&child.get_text_without_trivia(db)))
@@ -195,7 +213,10 @@ fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
         }
         current_node = parent;
     }
-    vec![Fix { span: current_node.span(db), suggestion: String::new() }]
+    vec![Fix {
+        span: current_node.span(db),
+        suggestion: String::new(),
+    }]
 }
 
 /// Removes specific items from a multi-import statement.
@@ -209,7 +230,11 @@ fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
 /// # Returns
 ///
 /// A vector of Fix objects for removing specific items from the import.
-fn remove_specific_items(db: &RootDatabase, node: &SyntaxNode, items_to_remove: &[String]) -> Vec<Fix> {
+fn remove_specific_items(
+    db: &RootDatabase,
+    node: &SyntaxNode,
+    items_to_remove: &[String],
+) -> Vec<Fix> {
     let use_path_list = find_use_path_list(db, node);
     let children = db.get_children(use_path_list.clone());
     let children: Vec<SyntaxNode> = children
@@ -220,12 +245,22 @@ fn remove_specific_items(db: &RootDatabase, node: &SyntaxNode, items_to_remove: 
         })
         .cloned()
         .collect();
-    let mut items: Vec<_> = children.iter().map(|child| child.get_text(db).trim().to_string()).collect();
+    let mut items: Vec<_> = children
+        .iter()
+        .map(|child| child.get_text(db).trim().to_string())
+        .collect();
     items.retain(|item| !items_to_remove.contains(&item.to_string()));
 
-    let text = if items.len() == 1 { items[0].to_string() } else { format!("{{{}}}", items.join(", ")) };
+    let text = if items.len() == 1 {
+        items[0].to_string()
+    } else {
+        format!("{{{}}}", items.join(", "))
+    };
 
-    vec![Fix { span: node.span(db), suggestion: text }]
+    vec![Fix {
+        span: node.span(db),
+        suggestion: text,
+    }]
 }
 
 /// Finds the UsePathList node within a given syntax node.

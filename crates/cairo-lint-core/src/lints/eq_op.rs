@@ -5,10 +5,12 @@ use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
 use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
 
-const DIV_EQ_OP: &str = "Division with identical operands, this operation always results in one (except for zero) and \
+const DIV_EQ_OP: &str =
+    "Division with identical operands, this operation always results in one (except for zero) and \
                          may indicate a logic error";
 const EQ_COMP_OP: &str =
     "Comparison with identical operands, this operation always results in true and may indicate a logic error";
@@ -16,9 +18,11 @@ const NEQ_COMP_OP: &str =
     "Comparison with identical operands, this operation always results in false and may indicate a logic error";
 const EQ_DIFF_OP: &str =
     "Subtraction with identical operands, this operation always results in zero and may indicate a logic error";
-const EQ_BITWISE_OP: &str = "Bitwise operation with identical operands, this operation always results in the same \
+const EQ_BITWISE_OP: &str =
+    "Bitwise operation with identical operands, this operation always results in the same \
                              value and may indicate a logic error";
-const EQ_LOGICAL_OP: &str = "Logical operation with identical operands, this operation always results in the same \
+const EQ_LOGICAL_OP: &str =
+    "Logical operation with identical operands, this operation always results in the same \
                              value and may indicate a logic error";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
@@ -52,10 +56,13 @@ pub fn check_eq_op(
             if matches!(expr, Expr::FunctionCall(_)) {
                 return;
             }
-            if let Expr::Snapshot(snapshot) = expr
-                && matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_))
-            {
-                return;
+
+            if_chain! {
+                if let Expr::Snapshot(snapshot) = expr;
+                if matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_));
+                then {
+                    return;
+                }
             }
 
             expr.stable_ptr()
@@ -73,10 +80,13 @@ pub fn check_eq_op(
             if matches!(expr, Expr::FunctionCall(_)) {
                 return;
             }
-            if let Expr::Snapshot(snapshot) = expr
-                && matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_))
-            {
-                return;
+
+            if_chain! {
+                if let Expr::Snapshot(snapshot) = expr;
+                if matches!(arenas.exprs[snapshot.inner], Expr::FunctionCall(_));
+                then {
+                    return;
+                }
             }
 
             expr.stable_ptr()

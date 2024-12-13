@@ -12,7 +12,10 @@ const LINT_NAME: &str = "duplicate_underscore_args";
 
 /// Checks for functions that have the same argument name but prefix with `_`. For example
 /// `fn foo(a, _a)`
-pub fn check_duplicate_underscore_args(params: Vec<Parameter>, diagnostics: &mut Vec<PluginDiagnostic>) {
+pub fn check_duplicate_underscore_args(
+    params: Vec<Parameter>,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
     let mut registered_names: HashSet<String> = HashSet::new();
 
     for param in params {

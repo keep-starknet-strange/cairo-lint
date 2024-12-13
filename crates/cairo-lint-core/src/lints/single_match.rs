@@ -6,10 +6,12 @@ use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthes
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
 pub const DESTRUCT_MATCH: &str =
     "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
-pub const MATCH_FOR_EQUALITY: &str = "you seem to be trying to use `match` for an equality check. Consider using `if`";
+pub const MATCH_FOR_EQUALITY: &str =
+    "you seem to be trying to use `match` for an equality check. Consider using `if`";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "single_match";
@@ -63,7 +65,11 @@ pub fn check_single_match(
             Pattern::Otherwise(_) => return,
             // Get the number of variants in the enum to know if it's comprehensive or not
             Pattern::EnumVariant(enum_pat) => {
-                enum_len = Some(db.enum_variants(enum_pat.variant.concrete_enum_id.enum_id(db)).unwrap().len());
+                enum_len = Some(
+                    db.enum_variants(enum_pat.variant.concrete_enum_id.enum_id(db))
+                        .unwrap()
+                        .len(),
+                );
                 // If there's an enum pattern it's a destructuring match
                 is_destructuring = enum_pat.inner_pattern.is_some();
             }
@@ -90,9 +96,12 @@ pub fn check_single_match(
         };
 
         // Checks that the second arm doesn't do anything
-        is_single_armed =
-            is_expr_unit(arenas.exprs[second_arm.expression].stable_ptr().lookup(db.upcast()), db.upcast())
-                && is_complete;
+        is_single_armed = is_expr_unit(
+            arenas.exprs[second_arm.expression]
+                .stable_ptr()
+                .lookup(db.upcast()),
+            db.upcast(),
+        ) && is_complete;
     };
 
     match (is_single_armed, is_destructuring) {
@@ -119,22 +128,32 @@ fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn Syntax
 fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGroup) -> bool {
     let statements = block_expr.statements(db).elements(db);
     // Check if the block is empty and there's no comment in it
-    if statements.is_empty() && block_expr.rbrace(db).leading_trivia(db).node.get_text(db).trim().is_empty() {
+    if statements.is_empty()
+        && block_expr
+            .rbrace(db)
+            .leading_trivia(db)
+            .node
+            .get_text(db)
+            .trim()
+            .is_empty()
+    {
         return true;
     }
+
     // If there's statement checks that it's `()` without comment
-    if statements.len() == 1
-        && let Statement::Expr(statement_expr) = &statements[0]
-        && let AstExpr::Tuple(tuple_expr) = statement_expr.expr(db)
-    {
-        let tuple_node = tuple_expr.as_syntax_node();
-        if tuple_node.span(db).start != tuple_node.span_start_without_trivia(db) {
-            return false;
+    if_chain! {
+        if statements.len() == 1;
+        if let Statement::Expr(statement_expr) = &statements[0];
+        if let AstExpr::Tuple(tuple_expr) = statement_expr.expr(db);
+        then {
+            let tuple_node = tuple_expr.as_syntax_node();
+            if tuple_node.span(db).start != tuple_node.span_start_without_trivia(db) {
+                return false;
+            }
+            return is_expr_list_parenthesised_unit(&tuple_expr, db);
         }
-        is_expr_list_parenthesised_unit(&tuple_expr, db)
-    } else {
-        false
     }
+    false
 }
 
 /// Checks that either the expression is `()` or `{ }` or `{ () }` but none of them should contain a

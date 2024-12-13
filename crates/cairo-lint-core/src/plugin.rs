@@ -12,8 +12,9 @@ use crate::lints::ifs::{self, *};
 use crate::lints::loops::{loop_for_while, loop_match_pop_front};
 use crate::lints::manual::{self, *};
 use crate::lints::{
-    bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens, duplicate_underscore_args,
-    eq_op, erasing_op, int_op_one, loops, panic, performance, single_match,
+    bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens,
+    duplicate_underscore_args, eq_op, erasing_op, int_op_one, loops, panic, performance,
+    single_match,
 };
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
@@ -72,7 +73,9 @@ pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
         equatable_if_let::EQUATABLE_IF_LET => CairoLintKind::EquatableIfLet,
         bool_comparison::BOOL_COMPARISON => CairoLintKind::BoolComparison,
         collapsible_if_else::COLLAPSIBLE_IF_ELSE => CairoLintKind::CollapsibleIfElse,
-        duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => CairoLintKind::DuplicateUnderscoreArgs,
+        duplicate_underscore_args::DUPLICATE_UNDERSCORE_ARGS => {
+            CairoLintKind::DuplicateUnderscoreArgs
+        }
         collapsible_if::COLLAPSIBLE_IF => CairoLintKind::CollapsibleIf,
         loop_match_pop_front::LOOP_MATCH_POP_FRONT => CairoLintKind::LoopMatchPopFront,
         manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT => CairoLintKind::ManualUnwrapOrDefault,
@@ -132,13 +135,17 @@ impl AnalyzerPlugin for CairoLint {
         };
         for item in &*items {
             let function_nodes = match item {
-                ModuleItemId::Constant(constant_id) => {
-                    constant_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
-                }
+                ModuleItemId::Constant(constant_id) => constant_id
+                    .stable_ptr(db.upcast())
+                    .lookup(syntax_db)
+                    .as_syntax_node(),
                 ModuleItemId::FreeFunction(free_function_id) => {
                     let func_id = FunctionWithBodyId::Free(*free_function_id);
                     check_function(db, func_id, &mut diags);
-                    free_function_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
+                    free_function_id
+                        .stable_ptr(db.upcast())
+                        .lookup(syntax_db)
+                        .as_syntax_node()
                 }
                 ModuleItemId::Impl(impl_id) => {
                     let impl_functions = db.impl_functions(*impl_id);
@@ -149,7 +156,10 @@ impl AnalyzerPlugin for CairoLint {
                         let func_id = FunctionWithBodyId::Impl(*fn_id);
                         check_function(db, func_id, &mut diags);
                     }
-                    impl_id.stable_ptr(db.upcast()).lookup(syntax_db).as_syntax_node()
+                    impl_id
+                        .stable_ptr(db.upcast())
+                        .lookup(syntax_db)
+                        .as_syntax_node()
                 }
                 _ => continue,
             }
@@ -171,7 +181,11 @@ impl AnalyzerPlugin for CairoLint {
         diags
     }
 }
-fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnostics: &mut Vec<PluginDiagnostic>) {
+fn check_function(
+    db: &dyn SemanticGroup,
+    func_id: FunctionWithBodyId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
     if let Ok(false) = func_id.has_attr_with_arg(db, "allow", "duplicate_underscore_args") {
         duplicate_underscore_args::check_duplicate_underscore_args(
             db.function_with_body_signature(func_id).unwrap().params,
@@ -184,13 +198,33 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
     for (_expression_id, expression) in &function_body.arenas.exprs {
         match &expression {
             Expr::Match(expr_match) => {
-                single_match::check_single_match(db, expr_match, diagnostics, &function_body.arenas);
-                manual_ok_or::check_manual_ok_or(db, &function_body.arenas, expr_match, diagnostics);
+                single_match::check_single_match(
+                    db,
+                    expr_match,
+                    diagnostics,
+                    &function_body.arenas,
+                );
+                manual_ok_or::check_manual_ok_or(
+                    db,
+                    &function_body.arenas,
+                    expr_match,
+                    diagnostics,
+                );
                 manual_ok::check_manual_ok(db, &function_body.arenas, expr_match, diagnostics);
                 manual_err::check_manual_err(db, &function_body.arenas, expr_match, diagnostics);
                 manual_is::check_manual_is(db, &function_body.arenas, expr_match, diagnostics);
-                manual_expect::check_manual_expect(db, &function_body.arenas, expr_match, diagnostics);
-                manual_expect_err::check_manual_expect_err(db, &function_body.arenas, expr_match, diagnostics);
+                manual_expect::check_manual_expect(
+                    db,
+                    &function_body.arenas,
+                    expr_match,
+                    diagnostics,
+                );
+                manual_expect_err::check_manual_expect_err(
+                    db,
+                    &function_body.arenas,
+                    expr_match,
+                    diagnostics,
+                );
                 manual_unwrap_or_default::check_manual_unwrap_or_default(
                     db,
                     &function_body.arenas,
@@ -199,32 +233,97 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                 );
             }
             Expr::Loop(expr_loop) => {
-                loop_match_pop_front::check_loop_match_pop_front(db, expr_loop, diagnostics, &function_body.arenas);
-                loop_for_while::check_loop_for_while(db, expr_loop, &function_body.arenas, diagnostics);
+                loop_match_pop_front::check_loop_match_pop_front(
+                    db,
+                    expr_loop,
+                    diagnostics,
+                    &function_body.arenas,
+                );
+                loop_for_while::check_loop_for_while(
+                    db,
+                    expr_loop,
+                    &function_body.arenas,
+                    diagnostics,
+                );
             }
             Expr::FunctionCall(expr_func) => {
                 panic::check_panic_usage(db, expr_func, diagnostics);
-                bool_comparison::check_bool_comparison(db, expr_func, &function_body.arenas, diagnostics);
+                bool_comparison::check_bool_comparison(
+                    db,
+                    expr_func,
+                    &function_body.arenas,
+                    diagnostics,
+                );
                 int_op_one::check_int_op_one(db, expr_func, &function_body.arenas, diagnostics);
-                bitwise_for_parity_check::check_bitwise_for_parity(db, expr_func, &function_body.arenas, diagnostics);
+                bitwise_for_parity_check::check_bitwise_for_parity(
+                    db,
+                    expr_func,
+                    &function_body.arenas,
+                    diagnostics,
+                );
                 eq_op::check_eq_op(db, expr_func, &function_body.arenas, diagnostics);
-                erasing_op::check_erasing_operation(db, expr_func, &function_body.arenas, diagnostics);
+                erasing_op::check_erasing_operation(
+                    db,
+                    expr_func,
+                    &function_body.arenas,
+                    diagnostics,
+                );
             }
 
             Expr::LogicalOperator(expr_logical) => {
-                double_comparison::check_double_comparison(db, expr_logical, &function_body.arenas, diagnostics);
+                double_comparison::check_double_comparison(
+                    db,
+                    expr_logical,
+                    &function_body.arenas,
+                    diagnostics,
+                );
             }
             Expr::If(expr_if) => {
-                equatable_if_let::check_equatable_if_let(db, expr_if, &function_body.arenas, diagnostics);
-                collapsible_if_else::check_collapsible_if_else(db, expr_if, &function_body.arenas, diagnostics);
-                collapsible_if::check_collapsible_if(db, expr_if, &function_body.arenas, diagnostics);
-                ifs_same_cond::check_duplicate_if_condition(db, expr_if, &function_body.arenas, diagnostics);
+                equatable_if_let::check_equatable_if_let(
+                    db,
+                    expr_if,
+                    &function_body.arenas,
+                    diagnostics,
+                );
+                collapsible_if_else::check_collapsible_if_else(
+                    db,
+                    expr_if,
+                    &function_body.arenas,
+                    diagnostics,
+                );
+                collapsible_if::check_collapsible_if(
+                    db,
+                    expr_if,
+                    &function_body.arenas,
+                    diagnostics,
+                );
+                ifs_same_cond::check_duplicate_if_condition(
+                    db,
+                    expr_if,
+                    &function_body.arenas,
+                    diagnostics,
+                );
                 manual_is::check_manual_if_is(db, &function_body.arenas, expr_if, diagnostics);
-                manual_expect::check_manual_if_expect(db, &function_body.arenas, expr_if, diagnostics);
-                manual_ok_or::check_manual_if_ok_or(db, &function_body.arenas, expr_if, diagnostics);
+                manual_expect::check_manual_if_expect(
+                    db,
+                    &function_body.arenas,
+                    expr_if,
+                    diagnostics,
+                );
+                manual_ok_or::check_manual_if_ok_or(
+                    db,
+                    &function_body.arenas,
+                    expr_if,
+                    diagnostics,
+                );
                 manual_ok::check_manual_if_ok(db, &function_body.arenas, expr_if, diagnostics);
                 manual_err::check_manual_if_err(db, &function_body.arenas, expr_if, diagnostics);
-                manual_expect_err::check_manual_if_expect_err(db, &function_body.arenas, expr_if, diagnostics);
+                manual_expect_err::check_manual_if_expect_err(
+                    db,
+                    &function_body.arenas,
+                    expr_if,
+                    diagnostics,
+                );
                 manual_unwrap_or_default::check_manual_if_unwrap_or_default(
                     db,
                     &function_body.arenas,
@@ -232,9 +331,12 @@ fn check_function(db: &dyn SemanticGroup, func_id: FunctionWithBodyId, diagnosti
                     diagnostics,
                 );
             }
-            Expr::While(expr_while) => {
-                performance::check_inefficient_while_comp(db, expr_while, diagnostics, &function_body.arenas)
-            }
+            Expr::While(expr_while) => performance::check_inefficient_while_comp(
+                db,
+                expr_while,
+                diagnostics,
+                &function_body.arenas,
+            ),
             _ => (),
         };
     }

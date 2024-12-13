@@ -15,6 +15,7 @@ use cairo_lang_semantic::{Arenas, Condition, Expr, ExprId, ExprIf, ExprMatch, Ma
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use helpers::*;
+use if_chain::if_chain;
 
 use super::{FALSE, OK, PANIC_WITH_FELT252, TRUE};
 use crate::lints::{ERR, NONE, SOME};
@@ -110,7 +111,12 @@ pub fn check_manual(
 }
 
 /// Checks the `Option::Some` arm in the match.
-fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
+fn check_syntax_some_arm(
+    arm: &MatchArm,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
     match manual_lint {
         ManualLint::ManualOkOr => is_destructured_variable_used_and_expected_variant(
             &arenas.exprs[arm.expression],
@@ -122,12 +128,20 @@ fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SemanticGroup, arenas: &Arenas
         ManualLint::ManualIsSome => is_expected_variant(&arm.expression, arenas, db, TRUE),
         ManualLint::ManualIsNone => is_expected_variant(&arm.expression, arenas, db, FALSE),
         ManualLint::ManualOptExpect => {
-            let Expr::Var(expr_var) = &arenas.exprs[arm.expression] else { return false };
+            let Expr::Var(expr_var) = &arenas.exprs[arm.expression] else {
+                return false;
+            };
             pattern_check_enum_arg(&arenas.patterns[arm.patterns[0]], &expr_var.var, arenas)
         }
         ManualLint::ManualUnwrapOrDefault => {
-            let Expr::Var(enum_destruct_var) = &arenas.exprs[arm.expression] else { return false };
-            pattern_check_enum_arg(&arenas.patterns[arm.patterns[0]], &enum_destruct_var.var, arenas)
+            let Expr::Var(enum_destruct_var) = &arenas.exprs[arm.expression] else {
+                return false;
+            };
+            pattern_check_enum_arg(
+                &arenas.patterns[arm.patterns[0]],
+                &enum_destruct_var.var,
+                arenas,
+            )
         }
         _ => false,
     }
@@ -135,8 +149,15 @@ fn check_syntax_some_arm(arm: &MatchArm, db: &dyn SemanticGroup, arenas: &Arenas
 
 /// Checks that the variant of the expression is named exactly the provided string.
 /// This checks for the full path for example `core::option::Option::Some`
-fn is_expected_variant(expr: &ExprId, arenas: &Arenas, db: &dyn SemanticGroup, expected_variant: &str) -> bool {
-    let Some(variant_name) = get_variant_name(expr, arenas, db) else { return false };
+fn is_expected_variant(
+    expr: &ExprId,
+    arenas: &Arenas,
+    db: &dyn SemanticGroup,
+    expected_variant: &str,
+) -> bool {
+    let Some(variant_name) = get_variant_name(expr, arenas, db) else {
+        return false;
+    };
     variant_name == expected_variant
 }
 
@@ -150,7 +171,12 @@ fn get_variant_name(expr: &ExprId, arenas: &Arenas, db: &dyn SemanticGroup) -> O
 }
 
 // Checks the `Result::Ok` arm
-fn check_syntax_ok_arm(arm: &MatchArm, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
+fn check_syntax_ok_arm(
+    arm: &MatchArm,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
     match manual_lint {
         ManualLint::ManualIsOk => is_expected_variant(&arm.expression, arenas, db, TRUE),
         ManualLint::ManualIsErr => is_expected_variant(&arm.expression, arenas, db, FALSE),
@@ -164,7 +190,9 @@ fn check_syntax_ok_arm(arm: &MatchArm, db: &dyn SemanticGroup, arenas: &Arenas, 
 
         ManualLint::ManualErr => is_expected_variant(&arm.expression, arenas, db, NONE),
         ManualLint::ManualResExpect => {
-            let Expr::Var(expr_var) = &arenas.exprs[arm.expression] else { return false };
+            let Expr::Var(expr_var) = &arenas.exprs[arm.expression] else {
+                return false;
+            };
             pattern_check_enum_arg(&arenas.patterns[arm.patterns[0]], &expr_var.var, arenas)
         }
         ManualLint::ManualExpectErr => {
@@ -198,13 +226,20 @@ fn check_syntax_none_arm(
                 false
             }
         }
-        ManualLint::ManualUnwrapOrDefault => check_is_default(db, &arenas.exprs[*arm_expression], arenas),
+        ManualLint::ManualUnwrapOrDefault => {
+            check_is_default(db, &arenas.exprs[*arm_expression], arenas)
+        }
         _ => false,
     }
 }
 
 /// Checks `Result::Err` arm
-fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
+fn check_syntax_err_arm(
+    arm: &MatchArm,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
     match manual_lint {
         ManualLint::ManualIsOk => is_expected_variant(&arm.expression, arenas, db, FALSE),
         ManualLint::ManualIsErr => is_expected_variant(&arm.expression, arenas, db, TRUE),
@@ -225,8 +260,14 @@ fn check_syntax_err_arm(arm: &MatchArm, db: &dyn SemanticGroup, arenas: &Arenas,
             }
         }
         ManualLint::ManualExpectErr => {
-            let Expr::Var(return_err_var) = &arenas.exprs[arm.expression] else { return false };
-            pattern_check_enum_arg(&arenas.patterns[arm.patterns[0]], &return_err_var.var, arenas)
+            let Expr::Var(return_err_var) = &arenas.exprs[arm.expression] else {
+                return false;
+            };
+            pattern_check_enum_arg(
+                &arenas.patterns[arm.patterns[0]],
+                &return_err_var.var,
+                arenas,
+            )
         }
         _ => false,
     }
@@ -255,41 +296,53 @@ pub fn check_manual_if(
         current_node = node;
     }
 
-    if let Condition::Let(_condition_let, patterns) = &expr.condition
-        && let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]]
-    {
-        let enum_name = enum_pattern.variant.id.full_path(db.upcast());
-        match enum_name.as_str() {
-            SOME => {
-                let found_if = check_syntax_opt_if(expr, db, arenas, manual_lint);
-                let found_else = check_syntax_opt_else(expr, db, arenas, manual_lint);
-                found_if && found_else
+    if_chain! {
+        if let Condition::Let(_condition_let, patterns) = &expr.condition;
+        if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
+        then {
+            let enum_name = enum_pattern.variant.id.full_path(db.upcast());
+            match enum_name.as_str() {
+                SOME => {
+                    let found_if = check_syntax_opt_if(expr, db, arenas, manual_lint);
+                    let found_else = check_syntax_opt_else(expr, db, arenas, manual_lint);
+                    return found_if && found_else;
+                }
+                OK => {
+                    let found_if = check_syntax_res_if(expr, db, arenas, manual_lint);
+                    let found_else = check_syntax_res_else(expr, db, arenas, manual_lint);
+                    return found_if && found_else;
+                }
+                ERR => {
+                    let found_if = check_syntax_err_if(expr, db, arenas, manual_lint);
+                    let found_else = check_syntax_err_else(expr, db, arenas, manual_lint);
+                    return found_if && found_else;
+                }
+                _ => return false,
             }
-            OK => {
-                let found_if = check_syntax_res_if(expr, db, arenas, manual_lint);
-                let found_else = check_syntax_res_else(expr, db, arenas, manual_lint);
-                found_if && found_else
-            }
-            ERR => {
-                let found_if = check_syntax_err_if(expr, db, arenas, manual_lint);
-                let found_else = check_syntax_err_else(expr, db, arenas, manual_lint);
-                found_if && found_else
-            }
-            _ => false,
         }
-    } else {
-        false
     }
+    false
 }
 
-fn check_syntax_opt_if(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
-    let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else { return false };
+fn check_syntax_opt_if(
+    expr: &ExprIf,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
+    let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else {
+        return false;
+    };
     if !if_block.statements.is_empty() {
         return false;
     };
-    let Some(tail_expr) = if_block.tail else { return false };
+    let Some(tail_expr) = if_block.tail else {
+        return false;
+    };
     match manual_lint {
-        ManualLint::ManualOkOr => if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, OK),
+        ManualLint::ManualOkOr => {
+            if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, OK)
+        }
         ManualLint::ManualIsSome => is_expected_variant(&tail_expr, arenas, db, TRUE),
         ManualLint::ManualIsNone => is_expected_variant(&tail_expr, arenas, db, FALSE),
         ManualLint::ManualOptExpect => if_expr_pattern_matches_tail_var(expr, arenas),
@@ -298,30 +351,53 @@ fn check_syntax_opt_if(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas, m
     }
 }
 
-fn check_syntax_res_if(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
-    let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else { return false };
+fn check_syntax_res_if(
+    expr: &ExprIf,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
+    let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else {
+        return false;
+    };
     if !if_block.statements.is_empty() {
         return false;
     };
-    let Some(tail_expr) = if_block.tail else { return false };
+    let Some(tail_expr) = if_block.tail else {
+        return false;
+    };
     match manual_lint {
         ManualLint::ManualIsOk => is_expected_variant(&tail_expr, arenas, db, TRUE),
         ManualLint::ManualIsErr => is_expected_variant(&tail_expr, arenas, db, FALSE),
-        ManualLint::ManualOk => if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, SOME),
+        ManualLint::ManualOk => {
+            if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, SOME)
+        }
         ManualLint::ManualResExpect => if_expr_pattern_matches_tail_var(expr, arenas),
         _ => false,
     }
 }
 
-fn check_syntax_err_if(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
+fn check_syntax_err_if(
+    expr: &ExprIf,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
     match manual_lint {
-        ManualLint::ManualErr => if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, SOME),
+        ManualLint::ManualErr => {
+            if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, SOME)
+        }
         ManualLint::ManualExpectErr => if_expr_pattern_matches_tail_var(expr, arenas),
         _ => false,
     }
 }
 
-fn check_syntax_opt_else(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
+fn check_syntax_opt_else(
+    expr: &ExprIf,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
     let expr_block = match expr.else_block {
         Some(block) => {
             let Expr::Block(ref block) = arenas.exprs[block] else {
@@ -348,7 +424,12 @@ fn check_syntax_opt_else(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas,
     }
 }
 
-fn check_syntax_res_else(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
+fn check_syntax_res_else(
+    expr: &ExprIf,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
     let expr_block = match expr.else_block {
         Some(block) => {
             let Expr::Block(ref block) = arenas.exprs[block] else {
@@ -368,12 +449,19 @@ fn check_syntax_res_else(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas,
         ManualLint::ManualIsOk => is_expected_variant(&tail_expr, arenas, db, FALSE),
         ManualLint::ManualIsErr => is_expected_variant(&tail_expr, arenas, db, TRUE),
         ManualLint::ManualOk => is_expected_variant(&tail_expr, arenas, db, NONE),
-        ManualLint::ManualResExpect => is_expected_function(&arenas.exprs[tail_expr], db, PANIC_WITH_FELT252),
+        ManualLint::ManualResExpect => {
+            is_expected_function(&arenas.exprs[tail_expr], db, PANIC_WITH_FELT252)
+        }
         _ => false,
     }
 }
 
-fn check_syntax_err_else(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas, manual_lint: ManualLint) -> bool {
+fn check_syntax_err_else(
+    expr: &ExprIf,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+    manual_lint: ManualLint,
+) -> bool {
     let expr_block = match expr.else_block {
         Some(block) => {
             let Expr::Block(ref block) = arenas.exprs[block] else {
@@ -391,7 +479,9 @@ fn check_syntax_err_else(expr: &ExprIf, db: &dyn SemanticGroup, arenas: &Arenas,
     };
     match manual_lint {
         ManualLint::ManualErr => is_expected_variant(&tail_expr, arenas, db, NONE),
-        ManualLint::ManualExpectErr => is_expected_function(&arenas.exprs[tail_expr], db, PANIC_WITH_FELT252),
+        ManualLint::ManualExpectErr => {
+            is_expected_function(&arenas.exprs[tail_expr], db, PANIC_WITH_FELT252)
+        }
         _ => false,
     }
 }

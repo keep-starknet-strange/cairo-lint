@@ -8,14 +8,21 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use if_chain::if_chain;
 
-pub const BOOL_COMPARISON: &str = "Unnecessary comparison with a boolean value. Use the variable directly.";
+pub const BOOL_COMPARISON: &str =
+    "Unnecessary comparison with a boolean value. Use the variable directly.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "bool_comparison";
 
 /// Generates the fixed boolean for a boolean comparison. It will transform `x == false` to `!x`
-pub fn generate_fixed_text_for_comparison(db: &dyn SyntaxGroup, lhs: &str, rhs: &str, node: ExprBinary) -> String {
+pub fn generate_fixed_text_for_comparison(
+    db: &dyn SyntaxGroup,
+    lhs: &str,
+    rhs: &str,
+    node: ExprBinary,
+) -> String {
     let op_kind = node.op(db).as_syntax_node().kind(db);
     let lhs = lhs.trim();
     let rhs = rhs.trim();
@@ -53,22 +60,28 @@ pub fn check_bool_comparison(
         current_node = node;
     }
     // Check if the function call is the bool partial eq function (==).
-    if !expr_func.function.full_name(db).contains("core::BoolPartialEq::") {
+    if !expr_func
+        .function
+        .full_name(db)
+        .contains("core::BoolPartialEq::")
+    {
         return;
     }
     // Extract the args of the function call. This function expects snapshots hence we need to
     // destructure that. Also the boolean type in cairo is an enum hence the enum ctor.
     for arg in &expr_func.args {
-        if let ExprFunctionCallArg::Value(expr) = arg
-            && let Expr::Snapshot(snap) = &arenas.exprs[*expr]
-            && let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[snap.inner]
-            && enum_var.variant.concrete_enum_id.enum_id(db).full_path(db.upcast()) == "core::bool"
-        {
-            diagnostics.push(PluginDiagnostic {
-                stable_ptr: expr_func.stable_ptr.untyped(),
-                message: BOOL_COMPARISON.to_string(),
-                severity: Severity::Warning,
-            });
+        if_chain! {
+            if let ExprFunctionCallArg::Value(expr) = arg;
+            if let Expr::Snapshot(snap) = &arenas.exprs[*expr];
+            if let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[snap.inner];
+            if enum_var.variant.concrete_enum_id.enum_id(db).full_path(db.upcast()) == "core::bool";
+            then {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: expr_func.stable_ptr.untyped(),
+                    message: BOOL_COMPARISON.to_string(),
+                    severity: Severity::Warning,
+                });
+            }
         }
     }
 }

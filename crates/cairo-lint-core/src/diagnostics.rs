@@ -5,7 +5,11 @@ use cairo_lang_filesystem::db::FilesGroup;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_utils::Upcast;
 
-pub fn format_diagnostic<'a>(diagnostic: &'a SemanticDiagnostic, db: &'a RootDatabase, renderer: &Renderer) -> String {
+pub fn format_diagnostic<'a>(
+    diagnostic: &'a SemanticDiagnostic,
+    db: &'a RootDatabase,
+    renderer: &Renderer,
+) -> String {
     let location = diagnostic.location(db.upcast());
     let file_id = location.file_id;
     let span = location.span;
