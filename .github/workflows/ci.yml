@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      # temp
-      - ci-refactor
   pull_request:
   merge_group:
 

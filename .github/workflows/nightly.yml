@@ -3,10 +3,6 @@ name: Nightly
 on:
   schedule:
     - cron: "0 0 * * *"
-  # temp
-  push:
-    branches:
-      - ci-refactor
 
 permissions:
   contents: read
