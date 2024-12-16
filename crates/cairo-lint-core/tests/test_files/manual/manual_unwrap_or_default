@@ -14,8 +14,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     if let Option::Some(v) = x {
-  |  ___-
+3 | /   if let Option::Some(v) = x {
 4 | |     v
 5 | |    } else {
 6 | |      array![]
@@ -50,8 +49,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
   --> lib.cairo:4:3
    |
- 4 |     if let Option::Some(v) = a {
-   |  ___-
+ 4 | /   if let Option::Some(v) = a {
  5 | |     // testing with comments
 ...  |
  9 | |     Default::default()
@@ -85,8 +83,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:4:3
   |
-4 |     if let Option::Some(v) = a {
-  |  ___-
+4 | /   if let Option::Some(v) = a {
 5 | |     v
 6 | |    } else {
 7 | |      Default::default()
@@ -147,8 +144,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     if let Option::Some(v) = x {
-  |  ___-
+3 | /   if let Option::Some(v) = x {
 4 | |     v
 5 | |    } else {
 6 | |      ""
@@ -180,8 +176,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     if let Option::Some(v) = a {
-  |  ___-
+3 | /   if let Option::Some(v) = a {
 4 | |     v
 5 | |    } else {
 6 | |     [0; 5]
@@ -213,8 +208,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     if let Option::Some(v) = x {
-  |  ___-
+3 | /   if let Option::Some(v) = x {
 4 | |     v
 5 | |    } else {
 6 | |      ArrayTrait::new()
@@ -246,8 +240,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     if let Option::Some(v) = a {
-  |  ___-
+3 | /   if let Option::Some(v) = a {
 4 | |     v
 5 | |    } else {
 6 | |       ("", 0, false)
@@ -305,8 +298,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     if let Option::Some(v) = x {
-  |  ___-
+3 | /   if let Option::Some(v) = x {
 4 | |     v
 5 | |    } else {
 6 | |     0
@@ -363,8 +355,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     match x {
-  |  ___-
+3 | /   match x {
 4 | |     Option::Some(v) => v,
 5 | |     Option::None => array![]
 6 | |   };
@@ -431,8 +422,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:4:3
   |
-4 |     match a {
-  |  ___-
+4 | /   match a {
 5 | |     Option::Some(v) => v,
 6 | |     Option::None => Default::default()
 7 | |   };
@@ -487,8 +477,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     match x {
-  |  ___-
+3 | /   match x {
 4 | |     Option::Some(v) => v,
 5 | |     Option::None => ""
 6 | |   };
@@ -518,8 +507,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     match x {
-  |  ___-
+3 | /   match x {
 4 | |     Option::Some(v) => v,
 5 | |     Option::None => [0; 5]
 6 | |   };
@@ -549,8 +537,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     match x {
-  |  ___-
+3 | /   match x {
 4 | |     Option::Some(v) => v,
 5 | |     Option::None => ArrayTrait::new()
 6 | |   };
@@ -580,8 +567,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     match x {
-  |  ___-
+3 | /   match x {
 4 | |     Option::Some(v) => v,
 5 | |     Option::None => ("", 0, false)
 6 | |   };
@@ -659,8 +645,7 @@ fn main() {
 warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
  --> lib.cairo:3:3
   |
-3 |     match x {
-  |  ___-
+3 | /   match x {
 4 | |     Option::Some(v) => v,
 5 | |     Option::None => 0
 6 | |   };

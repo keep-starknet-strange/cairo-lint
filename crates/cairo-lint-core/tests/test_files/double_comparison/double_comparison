@@ -436,6 +436,358 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
+//! > impossible comparison : ge and le
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x >= 200 && x <= 100 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x >= 200 && x <= 100 {
+  |        ^^^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x >= 200 && x <= 100 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : ge and lt
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x >= 200 && x < 100 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x >= 200 && x < 100 {
+  |        ^^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x >= 200 && x < 100 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : gt and le
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x > 200 && x <= 100 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x > 200 && x <= 100 {
+  |        ^^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x > 200 && x <= 100 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : gt and lt
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x > 200 && x < 100 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x > 200 && x < 100 {
+  |        ^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x > 200 && x < 100 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : gt and lt possible
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x > 100 && x < 105 {
+        //possible to reach
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x > 100 && x < 105 {
+        //possible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : le and ge
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x <= 100 && x >= 200 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x <= 100 && x >= 200 {
+  |        ^^^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x <= 100 && x >= 200 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : le and ge allowed
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    #[allow(impossible_comparison)]
+    if x <= 100 && x >= 200 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    #[allow(impossible_comparison)]
+    if x <= 100 && x >= 200 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : le and ge different var
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x <= 100 && y >= 200 {
+        //possible to reach
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x <= 100 && y >= 200 {
+        //possible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : le and gt
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x <= 100 && x > 200 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x <= 100 && x > 200 {
+  |        ^^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x <= 100 && x > 200 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : lt and ge
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x < 100 && x >= 100 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x < 100 && x >= 100 {
+  |        ^^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x < 100 && x >= 100 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : lt and gt
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x < 100 && x > 100 {
+        //impossible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x < 100 && x > 100 {
+  |        ^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x < 100 && x > 100 {
+        //impossible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : lt and gt possible
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x < 105 && x > 100 {
+        //possible to reach
+    }
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x < 105 && x > 100 {
+        //possible to reach
+    }
+}
+
+//! > ==========================================================================
+
+//! > impossible comparison : with else clause
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    if x >= 200 && x < 100 {
+        //impossible to reach
+    } else if x == 1 {
+        //possible to reach
+    } else {
+        //possible to reach
+    }
+}
+
+//! > diagnostics
+error: Plugin diagnostic: Impossible condition, always false
+ --> lib.cairo:3:8
+  |
+3 |     if x >= 200 && x < 100 {
+  |        ^^^^^^^^^^^^^^^^^^^
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    if x >= 200 && x < 100 {
+        //impossible to reach
+    } else if x == 1 {
+        //possible to reach
+    } else {
+        //possible to reach
+    }
+}
+
+//! > ==========================================================================
+
 //! > not redundant double comparison equal or greater than
 
 //! > cairo_code
@@ -530,35 +882,6 @@ fn main() -> bool {
 
 //! > ==========================================================================
 
-//! > simplifiable comparison allowed
-
-//! > cairo_code
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    #[allow(simplifiable_comparison)]
-    if x == y || x > y {
-        true
-    } else {
-        false
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() -> bool {
-    let x = 5_u32;
-    let y = 10_u32;
-    #[allow(simplifiable_comparison)]
-    if x == y || x > y {
-        true
-    } else {
-        false
-    }
-}
-//! > ==========================================================================
-
 //! > simple double comparison allowed
 
 //! > cairo_code
@@ -603,354 +926,30 @@ fn main() {
 
 //! > ==========================================================================
 
-//! > impossible comparison : gt and lt
+//! > simplifiable comparison allowed
 
 //! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x > 200 && x < 100 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x > 200 && x < 100 {
-  |        ^^^^^^^^^^^^^^^^^^
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x > 200 && x < 100 {
-        //impossible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : gt and lt possible
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x > 100 && x < 105 {
-        //possible to reach
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x > 100 && x < 105 {
-        //possible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : gt and le
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x > 200 && x <= 100 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x > 200 && x <= 100 {
-  |        ^^^^^^^^^^^^^^^^^^^
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x > 200 && x <= 100 {
-        //impossible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : ge and lt
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x >= 200 && x < 100 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x >= 200 && x < 100 {
-  |        ^^^^^^^^^^^^^^^^^^^
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x >= 200 && x < 100 {
-        //impossible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : ge and le
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x >= 200 && x <= 100 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x >= 200 && x <= 100 {
-  |        ^^^^^^^^^^^^^^^^^^^^
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x >= 200 && x <= 100 {
-        //impossible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : lt and gt
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x < 100 && x > 100 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x < 100 && x > 100 {
-  |        ^^^^^^^^^^^^^^^^^^
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x < 100 && x > 100 {
-        //impossible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : lt and gt possible
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x < 105 && x > 100 {
-        //possible to reach
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x < 105 && x > 100 {
-        //possible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : lt and ge
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x < 100 && x >= 100 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x < 100 && x >= 100 {
-  |        ^^^^^^^^^^^^^^^^^^^
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x < 100 && x >= 100 {
-        //impossible to reach
-    }
-}
-
-
-//! > ==========================================================================
-
-//! > impossible comparison : le and gt
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x <= 100 && x > 200 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x <= 100 && x > 200 {
-  |        ^^^^^^^^^^^^^^^^^^^
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x <= 100 && x > 200 {
-        //impossible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : le and ge
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x <= 100 && x >= 200 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x <= 100 && x >= 200 {
-  |        ^^^^^^^^^^^^^^^^^^^^
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x <= 100 && x >= 200 {
-        //impossible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : le and ge allowed
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    #[allow(impossible_comparison)]
-    if x <= 100 && x >= 200 {
-        //impossible to reach
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    #[allow(impossible_comparison)]
-    if x <= 100 && x >= 200 {
-        //impossible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : le and ge different var
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    if x <= 100 && y >= 200 {
-        //possible to reach
-    }
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    if x <= 100 && y >= 200 {
-        //possible to reach
-    }
-}
-
-//! > ==========================================================================
-
-//! > impossible comparison : with else clause
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    if x >= 200 && x < 100 {
-        //impossible to reach
-    } else if x == 1 {
-        //possible to reach
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(simplifiable_comparison)]
+    if x == y || x > y {
+        true
     } else {
-        //possible to reach
+        false
     }
 }
 
 //! > diagnostics
-error: Plugin diagnostic: Impossible condition, always false
- --> lib.cairo:3:8
-  |
-3 |     if x >= 200 && x < 100 {
-  |        ^^^^^^^^^^^^^^^^^^^
-  |
 
 //! > fixed
-fn main() {
-    let x: u32 = 1;
-    if x >= 200 && x < 100 {
-        //impossible to reach
-    } else if x == 1 {
-        //possible to reach
+fn main() -> bool {
+    let x = 5_u32;
+    let y = 10_u32;
+    #[allow(simplifiable_comparison)]
+    if x == y || x > y {
+        true
     } else {
-        //possible to reach
+        false
     }
 }
-

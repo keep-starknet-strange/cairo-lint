@@ -114,8 +114,7 @@ fn main() {
 warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
  --> lib.cairo:3:8
   |
-3 |          #[allow(break_unit)]
-  |  ________-
+3 | /        #[allow(break_unit)]
 4 | |        break ();
   | |________________-
   |

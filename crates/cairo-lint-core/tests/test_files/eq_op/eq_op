@@ -33,6 +33,7 @@ warning: Plugin diagnostic: Logical operation with identical operands, this oper
 fn foo(a: u256) -> u256 {
     a & a
 }
+
 //! > ==========================================================================
 
 //! > simple bitwise op allowed

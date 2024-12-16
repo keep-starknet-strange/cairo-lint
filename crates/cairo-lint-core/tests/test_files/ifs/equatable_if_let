@@ -70,8 +70,7 @@ fn main() {
 warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
  --> lib.cairo:5:5
   |
-5 |       if let Option::Some(2) = x {
-  |  _____-
+5 | /     if let Option::Some(2) = x {
 6 | |         do_thing();
 7 | |     }
   | |_____-
