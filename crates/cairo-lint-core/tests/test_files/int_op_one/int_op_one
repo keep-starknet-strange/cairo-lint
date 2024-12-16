@@ -1,71 +1,3 @@
-//! > int ge plus one
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    if x >= y + 1 {}
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: Unnecessary add operation in integer >= comparison. Use simplified comparison.
- --> lib.cairo:4:8
-  |
-4 |     if x >= y + 1 {}
-  |        ----------
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    if x > y {}
-}
-
-//! > ==========================================================================
-
-//! > int gt plus one allowed
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    #[allow(int_op_one)]
-    if x >= y + 1 {}
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    #[allow(int_op_one)]
-    if x >= y + 1 {}
-}
-
-//! > ==========================================================================
-
-//! > int gt plus one
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    if x > y + 1 {}
-}
-
-//! > diagnostics
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    if x > y + 1 {}
-}
-
-//! > ==========================================================================
-
 //! > int ge min one
 
 //! > cairo_code
@@ -80,6 +12,32 @@ warning: Plugin diagnostic: Unnecessary sub operation in integer >= comparison. 
  --> lib.cairo:4:8
   |
 4 |     if x - 1 >= y {}
+  |        ----------
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x > y {}
+}
+
+//! > ==========================================================================
+
+//! > int ge plus one
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x >= y + 1 {}
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Unnecessary add operation in integer >= comparison. Use simplified comparison.
+ --> lib.cairo:4:8
+  |
+4 |     if x >= y + 1 {}
   |        ----------
   |
 
@@ -110,42 +68,15 @@ fn main() {
     if x - 1 > y {}
 }
 
-
 //! > ==========================================================================
 
-//! > int le plus one
+//! > int gt plus one
 
 //! > cairo_code
 fn main() {
     let x: u32 = 1;
     let y: u32 = 1;
-    if x + 1 <= y {}
-}
-
-//! > diagnostics
-warning: Plugin diagnostic: Unnecessary add operation in integer <= comparison. Use simplified comparison.
- --> lib.cairo:4:8
-  |
-4 |     if x + 1 <= y {}
-  |        ----------
-  |
-
-//! > fixed
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    if x < y {}
-}
-
-//! > ==========================================================================
-
-//! > int lt plus one
-
-//! > cairo_code
-fn main() {
-    let x: u32 = 1;
-    let y: u32 = 1;
-    if x + 1 < y {}
+    if x > y + 1 {}
 }
 
 //! > diagnostics
@@ -154,7 +85,29 @@ fn main() {
 fn main() {
     let x: u32 = 1;
     let y: u32 = 1;
-    if x + 1 < y {}
+    if x > y + 1 {}
+}
+
+//! > ==========================================================================
+
+//! > int gt plus one allowed
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    #[allow(int_op_one)]
+    if x >= y + 1 {}
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    #[allow(int_op_one)]
+    if x >= y + 1 {}
 }
 
 //! > ==========================================================================
@@ -185,6 +138,32 @@ fn main() {
 
 //! > ==========================================================================
 
+//! > int le plus one
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x + 1 <= y {}
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: Unnecessary add operation in integer <= comparison. Use simplified comparison.
+ --> lib.cairo:4:8
+  |
+4 |     if x + 1 <= y {}
+  |        ----------
+  |
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x < y {}
+}
+
+//! > ==========================================================================
+
 //! > int lt min one
 
 //! > cairo_code
@@ -201,4 +180,24 @@ fn main() {
     let x: u32 = 1;
     let y: u32 = 1;
     if x < y - 1 {}
+}
+
+//! > ==========================================================================
+
+//! > int lt plus one
+
+//! > cairo_code
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x + 1 < y {}
+}
+
+//! > diagnostics
+
+//! > fixed
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x + 1 < y {}
 }

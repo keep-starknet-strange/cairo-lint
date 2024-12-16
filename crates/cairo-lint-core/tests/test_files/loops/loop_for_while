@@ -15,8 +15,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
  --> lib.cairo:3:5
   |
-3 |       loop {
-  |  _____-
+3 | /     loop {
 4 | |         if x * 2 >= 20 {
 ... |
 7 | |         x += 1;
@@ -82,8 +81,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
  --> lib.cairo:3:5
   |
-3 |       loop {
-  |  _____-
+3 | /     loop {
 4 | |         if x * 2 >= 20 {
 ... |
 8 | |         }
@@ -120,8 +118,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
   --> lib.cairo:3:5
    |
- 3 |       loop {
-   |  _____-
+ 3 | /     loop {
  4 | |         if x * 2 >= 20 {
 ...  |
  9 | |         x += 1;
@@ -157,8 +154,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
  --> lib.cairo:3:5
   |
-3 |       loop {
-  |  _____-
+3 | /     loop {
 4 | |         if counter > 5 {
 ... |
 7 | |         counter += 1;
@@ -194,8 +190,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
  --> lib.cairo:4:5
   |
-4 |       loop {
-  |  _____-
+4 | /     loop {
 5 | |         if x >= limit {
 ... |
 8 | |         x += 2;
@@ -267,8 +262,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
   --> lib.cairo:4:5
    |
- 4 |       loop {
-   |  _____-
+ 4 | /     loop {
  5 | |         if a > 10 && b < 5 {
 ...  |
  9 | |         b += 1;
@@ -307,8 +301,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
   --> lib.cairo:4:5
    |
- 4 |       loop {
-   |  _____-
+ 4 | /     loop {
  5 | |         if x > 5 || y == 0 {
 ...  |
  9 | |         y -= 1;
@@ -345,8 +338,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
  --> lib.cairo:3:5
   |
-3 |       loop {
-  |  _____-
+3 | /     loop {
 4 | |         if value < 0 {
 ... |
 7 | |         value -= 10;
@@ -381,8 +373,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
  --> lib.cairo:3:5
   |
-3 |       loop {
-  |  _____-
+3 | /     loop {
 4 | |         if x == 10 {
 ... |
 7 | |         x += 1;

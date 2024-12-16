@@ -13,8 +13,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `match` for an equality check. Consider using `if`
  --> lib.cairo:3:5
   |
-3 |       match variable {
-  |  _____-
+3 | /     match variable {
 4 | |         Option::None => println!("None"),
 5 | |         Option::Some => (),
 6 | |     };
@@ -73,8 +72,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
  --> lib.cairo:3:5
   |
-3 |       match variable {
-  |  _____-
+3 | /     match variable {
 4 | |         Option::Some(a) => println!("{a}"),
 5 | |         Option::None => (),
 6 | |     };
@@ -142,8 +140,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
   --> lib.cairo:3:5
    |
- 3 |       match variable {
-   |  _____-
+ 3 | /     match variable {
  4 | |         // This match is invalid hence no diag/fix for this one
 ...  |
  9 | |         _ => (),
@@ -237,8 +234,7 @@ warning: Plugin diagnostic: you seem to be trying to use `match` for destructuri
 warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
   --> lib.cairo:4:5
    |
- 4 |       match variable {
-   |  _____-
+ 4 | /     match variable {
  5 | |         Option::Some(a) => match a {
 ...  |
  9 | |         _ => (),
@@ -290,8 +286,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
  --> lib.cairo:3:5
   |
-3 |       match variable {
-  |  _____-
+3 | /     match variable {
 4 | |         Option::Some(a) => println!("{a}"),
 5 | |         _ => (),
 6 | |     };
@@ -377,8 +372,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
  --> lib.cairo:3:5
   |
-3 |       match variable {
-  |  _____-
+3 | /     match variable {
 4 | |         Option::Some(a) => println!("{a}"),
 5 | |         _ => {},
 6 | |     };
@@ -440,8 +434,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
  --> lib.cairo:3:5
   |
-3 |       match variable {
-  |  _____-
+3 | /     match variable {
 4 | |         Option::Some(a) => println!("{a}"),
 5 | |         _ => { () },
 6 | |     };

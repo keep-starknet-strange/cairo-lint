@@ -17,8 +17,7 @@ fn main() {
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
   --> lib.cairo:6:5
    |
- 6 |       if x || z {
-   |  _____-
+ 6 | /     if x || z {
  7 | |         if y && z {
  8 | |             println!("Hello");
  9 | |         }
@@ -37,6 +36,7 @@ fn main() {
 }
 
 //! > ==========================================================================
+
 //! > collapsible if in boolean conditions allowed
 
 //! > cairo_code
@@ -93,8 +93,7 @@ fn main() {
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
   --> lib.cairo:9:5
    |
- 9 |       if x + y > a {
-   |  _____-
+ 9 | /     if x + y > a {
 10 | |         if z * b < c {
 11 | |             println!("Complex conditions");
 12 | |         }
@@ -135,8 +134,7 @@ fn main() {
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
  --> lib.cairo:5:5
   |
-5 |       if x {
-  |  _____-
+5 | /     if x {
 6 | |         if z {
 7 | |             println!("No fix here");
 8 | |         }
@@ -245,8 +243,7 @@ fn main() {
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
  --> lib.cairo:5:5
   |
-5 |       if is_valid(true) {
-  |  _____-
+5 | /     if is_valid(true) {
 6 | |         if is_ready(true) {
 7 | |             println!("Function calls in conditions");
 8 | |         }
@@ -319,8 +316,7 @@ fn main() {
 warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
   --> lib.cairo:6:5
    |
- 6 |       if a > b {
-   |  _____-
+ 6 | /     if a > b {
  7 | |         if c < b {
  8 | |             println!("Simple numerical conditions");
  9 | |         }

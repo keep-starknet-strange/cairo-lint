@@ -54,8 +54,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
   --> lib.cairo:3:5
    |
- 3 |       loop {
-   |  _____-
+ 3 | /     loop {
  4 | |         match a.pop_front() {
 ...  |
 12 | |         }
@@ -167,8 +166,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
  --> lib.cairo:3:5
   |
-3 |       loop {
-  |  _____-
+3 | /     loop {
 4 | |         match a.pop_front() {
 ... |
 7 | |         }
@@ -205,8 +203,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
  --> lib.cairo:4:5
   |
-4 |       loop {
-  |  _____-
+4 | /     loop {
 5 | |         match SpanImpl::pop_front(ref a) {
 ... |
 8 | |         }
@@ -249,8 +246,7 @@ fn main() {
 warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
   --> lib.cairo:9:5
    |
- 9 |       loop {
-   |  _____-
+ 9 | /     loop {
 10 | |         match a.b.c.pop_front() {
 ...  |
 13 | |         }
