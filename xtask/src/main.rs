@@ -3,7 +3,7 @@ use clap::Parser;
 macro_rules! command {
     ($enum_name:ident ( $($module:ident,)+ )) => {
         $(mod $module;)+
-        
+
         #[derive(::clap::Subcommand)]
         #[allow(non_camel_case_types)]
         enum $enum_name {
