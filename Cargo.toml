@@ -5,6 +5,7 @@ members = [
   "crates/cairo-lint-core",
   "crates/cairo-lint-dev",
   "crates/cairo-lint-test-utils",
+  "xtask"
 ]
 
 [workspace.package]

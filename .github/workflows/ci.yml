@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      # temp
+      - ci-refactor
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run cargo fmt
+        run: rustup toolchain install nightly && rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt && cargo +nightly fmt -- --check
+      - name: Run cargo clippy
+        run: cargo clippy -- -D warnings
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Get corelib
+        run: git clone https://github.com/starkware-libs/cairo
+      - name: Run cargo test
+        run: CORELIB_PATH="$(pwd)/cairo/corelib/src" cargo test
