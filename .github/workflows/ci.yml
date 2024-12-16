@@ -17,7 +17,9 @@ jobs:
     name: Checks
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+
       - name: Run cargo fmt
         run: rustup toolchain install nightly && rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt && cargo +nightly fmt -- --check
       - name: Run cargo clippy
@@ -26,7 +28,9 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+
       - name: Get corelib
         run: git clone https://github.com/starkware-libs/cairo
       - name: Run cargo test

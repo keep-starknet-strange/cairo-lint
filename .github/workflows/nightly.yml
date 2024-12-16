@@ -3,6 +3,10 @@ name: Nightly
 on:
   schedule:
     - cron: "0 0 * * *"
+  # temp
+  push:
+    branches:
+      - ci-refactor
 
 permissions:
   contents: read
@@ -12,9 +16,11 @@ jobs:
     name: Build nightly
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
       - name: Upgrade Cairo to latest main commit
         run: cargo xtask upgrade cairo --rev $(git ls-remote --refs "https://github.com/starkware-libs/cairo" main | awk '{print $1}')
-      - uses: dtolnay/rust-toolchain@stable
       - name: Get corelib
         run: git clone https://github.com/starkware-libs/cairo
       - name: Run cargo test
