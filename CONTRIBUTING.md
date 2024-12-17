@@ -31,7 +31,7 @@ CORELIB_PATH="/path/to/corelib/src" cargo test
 To add a new test you can use the dev cli with:
 
 ```
-cargo run --bin create_test <lint_name>
+cargo xtask create-test --name "Your lint name" --group "Your lint group name"
 ```
 
 ### Manual instructions

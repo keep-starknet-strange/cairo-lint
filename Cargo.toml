@@ -3,14 +3,14 @@ resolver = "2"
 members = [
   "crates/cairo-lint-cli",
   "crates/cairo-lint-core",
-  "crates/cairo-lint-dev",
   "crates/cairo-lint-test-utils",
+  "xtask"
 ]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
-repository = "https://github.com/keep-starknet-strange/cairo-lint"
+repository = "https://github.com/software-mansion/cairo-lint"
 license-file = "LICENSE"
 
 [workspace.dependencies]
@@ -30,7 +30,7 @@ ctor = "0.2.9"
 paste = "1.0.15"
 itertools = "0.13.0"
 log = "0.4.22"
-clap = "4.5.23"
+clap = { version = "4.5.23", features = ["derive"]}
 anyhow = "1.0.94"
 smol_str = "0.2.2"
 annotate-snippets = "0.11.5"
