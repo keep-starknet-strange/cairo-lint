@@ -13,6 +13,21 @@ edition = "2021"
 repository = "https://github.com/software-mansion/cairo-lint"
 license-file = "LICENSE"
 
+# Managing dependencies on crates from starkware-libs/cairo repository:
+#
+# The Cairo compiler is made of a bunch of crates that inter-depend on each other and have
+# synchronised versioning.
+# It is very important to use a single revision of these crates in the entire Cairo toolchain,
+# which consists of Cairo compiler, Scarb, CairoLS and other tools.
+# The toolchain is eventually built by Scarb, which depends on everything other as regular crates.
+# To ensure that all crates in the toolchain use the same revision of Cairo crates, we use a patch
+# mechanism that Cargo provides.
+# Because Cargo requires patches to change the crate source, we have an unspoken contract that
+# all tools *always* depend on some crates.io versions of Cairo crates and Scarb uses
+# [patch.crates.io] table to set final git revision for everything.
+#
+# To keep our Cargo.toml following this contract, always use `cargo xtask upgrade`
+# for manipulating these dependencies.
 [workspace.dependencies]
 cairo-lang-compiler = "*"
 cairo-lang-utils = "*"
