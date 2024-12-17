@@ -21,7 +21,7 @@ macro_rules! command {
   }
 }
 
-command!(Command(upgrade, create_test,));
+command!(Command(upgrade, create_test, sync_version,));
 
 #[derive(Parser)]
 struct Args {
