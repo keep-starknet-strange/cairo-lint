@@ -1,0 +1,23 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build nightly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Upgrade Cairo to latest main commit
+        run: cargo xtask upgrade cairo --rev $(git ls-remote --refs "https://github.com/starkware-libs/cairo" main | awk '{print $1}')
+      - name: Get corelib
+        run: git clone https://github.com/starkware-libs/cairo
+      - name: Run cargo test
+        run: CORELIB_PATH="$(pwd)/cairo/corelib/src" cargo test
