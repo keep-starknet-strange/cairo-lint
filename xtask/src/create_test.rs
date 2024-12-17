@@ -1,3 +1,4 @@
+use anyhow::Result;
 use clap::Parser;
 use std::fs;
 use std::io::{self, Write};
@@ -50,8 +51,9 @@ fn create_new_test(lint_group: &str, lint_name: &str) -> io::Result<()> {
     Ok(())
 }
 
-pub fn main(args: Args) {
+pub fn main(args: Args) -> Result<()> {
     if let Err(e) = create_new_test(&args.group, &args.name) {
         eprintln!("Error creating test file: {}", e);
     }
+    Ok(())
 }

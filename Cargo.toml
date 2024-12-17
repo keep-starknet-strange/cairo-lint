@@ -13,17 +13,32 @@ edition = "2021"
 repository = "https://github.com/software-mansion/cairo-lint"
 license-file = "LICENSE"
 
+# Managing dependencies on crates from starkware-libs/cairo repository:
+#
+# The Cairo compiler is made of a bunch of crates that inter-depend on each other and have
+# synchronised versioning.
+# It is very important to use a single revision of these crates in the entire Cairo toolchain,
+# which consists of Cairo compiler, Scarb, CairoLS and other tools.
+# The toolchain is eventually built by Scarb, which depends on everything other as regular crates.
+# To ensure that all crates in the toolchain use the same revision of Cairo crates, we use a patch
+# mechanism that Cargo provides.
+# Because Cargo requires patches to change the crate source, we have an unspoken contract that
+# all tools *always* depend on some crates.io versions of Cairo crates and Scarb uses
+# [patch.crates.io] table to set final git revision for everything.
+#
+# To keep our Cargo.toml following this contract, always use `cargo xtask upgrade`
+# for manipulating these dependencies.
 [workspace.dependencies]
-cairo-lang-compiler = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-filesystem = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-starknet = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
-cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-compiler = "*"
+cairo-lang-utils = "*"
+cairo-lang-semantic = "*"
+cairo-lang-filesystem = "*"
+cairo-lang-diagnostics = "*"
+cairo-lang-test-plugin = "*"
+cairo-lang-syntax = "*"
+cairo-lang-defs = "*"
+cairo-lang-starknet = "*"
+cairo-lang-test-utils = "*"
 test-case = "3.0"
 pretty_assertions = "1.4.1"
 ctor = "0.2.9"
@@ -36,3 +51,20 @@ smol_str = "0.2.2"
 annotate-snippets = "0.11.5"
 num-bigint = "0.4.6"
 if_chain = "1.0.2"
+
+# Here we specify real dependency specifications for Cairo crates *if* currently we want to use
+# a particular unreleased commit (which is frequent mid-development).
+# We list all Cairo crates that go into Scarb's compilation unit even if Scarb itself does not depend
+# on some of them directly.
+# This ensures no duplicate instances of Cairo crates are pulled in by mistake.
+[patch.crates-io]
+cairo-lang-compiler = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-filesystem = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-starknet = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
+cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }

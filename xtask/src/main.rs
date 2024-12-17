@@ -1,26 +1,27 @@
+use anyhow::Result;
 use clap::Parser;
 
 macro_rules! command {
-    ($enum_name:ident ( $($module:ident,)+ )) => {
-        $(mod $module;)+
+  ($enum_name:ident ( $($module:ident,)+ )) => {
+      $(mod $module;)+
 
-        #[derive(::clap::Subcommand)]
-        #[allow(non_camel_case_types)]
-        enum $enum_name {
-            $($module(crate::$module::Args),)+
-        }
+      #[derive(::clap::Subcommand)]
+      #[allow(non_camel_case_types)]
+      enum $enum_name {
+          $($module(crate::$module::Args),)+
+      }
 
-        impl $enum_name {
-            fn main(self) {
-                match self {
-                    $(Self::$module(args) => crate::$module::main(args),)+
-                }
-            }
-        }
-    }
+      impl $enum_name {
+          fn main(self) -> ::anyhow::Result<()> {
+              match self {
+                  $(Self::$module(args) => crate::$module::main(args),)+
+              }
+          }
+      }
+  }
 }
 
-command!(Command(create_test,));
+command!(Command(upgrade, create_test, sync_version,));
 
 #[derive(Parser)]
 struct Args {
@@ -28,6 +29,6 @@ struct Args {
     command: Command,
 }
 
-fn main() {
-    Args::parse().command.main();
+fn main() -> Result<()> {
+    Args::parse().command.main()
 }
