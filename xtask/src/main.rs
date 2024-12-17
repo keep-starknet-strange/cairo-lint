@@ -1,3 +1,4 @@
+use anyhow::Result;
 use clap::Parser;
 
 macro_rules! command {
@@ -20,7 +21,7 @@ macro_rules! command {
   }
 }
 
-command!(Command(upgrade,));
+command!(Command(upgrade, create_test,));
 
 #[derive(Parser)]
 struct Args {
@@ -28,6 +29,6 @@ struct Args {
     command: Command,
 }
 
-fn main() {
-    let _ = Args::parse().command.main();
+fn main() -> Result<()> {
+    Args::parse().command.main()
 }

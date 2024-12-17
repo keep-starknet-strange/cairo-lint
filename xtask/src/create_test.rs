@@ -1,11 +1,21 @@
+use anyhow::Result;
+use clap::Parser;
 use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
+#[derive(Parser)]
+pub struct Args {
+    #[arg(short, long)]
+    group: String,
+    #[arg(short, long)]
+    name: String,
+}
+
 fn create_new_test(lint_group: &str, lint_name: &str) -> io::Result<()> {
     let test_content =
         "//! > Test name\n\n//! > cairo_code\nfn main() {\n    let a: Option<felt252> = \
-                        Option::Some(1);\n}\n"
+                      Option::Some(1);\n}\n"
             .to_string();
 
     let test_files_dir = PathBuf::from(format!(
@@ -41,29 +51,9 @@ fn create_new_test(lint_group: &str, lint_name: &str) -> io::Result<()> {
     Ok(())
 }
 
-fn main() {
-    let lint_group = if let Some(arg1) = std::env::args().nth(1) {
-        arg1
-    } else {
-        println!("Enter the name of the lint group:");
-        let mut lint_group = String::new();
-        io::stdin()
-            .read_line(&mut lint_group)
-            .expect("Failed to read line");
-        lint_group.trim().to_string()
-    };
-    let lint_name = if let Some(arg1) = std::env::args().nth(2) {
-        arg1
-    } else {
-        println!("Enter the name of the lint group:");
-        let mut lint_name = String::new();
-        io::stdin()
-            .read_line(&mut lint_name)
-            .expect("Failed to read line");
-        lint_name.trim().to_string()
-    };
-
-    if let Err(e) = create_new_test(&lint_group, &lint_name) {
+pub fn main(args: Args) -> Result<()> {
+    if let Err(e) = create_new_test(&args.group, &args.name) {
         eprintln!("Error creating test file: {}", e);
     }
+    Ok(())
 }
