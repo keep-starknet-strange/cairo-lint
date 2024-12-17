@@ -49,6 +49,7 @@ pub fn check_panic_usage(
             .lookup(db.upcast())
             .as_syntax_node()
             .span(db.upcast()),
+        None,
     );
     // If the panic comes from a real file (macros generate code in new virtual files)
     if initial_file_id == file_id {

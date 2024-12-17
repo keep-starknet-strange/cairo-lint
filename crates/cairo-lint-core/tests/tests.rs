@@ -31,6 +31,7 @@ edition = "2024_07"
 [experimental_features]
 negative_impls = true
 coupons = true
+associated_item_constraints = true
 "#;
 
 test_file!(
