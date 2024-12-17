@@ -37,6 +37,11 @@ annotate-snippets = "0.11.5"
 num-bigint = "0.4.6"
 if_chain = "1.0.2"
 
+# Here we specify real dependency specifications for Cairo crates *if* currently we want to use
+# a particular unreleased commit (which is frequent mid-development).
+# We list all Cairo crates that go into Scarb's compilation unit even if Scarb itself does not depend
+# on some of them directly.
+# This ensures no duplicate instances of Cairo crates are pulled in by mistake.
 [patch.crates-io]
 cairo-lang-compiler = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
 cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", rev = "ca2dceb" }
