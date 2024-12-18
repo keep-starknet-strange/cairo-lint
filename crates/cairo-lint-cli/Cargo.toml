@@ -20,9 +20,9 @@ cairo-lang-test-plugin.workspace = true
 cairo-lang-defs.workspace = true
 cairo-lang-starknet.workspace = true
 clap = { workspace = true, features = ["derive"] }
-scarb-ui = { git = "https://github.com/software-mansion/scarb", rev = "40fda22e63355f68cb044f215575d1dc11e573df"}
+scarb-ui = "0.1.5"
 anyhow.workspace = true
-scarb-metadata = { git = "https://github.com/software-mansion/scarb", rev = "40fda22e63355f68cb044f215575d1dc11e573df"}
+scarb-metadata = "1.13.0"
 cairo-lint-core = { path = "../cairo-lint-core" }
 semver = "1.0.24"
 # scarb = { git = "https://github.com/software-mansion/scarb", branch = "main" }

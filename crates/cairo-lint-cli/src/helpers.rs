@@ -83,11 +83,11 @@ pub fn build_project_config(
         .components
         .iter()
         .map(|component| {
-            let cfg_set = component.cfg.as_ref().map(|cfgs| to_cairo_cfg(cfgs));
-            let (package_ed, dependencies) = if let Some(pack) = packages
+            let package = packages
                 .iter()
-                .find(|package| package.id == component.package)
-            {
+                .find(|package| package.id == component.package);
+            let cfg_set = component.cfg.as_ref().map(|cfgs| to_cairo_cfg(cfgs));
+            let (package_ed, dependencies) = if let Some(pack) = package {
                 let mut dependencies: BTreeMap<String, DependencySettings> = pack
                     .dependencies
                     .iter()
@@ -135,9 +135,27 @@ pub fn build_project_config(
                     cfg_set,
                     dependencies,
                     experimental_features: ExperimentalFeaturesConfig {
-                        negative_impls: false,
-                        coupons: false,
-                        associated_item_constraints: false,
+                        negative_impls: package
+                            .map(|package| {
+                                package
+                                    .experimental_features
+                                    .contains(&String::from("negative_impls"))
+                            })
+                            .unwrap_or(false),
+                        coupons: package
+                            .map(|package| {
+                                package
+                                    .experimental_features
+                                    .contains(&String::from("coupons"))
+                            })
+                            .unwrap_or(false),
+                        associated_item_constraints: package
+                            .map(|package| {
+                                package
+                                    .experimental_features
+                                    .contains(&String::from("associated_item_constraints"))
+                            })
+                            .unwrap_or(false),
                     },
                     version: Some(version.clone()),
                 },

@@ -220,7 +220,7 @@ dependencies = [
  "rust-analyzer-salsa",
  "semver",
  "smol_str",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -298,7 +298,7 @@ dependencies = [
  "itertools 0.12.1",
  "rust-analyzer-salsa",
  "serde",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -385,7 +385,7 @@ dependencies = [
  "cairo-lang-filesystem",
  "cairo-lang-utils",
  "serde",
- "thiserror 1.0.69",
+ "thiserror",
  "toml",
 ]
 
@@ -438,7 +438,7 @@ dependencies = [
  "sha3",
  "smol_str",
  "starknet-types-core",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -453,7 +453,7 @@ dependencies = [
  "itertools 0.12.1",
  "num-bigint",
  "num-traits",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -468,7 +468,7 @@ dependencies = [
  "itertools 0.12.1",
  "num-bigint",
  "num-traits",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -511,7 +511,7 @@ dependencies = [
  "num-bigint",
  "num-traits",
  "starknet-types-core",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -549,7 +549,7 @@ dependencies = [
  "serde_json",
  "smol_str",
  "starknet-types-core",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -571,7 +571,7 @@ dependencies = [
  "sha3",
  "smol_str",
  "starknet-types-core",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -1644,7 +1644,7 @@ checksum = "ba009ff324d1fc1b900bd1fdb31564febe58a8ccc8a6fdbb93b543d33b13ca43"
 dependencies = [
  "getrandom",
  "libredox",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -1764,19 +1764,21 @@ dependencies = [
 [[package]]
 name = "scarb-metadata"
 version = "1.13.0"
-source = "git+https://github.com/software-mansion/scarb?rev=40fda22e63355f68cb044f215575d1dc11e573df#40fda22e63355f68cb044f215575d1dc11e573df"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a8b71f63999dbb6d269fbc6fd61310016ab3a160fb13e52a6511a2b904359f0"
 dependencies = [
  "camino",
  "semver",
  "serde",
  "serde_json",
- "thiserror 2.0.7",
+ "thiserror",
 ]
 
 [[package]]
 name = "scarb-ui"
 version = "0.1.5"
-source = "git+https://github.com/software-mansion/scarb?rev=40fda22e63355f68cb044f215575d1dc11e573df#40fda22e63355f68cb044f215575d1dc11e573df"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19e63037ffa17459b3c07e385498d48fbf9b329e43a93f6c4a751845441fee33"
 dependencies = [
  "anyhow",
  "camino",
@@ -2053,16 +2055,7 @@ version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
 dependencies = [
- "thiserror-impl 1.0.69",
-]
-
-[[package]]
-name = "thiserror"
-version = "2.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93605438cbd668185516ab499d589afb7ee1859ea3d5fc8f6b0755e1c7443767"
-dependencies = [
- "thiserror-impl 2.0.7",
+ "thiserror-impl",
 ]
 
 [[package]]
@@ -2070,17 +2063,6 @@ name = "thiserror-impl"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.90",
-]
-
-[[package]]
-name = "thiserror-impl"
-version = "2.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1d8749b4531af2117677a5fcd12b1348a3fe2b81e36e61ffeac5c4aa3273e36"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2184,7 +2166,7 @@ version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c878a167baa8afd137494101a688ef8c67125089ff2249284bd2b5f9bfedb815"
 dependencies = [
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
