@@ -31,7 +31,7 @@ use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
 use scarb_ui::args::{PackagesFilter, VerbositySpec};
 use scarb_ui::components::Status;
 use scarb_ui::{OutputFormat, Ui};
-use smol_str::SmolStr;
+use smol_str::{SmolStr, ToSmolStr};
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -144,16 +144,25 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             let config = build_project_config(
                 compilation_unit,
                 corelib_id,
-                corelib.clone(),
                 package_path,
                 edition,
                 &package.version,
                 &metadata.packages,
             )?;
+
+            let main_component = compilation_unit
+                .components
+                .iter()
+                .find(|component| component.package == compilation_unit.package)
+                .expect("main component is guaranteed to exist in compilation unit");
+
             update_crate_roots_from_project_config(&mut db, &config);
             let crate_id = db.intern_crate(CrateLongId::Real {
                 name: SmolStr::new(&compilation_unit.target.name),
-                version: Some(package.version.clone()),
+                discriminator: main_component
+                    .discriminator
+                    .as_ref()
+                    .map(ToSmolStr::to_smolstr),
             });
             // Get all the diagnostics
             let mut diags = Vec::new();

@@ -5,13 +5,12 @@ use anyhow::{anyhow, Result};
 use cairo_lang_compiler::project::{AllCratesConfig, ProjectConfig, ProjectConfigContent};
 use cairo_lang_filesystem::cfg::{Cfg as CompilerCfg, CfgSet};
 use cairo_lang_filesystem::db::{
-    CrateSettings, DependencySettings, Edition, ExperimentalFeaturesConfig,
+    CrateIdentifier, CrateSettings, DependencySettings, Edition, ExperimentalFeaturesConfig,
 };
-use cairo_lang_filesystem::ids::Directory;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use scarb_metadata::{Cfg as ScarbCfg, CompilationUnitMetadata, PackageId, PackageMetadata};
 use semver::Version;
-use smol_str::{SmolStr, ToSmolStr};
+use smol_str::ToSmolStr;
 
 /// Different targets for cairo.
 pub mod targets {
@@ -64,7 +63,6 @@ pub fn to_cairo_edition(edition: &str) -> Result<Edition> {
 pub fn build_project_config(
     compilation_unit: &CompilationUnitMetadata,
     corelib_id: &PackageId,
-    corelib: PathBuf,
     package_path: PathBuf,
     edition: Edition,
     version: &Version,
@@ -74,17 +72,22 @@ pub fn build_project_config(
         .components
         .iter()
         .filter(|component| &component.package != corelib_id)
-        .map(|component| (component.name.to_smolstr(), component.source_root().into()))
+        .map(|component| {
+            (
+                CrateIdentifier::from(&component.name),
+                component.source_root().into(),
+            )
+        })
         .collect();
-    let crates_config: OrderedHashMap<SmolStr, CrateSettings> = compilation_unit
+    let crates_config: OrderedHashMap<CrateIdentifier, CrateSettings> = compilation_unit
         .components
         .iter()
         .map(|component| {
-            let cfg_set = component.cfg.as_ref().map(|cfgs| to_cairo_cfg(cfgs));
-            let (package_ed, dependencies) = if let Some(pack) = packages
+            let package = packages
                 .iter()
-                .find(|package| package.id == component.package)
-            {
+                .find(|package| package.id == component.package);
+            let cfg_set = component.cfg.as_ref().map(|cfgs| to_cairo_cfg(cfgs));
+            let (package_ed, dependencies) = if let Some(pack) = package {
                 let mut dependencies: BTreeMap<String, DependencySettings> = pack
                     .dependencies
                     .iter()
@@ -96,13 +99,15 @@ pub fn build_project_config(
                                 compilation_unit_metadata_component.name == dependency.name
                             })
                             .map(|compilation_unit_metadata_component| {
-                                let version = packages
-                                    .iter()
-                                    .find(|package| {
-                                        package.name == compilation_unit_metadata_component.name
-                                    })
-                                    .map(|package| package.version.clone());
-                                (dependency.name.clone(), DependencySettings { version })
+                                (
+                                    dependency.name.clone(),
+                                    DependencySettings {
+                                        discriminator: compilation_unit_metadata_component
+                                            .discriminator
+                                            .as_ref()
+                                            .map(ToSmolStr::to_smolstr),
+                                    },
+                                )
                             })
                     })
                     .collect();
@@ -110,7 +115,7 @@ pub fn build_project_config(
                 dependencies.insert(
                     pack.name.clone(),
                     DependencySettings {
-                        version: Some(pack.version.clone()),
+                        discriminator: component.discriminator.as_ref().map(ToSmolStr::to_smolstr),
                     },
                 );
                 (
@@ -123,14 +128,34 @@ pub fn build_project_config(
                 (edition, BTreeMap::default())
             };
             (
-                component.name.to_smolstr(),
+                CrateIdentifier::from(&component.name),
                 CrateSettings {
+                    name: Some(component.name.to_smolstr()),
                     edition: package_ed,
                     cfg_set,
                     dependencies,
                     experimental_features: ExperimentalFeaturesConfig {
-                        negative_impls: false,
-                        coupons: false,
+                        negative_impls: package
+                            .map(|package| {
+                                package
+                                    .experimental_features
+                                    .contains(&String::from("negative_impls"))
+                            })
+                            .unwrap_or(false),
+                        coupons: package
+                            .map(|package| {
+                                package
+                                    .experimental_features
+                                    .contains(&String::from("coupons"))
+                            })
+                            .unwrap_or(false),
+                        associated_item_constraints: package
+                            .map(|package| {
+                                package
+                                    .experimental_features
+                                    .contains(&String::from("associated_item_constraints"))
+                            })
+                            .unwrap_or(false),
                     },
                     version: Some(version.clone()),
                 },
@@ -148,7 +173,6 @@ pub fn build_project_config(
 
     let project_config = ProjectConfig {
         base_path: package_path,
-        corelib: Some(Directory::Real(corelib)),
         content,
     };
     Ok(project_config)
