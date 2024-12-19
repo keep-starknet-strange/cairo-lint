@@ -33,7 +33,7 @@ use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
 use scarb_ui::args::{PackagesFilter, VerbositySpec};
 use scarb_ui::components::Status;
 use scarb_ui::{OutputFormat, Ui};
-use smol_str::{SmolStr, ToSmolStr};
+use smol_str::SmolStr;
 
 #[derive(Parser, Debug)]
 struct Args {
