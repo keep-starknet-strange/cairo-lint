@@ -10,7 +10,9 @@ use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_compiler::project::update_crate_roots_from_project_config;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_diagnostics::{DiagnosticEntry, Maybe};
-use cairo_lang_filesystem::db::{init_dev_corelib, FilesGroup, CORELIB_CRATE_NAME};
+use cairo_lang_filesystem::db::{
+    init_dev_corelib, CrateIdentifier, FilesGroup, CORELIB_CRATE_NAME,
+};
 use cairo_lang_filesystem::ids::{CrateLongId, FileId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
@@ -31,7 +33,7 @@ use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
 use scarb_ui::args::{PackagesFilter, VerbositySpec};
 use scarb_ui::components::Status;
 use scarb_ui::{OutputFormat, Ui};
-use smol_str::{SmolStr, ToSmolStr};
+use smol_str::SmolStr;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -159,10 +161,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             update_crate_roots_from_project_config(&mut db, &config);
             let crate_id = db.intern_crate(CrateLongId::Real {
                 name: SmolStr::new(&compilation_unit.target.name),
-                discriminator: main_component
-                    .discriminator
-                    .as_ref()
-                    .map(ToSmolStr::to_smolstr),
+                discriminator: Some(CrateIdentifier::from(&main_component.name).clone().into()),
             });
             // Get all the diagnostics
             let mut diags = Vec::new();
